@@ -28,6 +28,8 @@ Over the legend you can select/deselect the datapoint you want to see on the cha
 3 axis are at the moment build in automatic. % percentage (0-100%), state (0 or 1) and all others.  
 ![](docs/screen.png)
 
+As highlight is in the background gray for night (20:00 - 06:00) and yellow for day ( 06:00 - 20:00). This can be activate or deactivate over the popup-menue.
+
 With button "Link erzeugen" you can create an Link which will open a new window and this could be also used as shortcuts. 
 The whole selection will be added to this link also zoom, periode, daylight, legend, navigator, all selected datapoint, all filters
 
