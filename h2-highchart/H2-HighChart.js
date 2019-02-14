@@ -668,7 +668,7 @@ $(document).ready(function() {
         }, {
             id: "AXISY1",
             title: {
-                text: 'Percentage %',
+                text: ChhLanguage.default.highcharts.axisYpercentage,
             },
             softMax: 100,
             softMin: 0,
@@ -680,7 +680,7 @@ $(document).ready(function() {
         }, {
             id: "AXISY2",
             title: {
-                text: 'State',
+                text: ChhLanguage.default.highcharts.axisYstate,
             },
             softMax: 1,
             softMin: 0,
