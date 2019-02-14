@@ -6,7 +6,7 @@ Add HighChart to CCU-Historian
 # Installation
 1. Install CCU-Historian 
 2. create below webapp/custom/ an new directory like "h2-highchart"
-3. copy all files to this directory
+3. copy all files from directory "h2-highchart" to above created one.
 4. change config file from CCU-Historian to include this as customer side in the menu
    
    add following lines to file ccu-historian.config: (if link1 already exit use next free number)
