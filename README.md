@@ -5,7 +5,7 @@ Add HighChart to [CCU-Historian](https://github.com/mdzio/ccu-historian)
 This project combine iinteractive charts with the database of CCU-Historian. All can be done in one page.  
 
 # Installation  
-1. Install CCU-Historian 
+1. Install first [CCU-Historian](https://github.com/mdzio/ccu-historian), as some directory and the web server will be used
 2. create below /usr/local/addons/ccu-historian/ccu-historian/webapp/custom an new directory like "h2-highchart"
 3. copy all files from directory "h2-highchart" to above created directory.
 4. change config file from CCU-Historian to include this as customer side in the menu
