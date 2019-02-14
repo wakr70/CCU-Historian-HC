@@ -2,7 +2,7 @@
 
 # CCU-Historian-HC  
 Add HighChart to [CCU-Historian](https://github.com/mdzio/ccu-historian)  
-This project combine iinteractive charts with the database of CCU-Historian. All can be done in one page.  
+This project combine interactive charts with the database of CCU-Historian. All can be done in one page.  
 
 # Installation  
 1. Install first [CCU-Historian](https://github.com/mdzio/ccu-historian), as some directory and the web server will be used
