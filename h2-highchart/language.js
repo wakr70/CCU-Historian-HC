@@ -75,6 +75,8 @@ var ChhLanguage = {
             rangeSelectorFrom: 'Von',
             rangeSelectorTo: 'Bis',
             rangeSelectorZoom: '', //'Zeitraum',
+            axisYpercentage: 'Percentage %',
+            axisYstate: 'State',
             downloadPNG: 'Download PNG-Bild',
             downloadJPEG: 'Download JPEG-Bild',
             downloadPDF: 'Download PDF-Dokument',
