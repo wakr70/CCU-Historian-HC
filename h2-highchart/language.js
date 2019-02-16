@@ -89,6 +89,8 @@ var ChhLanguage = {
             labelsdeactive: 'Beschriftung deaktivieren',
             daylightactive: 'Tag/Nacht aktivieren',
             daylightdeactive: 'Tag/Nacht deaktivieren',
+            limitactive: 'alle DP anzeigen',
+            limitdeactive: 'nur aktive DP',
             resetZoom: 'Zoom zurücksetzen',
             resetZoomTitle: 'Zoom zurücksetzen',
             range30M: '30M',

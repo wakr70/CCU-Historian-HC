@@ -10,6 +10,7 @@ var DP_rooms = [];
 var DP_gewerk = [];
 var Zeitraum_Ende = new Date(Date.now());
 var Zeitraum_Start = new Date(Zeitraum_Ende - (new Date(86400000 * 1)));
+var DP_Aktive = [];
 var DP_start = [];
 var DP_start_room = '';
 var DP_start_func = '';
@@ -18,8 +19,8 @@ var DP_Legend = true;
 var DP_Navigator = true;
 var DP_Labels = false;
 var DP_DayLight = true;
-
-
+var DP_Limit = false;
+var DP_LineColor = 0;
 
 /**
 * create serien option and add it to HighStock Chart
@@ -234,6 +235,7 @@ function getDataH2(sysvar, p_series) {
         success: function(result) {
 
             var arr = [];
+
             if (result.result.values) {
                 // collect all timesstamps and Valuse
                 for (var i = 0; i < result.result.values.length; i++) {
@@ -244,7 +246,7 @@ function getDataH2(sysvar, p_series) {
                     var chart = $('#container').highcharts();
                     var series = chart.series[result.id];
                     if (series) {
-                        series.setData(arr, true, false, false);
+                       series.setData(arr, true, false, false);
                     }
                     document.getElementById("count_val").innerHTML = (Number(document.getElementById("count_val").innerHTML) + result.result.values.length).toString();
                 }
@@ -331,7 +333,26 @@ function requestData2(TXT_JSON) {
                 }
             }
         }
+
+        // find idx of DP in link for filter
+        if (DP_start.length > 0) {
+           if (DP_point[i].id.interfaceId === "SysVar") {
+              var txt_search = DP_point[i].attributes.displayName;
+           } else {
+              var txt_search = DP_point[i].id.address + '.' + DP_point[i].id.identifier;
+           }
+           txt_search = txt_search.toLowerCase();
+           if ((DP_start.indexOf(txt_search) != -1) || (DP_start.indexOf(DP_point[i].idx.toString()) != -1)) {
+               DP_Aktive.push(DP_point[i].idx);
+           }
+        }
     }
+    // found idx from link
+    if (DP_Aktive.length > 0) {
+           DP_Limit = true;
+    }
+    DP_start = [];
+
     // Sort on Rooms
     DP_rooms.sort(function(a, b) {
         var x = a.toLowerCase();
@@ -416,7 +437,6 @@ function requestData2(TXT_JSON) {
 
     // Display data
     ChangeEventRaumFilter();
-    loadNewSerienData();
 
     // check parameter Zoom from get-link
     if (location.search) {
@@ -512,6 +532,8 @@ $(document).ready(function() {
             }
         }
     }
+
+    if (DP_start.length >0) DP_Limit = true;
 
     // ajust height of content to screen height
     document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - 160) + "px");
@@ -641,6 +663,18 @@ $(document).ready(function() {
                   }
 						ChangeEventRaumFilter();
                 },
+              },{
+                text: (DP_Limit) ? ChhLanguage.default.highcharts.limitactive: ChhLanguage.default.highcharts.limitdeactive,
+                onclick: function() {
+                  if (DP_Limit) {
+                    $('.highcharts-contextmenu')[0].children[0].children[4].innerHTML = ChhLanguage.default.highcharts.limitdeactive;
+							DP_Limit = false;
+                  } else {
+                    $('.highcharts-contextmenu')[0].children[0].children[4].innerHTML = ChhLanguage.default.highcharts.limitactive;
+							DP_Limit = true;
+                  }
+						ChangeEventRaumFilter();
+                },
               }, "separator", "printChart", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG",
               ]
             }
@@ -712,6 +746,14 @@ $(document).ready(function() {
                         var visibility = this.visible ? 'visible' : 'hidden';
                         if (this.data.length === 0 && !this.visible) {
                             getDataH2(this.name, this.index);
+                        }
+                        if (this.visible) {
+                           var pos = DP_Aktive.indexOf(this.options.id);
+                           if (pos != -1) {
+                              DP_Aktive.splice(pos,1);
+                           }
+                        } else {
+                           DP_Aktive.push(this.options.id);
                         }
                         return true;
                     }
@@ -792,10 +834,6 @@ function ChangeEventRaumFilter() {
 
     // remove all old series
     for (i = chart.series.length - 1; i >= 0; i--) {
-        // save if shown at the moment
-        if (chart.series[i].visible && chart.series[i].options.group != "nav") {
-            save_active.push(chart.series[i].name);
-        }
         chart.series[i].remove(false);
     }
 
@@ -807,26 +845,10 @@ function ChangeEventRaumFilter() {
             series = chart.get(DP_point[i].idx);
 
             // check if active before refresh
-            if (save_active.indexOf(series.name) != -1) {
+            if (DP_Aktive.indexOf(DP_point[i].idx) != -1) {
                 series.visible = true;
                 save_active_found = true;
             }
-
-            // check if parameter
-            if (DP_start.length > 0) {
-
-                if (DP_point[i].id.interfaceId === "SysVar") {
-                    var txt_search = DP_point[i].attributes.displayName;
-                } else {
-                    var txt_search = DP_point[i].id.address + '.' + DP_point[i].id.identifier;
-                }
-                txt_search = txt_search.toLowerCase();
-
-                if (DP_start.indexOf(txt_search) != -1) {
-                    series.visible = true;
-                }
-            }
-
         }
     }
 
@@ -855,6 +877,7 @@ function check_filter(p_raum, p_gewerk, p_dp) {
         if (p_dp.attributes.function === null) return false;
         if (p_dp.attributes.function.indexOf(p_gewerk) === -1) return false;
     }
+
     // Description Filter
     if (filter_feld != '') {
         var ft = filter_feld.split(' ');
@@ -862,6 +885,12 @@ function check_filter(p_raum, p_gewerk, p_dp) {
             if ((p_dp.displayName + "/" + p_dp.id.address + "/ID:" + p_dp.idx).toLowerCase().indexOf(ft[fi]) === -1) return false;
         }
     }
+
+    // Show only DP which are in Link or aktiv marked
+    if (DP_Limit && DP_Aktive.length > 0) {
+       if (DP_Aktive.indexOf(p_dp.idx) === -1) return false;
+    }
+
     return true;
 }
 
@@ -869,6 +898,8 @@ function check_filter(p_raum, p_gewerk, p_dp) {
 function loadNewSerienData() {
 
     var chart = $('#container').highcharts();
+    // Set Line Color back
+	 DP_LineColor = 0;
     for (var serie = 0; serie < chart.series.length; serie++) {
         if (chart.series[serie].visible && chart.series[serie].options.group != "nav") {
             getDataH2("", serie)
@@ -942,6 +973,8 @@ function createUrl() {
     var chart = $('#container').highcharts();
     for (var serie = 0; serie < chart.series.length; serie++) {
         if (chart.series[serie].visible && chart.series[serie].options.group != "nav") {
+            url2 += chart.series[serie].options.id + ',';
+/*
             for (i = 0; i < DP_point.length; i++) {
                 if (DP_point[i].idx === chart.series[serie].options.id) {
                     if (DP_point[i].id.interfaceId === "SysVar") {
@@ -952,6 +985,7 @@ function createUrl() {
                     break;
                 };
             };
+*/
         }
     };
     
