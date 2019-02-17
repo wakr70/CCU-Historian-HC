@@ -32,8 +32,9 @@ renderer.content={
 
    }
 
-	span id: "count_val", ''
+	span id: "count_val", ""
 	span id: "count_text", ""
+	span id: "aggr_text", ""
 
 }
 

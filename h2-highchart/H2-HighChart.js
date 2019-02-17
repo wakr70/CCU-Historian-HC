@@ -21,6 +21,7 @@ var DP_Labels = false;
 var DP_DayLight = true;
 var DP_Limit = false;
 var DP_LineColor = 0;
+var DP_Grouping = 0;
 
 /**
 * create serien option and add it to HighStock Chart
@@ -102,25 +103,16 @@ function addSerie(DP) {
         valueDecimals = 1;
         type = "line";
         step = "left";
-        grouping = {
-            enabled: false
-        };
         break;
     case "VALVE_STATE":
         valueDecimals = 0;
         type = "line";
         step = "left";
-        grouping = {
-            enabled: false
-        };
         unit = "%";
         yAxis = 1;
         break;
     case "ABS_HUMIDITY":
         valueDecimals = 1;
-        grouping = {
-            enabled: true,
-        };
         break;
     }
 
@@ -136,12 +128,25 @@ function addSerie(DP) {
         type = "line";
         step = "left";
         unit = "%";
+    }
+    if (DP_Grouping === 1) {
         grouping = {
-            enabled: false
+            enabled: true,
+        };
+    } else if (DP_Grouping === 2) {
+        grouping = {
+            enabled: true,
+            approximation: 'sum',
+            groupPixelWidth: 50,
+            units: [ [ 'hour', [1] ], 
+                     [ 'day' , [1] ]                     
+                   ]
+        };
+    } else {
+        grouping = {
+            enabled: false,
         };
     }
-
-
     if (DP.id.interfaceId === "SysVar") {
         var def_serie = {
             id: DP.idx,
@@ -155,9 +160,11 @@ function addSerie(DP) {
             tooltip: {
                 valueDecimals: valueDecimals,
                 headerFormat: '<span style="font-size: 12px">{point.key}</span><br/>',
-                pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>',
+                pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>{(series.currentDataGrouping)?series.currentDataGrouping.unitName:"no grouping"}<br/>',
                 valueSuffix: ' ' + DP.attributes.unit,
+
             },
+            dataGrouping: grouping,
             dataLabels : {
               enabled : DP_Labels,
 				  allowOverlap: true,
@@ -186,9 +193,11 @@ function addSerie(DP) {
             tooltip: {
                 valueDecimals: valueDecimals,
                 headerFormat: '<span style="font-size: 12px">{point.key}</span><br/>',
-                pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>' + DP.id.interfaceId + '.' + DP.id.address + '.' + DP.id.identifier + '<br/>',
+                pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>' + DP.id.interfaceId + '.' + DP.id.address + '.' + DP.id.identifier + '<br/>{(series.currentDataGrouping)?series.currentDataGrouping.unitName:"no grouping"}<br/>',
                 valueSuffix: ' ' + DP.attributes.unit,
+
             },
+            dataGrouping: grouping,
             dataLabels : {
               enabled : DP_Labels,
 				  allowOverlap: true,
@@ -238,8 +247,16 @@ function getDataH2(sysvar, p_series) {
 
             if (result.result.values) {
                 // collect all timesstamps and Valuse
-                for (var i = 0; i < result.result.values.length; i++) {
-                    arr.push([result.result.timestamps[i], Math.round(result.result.values[i] * 1000) / 1000]);
+                if (DP_Grouping === 2) {
+                   var last_value = result.result.values[0];
+                   for (var i = 1; i < result.result.values.length; i++) {
+                       arr.push([result.result.timestamps[i], Math.round((result.result.values[i]-last_value) * 1000) / 1000]);
+                       last_value = result.result.values[i];
+                   }
+                } else {
+                   for (var i = 0; i < result.result.values.length; i++) {
+                       arr.push([result.result.timestamps[i], Math.round(result.result.values[i] * 1000) / 1000]);
+                   }
                 }
                 if (arr.length > 0) {
                     // Add to serien data
@@ -529,6 +546,9 @@ $(document).ready(function() {
                 if (decodeURIComponent(nv[1].toLowerCase()) === 'true') { DP_Labels = true; }
             } else if (nv[0].toLowerCase() === 'daylight') {
                 if (decodeURIComponent(nv[1].toLowerCase()) === 'false') { DP_DayLight = false; }
+            } else if (nv[0].toLowerCase() === 'aggregation') {
+                if (decodeURIComponent(nv[1].toLowerCase()) === '1') { DP_Grouping = 1; }
+                if (decodeURIComponent(nv[1].toLowerCase()) === '2') { DP_Grouping = 2; }
             }
         }
     }
@@ -675,6 +695,21 @@ $(document).ready(function() {
                   }
 						ChangeEventRaumFilter();
                 },
+              },{
+                text: (DP_Grouping===0) ? ChhLanguage.default.highcharts.aggractive1: ((DP_Grouping===1) ? ChhLanguage.default.highcharts.aggractive2: ChhLanguage.default.highcharts.aggrdeactive),
+                onclick: function() {
+                  if (DP_Grouping === 0) {
+                    $('.highcharts-contextmenu')[0].children[0].children[5].innerHTML = ChhLanguage.default.highcharts.aggractive2;
+						  DP_Grouping = 1;
+                  } else if (DP_Grouping === 1) {
+                    $('.highcharts-contextmenu')[0].children[0].children[5].innerHTML = ChhLanguage.default.highcharts.aggrdeactive;
+						  DP_Grouping = 2;
+                  } else {
+                    $('.highcharts-contextmenu')[0].children[0].children[5].innerHTML = ChhLanguage.default.highcharts.aggractive1;
+						  DP_Grouping = 0;
+                  }
+						ChangeEventRaumFilter();
+                },
               }, "separator", "printChart", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG",
               ]
             }
@@ -692,6 +727,27 @@ $(document).ready(function() {
             type: 'datetime',
             ordinal: false,
             dataMax: Date.now(),
+            events: {
+                afterSetExtremes: function() {
+
+					    for (var serie = 0; serie < this.series.length; serie++) {
+                       if (this.series[serie].visible && this.series[serie].options.group != "nav") {
+                          var grouping = this.series[this.series.length-1].currentDataGrouping;
+                          if (grouping) {
+                             var text = grouping.unitName;
+                             if(ChhLanguage.default.highcharts['aggr'+text]){
+                                text = ChhLanguage.default.highcharts['aggr'+text];
+                             }
+					              document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.highcharts.aggrtxt1 + ': ' + grouping.count + '/' + text;
+                          } else {
+					              document.getElementById('aggr_text').innerHTML = ' -  ' + ChhLanguage.default.highcharts.aggrtxt0;
+					           }
+                          break;
+                       }
+                   };
+
+                },
+            },
         },
 
         yAxis: [{
@@ -1031,11 +1087,15 @@ function createUrl() {
         url += '&labels=true';
     }
 
-	 // Labels show    
+	 // DayLight show    
     if (!DP_DayLight) {
         url += '&daylight=false';
     }
 
+	 // Grouping show    
+    if (DP_Grouping != 0) {
+        url += '&aggregation='+DP_Grouping;
+    }
 
     window.open(url, '_blank');
     window.focus();

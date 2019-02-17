@@ -91,6 +91,11 @@ var ChhLanguage = {
             daylightdeactive: 'Tag/Nacht deaktivieren',
             limitactive: 'alle DP anzeigen',
             limitdeactive: 'nur aktive DP',
+            aggractive1: 'dyn. Aggregation',
+            aggractive2: 'dyn. Aggr. Delta',
+            aggrdeactive: 'keine Aggregation',
+            aggrtxt0: 'keine Aggregation', 
+            aggrtxt1: 'Aggregation', 
             resetZoom: 'Zoom zurücksetzen',
             resetZoomTitle: 'Zoom zurücksetzen',
             range30M: '30M',
@@ -101,6 +106,12 @@ var ChhLanguage = {
             rangeM: 'M',
             rangeY: 'Y',
             rangeALL: 'All',
+            aggrmonth: 'Monat',
+            aggrweek: 'Woche',
+            aggrday: 'Tag',
+            aggrhour: 'Stunde',
+            aggrminute: 'Minute',
+            aggrsecond: 'Sekunde',
         }
     }
 };
