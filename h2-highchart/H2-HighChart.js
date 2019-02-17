@@ -160,7 +160,7 @@ function addSerie(DP) {
             tooltip: {
                 valueDecimals: valueDecimals,
                 headerFormat: '<span style="font-size: 12px">{point.key}</span><br/>',
-                pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>{(series.currentDataGrouping)?series.currentDataGrouping.unitName:"no grouping"}<br/>',
+                pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>',
                 valueSuffix: ' ' + DP.attributes.unit,
 
             },
@@ -193,7 +193,7 @@ function addSerie(DP) {
             tooltip: {
                 valueDecimals: valueDecimals,
                 headerFormat: '<span style="font-size: 12px">{point.key}</span><br/>',
-                pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>' + DP.id.interfaceId + '.' + DP.id.address + '.' + DP.id.identifier + '<br/>{(series.currentDataGrouping)?series.currentDataGrouping.unitName:"no grouping"}<br/>',
+                pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>' + DP.id.interfaceId + '.' + DP.id.address + '.' + DP.id.identifier + '<br/>',
                 valueSuffix: ' ' + DP.attributes.unit,
 
             },
