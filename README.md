@@ -43,6 +43,18 @@ Parameters for dp=<CCU-Historian-ID>|A0|Y0|L0|F0|C0|M0|V2
    * C0 - Comparisation (0-none, 1-day-1, 2-day-2, 3-day-3, 4-day-4, 5-week-1, 6-week-2, 7-week-3, 8-week-4, 9-12-month, 13-year
    * M0 - Marker (0-none, 1-circle, 2-diamont, 3-squar, 4-triangle, 5-triangle-down)
    * V0 - Visible (0-not, 1-deacitated, 2-activated)
+   * D0 - Dashtype (0-solid,1-Dash,2-DashDot,3-Dot,4-LongDash,5-LongDashDot,6-LongDashDotDot,7-ShortDash,
+          8-ShortDashDot,9-ShortDashDotDot,10-ShortDot
   
 This options can be set on click to a line/point on the chart.
+![](docs/line-menu.png) 
+
+Add new themes: dark-green, avocado, dark-blue, dark-unica, gray, grid-light, grid, skies, sunset
+
+Fullscreen is possible with:  
+   * hide filter line
+   * navigator
+   * legende
+   
+Refresh time can be set in url as default 60 sec. with "&refresh=true" or "&refresh=300" (for 5 Min. or 300 sec.)
 
