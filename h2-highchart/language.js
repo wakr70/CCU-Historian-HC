@@ -95,6 +95,21 @@ var ChhLanguage = {
             comptype11: 'Vergleich -3 Monate',
             comptype12: 'Vergleich -4 Monate',
             comptype13: 'Vergleich -1 Jahr',
+            comptypeC0:  '',
+            comptypeC1:  '-1T',
+            comptypeC2:  '-2T',
+            comptypeC3:  '-3T',
+            comptypeC4:  '-4T',
+            comptypeC5:  '-1W',
+            comptypeC6:  '-2W',
+            comptypeC7:  '-3W',
+            comptypeC8:  '-4W',
+            comptypeC9:  '-1M',
+            comptypeC10: '-2M',
+            comptypeC11: '-3M',
+            comptypeC12: '-4M',
+            comptypeC13: '-1J',
+
 
         },
         'highcharts': {

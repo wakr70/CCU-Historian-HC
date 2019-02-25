@@ -31,11 +31,12 @@ renderer.content={
    div(id:'container') { style: "min-height: 400px; height: auto; min-width: 310px"
 
    }
-
-	span id: "count_val", ""
-	span id: "count_text", ""
-	span id: "aggr_text", ""
-	span id: "autorefresh", ""
+   div(id:'message') {
+      span id: "count_val", ""
+      span id: "count_text", ""
+      span id: "aggr_text", ""
+      span id: "autorefresh", ""
+   }
 
    div(id:"LinePopup", class:"modal fade", role:"dialog") {
     div(class:"modal-dialog") {
@@ -46,12 +47,34 @@ renderer.content={
           h4 class:"modal-title", "Modal Header"
         }
         div(class:"modal-body") {
-         select(id: "Select-Yaxis", class:"form-select-h2")  { }
-         select(id: "Select-Aggregation", class:"form-select-h2")  { }
-         select(id: "Select-Compare", class:"form-select-h2")  { }
-         select(id: "Select-Color", class:"form-select-h2")  { }
-         select(id: "Select-Line", class:"form-select-h2")  { }
-         select(id: "Select-Marker", class:"form-select-h2")  { }
+         div(id:"yasix") {
+           span id: "Text-Yaxis", class:"LinePopup-text", "Y-Axis" 
+           select(id: "Select-Yaxis", class:"form-select-h2")  { }
+         }
+         div(id:"aggregation") {
+           span id: "Text-Aggregation", class:"LinePopup-text", "Aggregation" 
+           select(id: "Select-Aggregation", class:"form-select-h2")  { }
+         }
+         div(id:"compare") {
+           span id: "Text-Compare", class:"LinePopup-text", "Compare" 
+           select(id: "Select-Compare", class:"form-select-h2")  { }
+         }
+         div(id:"color") {
+           span id: "Text-Color", class:"LinePopup-text", "Color" 
+           select(id: "Select-Color", class:"form-select-h2")  { }
+         }
+         div(id:"linetype") {
+           span id: "Text-Line", class:"LinePopup-text", "Line-Type" 
+           select(id: "Select-Line", class:"form-select-h2")  { }
+         }
+         div(id:"marker") {
+           span id: "Text-Marker", class:"LinePopup-text", "Marker" 
+           select(id: "Select-Marker", class:"form-select-h2")  { }
+         }
+         div(id:"dashtype") {
+           span id: "Text-DashType", class:"LinePopup-text", "Line-Art" 
+           select(id: "Select-DashType", class:"form-select-h2")  { }
+         }
         }
         div(class:"modal-footer") {
           button type:"button", class:"btn btn-default", id:"DialogBtnOK", "Ok"

@@ -1,7 +1,7 @@
 
 // Setup H2 Database Services, default set to same server as this webpage and port 8082
 var H2_server = location.hostname;
-var H2_port = (location.port === "") ? 8082 : location.port;
+var H2_port = (location.port === "") ? 80 : location.port;
 var H2_refreshSec = 60;   // Refresh Time is enabled
 
 // declare global Variables
@@ -30,6 +30,8 @@ var DP_attribute = [];
 var DP_PopupID;
 var DP_Theme = '';
 var HCDefaults;
+var DP_DashType = ['Solid','Dash','DashDot','Dot','LongDash','LongDashDot','LongDashDotDot','ShortDash','ShortDashDot','ShortDashDotDot','ShortDot'];
+
 
 
 function createChart() {
@@ -68,6 +70,7 @@ function addSerie(DP) {
     var lineType = 0;
     var aggrType = DP_Grouping; 
     var dptype = DP.id.identifier;
+    var dashtype = DP_DashType[0];
 
     switch (dptype) {
     case "ABS_HUMIDITY":
@@ -164,6 +167,10 @@ function addSerie(DP) {
        aggrType = parseInt(DP_attribute[attr].aggr.substr(1,2))
        lineType = parseInt(DP_attribute[attr].line.substr(1,2))
        dp_vis = DP_attribute[attr].visible;
+
+       var dashID = parseInt(DP_attribute[attr].dash.substr(1,2));
+       if (dashID > 0) { dashtype = DP_DashType[dashID]; }
+
        var markerID = parseInt(DP_attribute[attr].mark.substr(1,2))
        if (markerID > 0) {
           marker = {
@@ -242,6 +249,7 @@ function addSerie(DP) {
             marker: marker,
             visible: (dp_vis===2)?true:false,
             color: color,
+            dashStyle: dashtype,
             data: [],
             tooltip: {
                 valueDecimals: valueDecimals,
@@ -276,6 +284,7 @@ function addSerie(DP) {
             marker: marker,
             visible: (dp_vis===2)?true:false,
             color: color,
+            dashStyle: dashtype,
             data: [],
             tooltip: {
                 valueDecimals: valueDecimals,
@@ -314,6 +323,7 @@ function addSerie(DP) {
                  mark:  'M0',
 	              color: 'F'+serie2.colorIndex,
                  visible: dp_vis,
+                 dash:  'D0',
               });
     }
 }
@@ -490,7 +500,7 @@ function requestData2(TXT_JSON) {
             }
         }
 
-        // find idx of DP in link for filter
+/*        // find idx of DP in link for filter
         if (DP_start.length > 0) {
            if (DP_point[i].id.interfaceId === "SysVar") {
               var txt_search = DP_point[i].attributes.displayName;
@@ -502,23 +512,21 @@ function requestData2(TXT_JSON) {
                DP_Aktive.push(DP_point[i].idx);
            }
         }
+*/
     }
     // found idx from link
-    if (DP_Aktive.length > 0) {
+/*    if (DP_Aktive.length > 0) {
            DP_Limit = true;
-    }
-    DP_start = [];
+    } 
+*/
+//    DP_start = [];
 
     // Sort on Rooms
     DP_rooms.sort(function(a, b) {
         var x = a.toLowerCase();
         var y = b.toLowerCase();
-        if (x < y) {
-            return -1;
-        }
-        if (x > y) {
-            return 1;
-        }
+        if (x < y) { return -1; }
+        if (x > y) { return 1; }
         return 0;
     });
 
@@ -528,53 +536,40 @@ function requestData2(TXT_JSON) {
     // add default all and sysvar
     select.options[select.options.length] = new Option(ChhLanguage.default.historian.roomALL,'ALLES');
     select.options[select.options.length] = new Option(ChhLanguage.default.historian.sysvarALL,'SYSVAR');
-
     for (i = 0; i < DP_rooms.length; i++) {
-        
         text = DP_rooms[i];
-
         if(ChhLanguage.default.historian[text]){
            text = ChhLanguage.default.historian[text];
 		  }
-
         select.options[select.options.length] = new Option(text,DP_rooms[i]);
     }
-    // Parameter room ?bergeben, jetzt Filter setzen
+
+    // Parameter room 
     if (DP_start_room) {
         for (i = 0; i < select.options.length; i++) {
             if (select.options[i].label.toLowerCase() === DP_start_room.toLowerCase() || select.options[i].value.toLowerCase() === DP_start_room.toLowerCase()) {
                 select.value = select.options[i].value;
                 break;
-            }
-            ;
-        }
-        ;
+            };
+        };
     }
+
     // Sort on Gewerk
     DP_gewerk.sort(function(a, b) {
         var x = a.toLowerCase();
         var y = b.toLowerCase();
-        if (x < y) {
-            return -1;
-        }
-        if (x > y) {
-            return 1;
-        }
+        if (x < y) { return -1; }
+        if (x > y) { return 1; }
         return 0;
     });
 
     var select = document.getElementById("Select-Gewerk");
-
     select.options[select.options.length] = new Option(ChhLanguage.default.historian.functionALL,'ALLES');
-
     for (i = 0; i < DP_gewerk.length; i++) {
-
         text = DP_gewerk[i];
-
         if(ChhLanguage.default.historian[text]){
            text = ChhLanguage.default.historian[text];
 		  }
-
         select.options[select.options.length] = new Option(text,DP_gewerk[i]);
     };
 
@@ -634,51 +629,52 @@ $(document).ready(function() {
 
     // aggregation options
     var select = document.getElementById("Select-Aggregation");
-    select.options[select.options.length] = new Option(ChhLanguage.default.highcharts.aggrtxt0,'A0');
-    select.options[select.options.length] = new Option(ChhLanguage.default.highcharts.aggrtxt1,'A1');
-    select.options[select.options.length] = new Option(ChhLanguage.default.highcharts.aggrtxt2,'A2');
-    select.options[select.options.length] = new Option(ChhLanguage.default.highcharts.aggrtxt3,'A3');
+    for (var i = 0; i < 4; i++) {
+        var option = document.createElement("option");
+        option.text = ChhLanguage.default.highcharts['aggrtxt'+i];
+        option.value = 'A'+i;
+        select.add(option); 
+    }
 
     // Yaxis options
     var select = document.getElementById("Select-Yaxis");
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.yaxis0,'Y0');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.yaxis1,'Y1');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.yaxis2,'Y2');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.yaxis3,'Y3');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.yaxis4,'Y4');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.yaxis5,'Y5');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.yaxis6,'Y6');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.yaxis7,'Y7');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.yaxis8,'Y8');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.yaxis9,'Y9');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.yaxis10,'Y10');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.yaxis11,'Y11');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.yaxis12,'Y12');
+    for (var i = 0; i < 13; i++) {
+        var option = document.createElement("option");
+        option.text = ChhLanguage.default.historian['yaxis'+i];
+        option.value = 'Y'+i;
+        select.add(option); 
+    }
 
-    // ChartType options
+    // CompareType options
     var select = document.getElementById("Select-Compare");
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.comptype0,'C0');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.comptype1,'C1');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.comptype2,'C2');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.comptype3,'C3');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.comptype4,'C4');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.comptype5,'C5');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.comptype6,'C6');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.comptype7,'C7');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.comptype8,'C8');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.comptype9,'C9');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.comptype10,'C10');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.comptype11,'C11');
+    for (var i = 0; i < 14; i++) {
+        var option = document.createElement("option");
+        option.text = ChhLanguage.default.historian['comptype'+i];
+        option.value = 'C'+i;
+        select.add(option); 
+    }
 
-    // Compare options
+    // LineType options
     var select = document.getElementById("Select-Line");
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.linetype0,'L0');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.linetype1,'L1');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.linetype2,'L2');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.linetype3,'L3');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.linetype4,'L4');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.linetype5,'L5');
-    select.options[select.options.length] = new Option(ChhLanguage.default.historian.linetype6,'L6');
+    for (var i = 0; i < 7; i++) {
+        var option = document.createElement("option");
+        option.text = ChhLanguage.default.historian['linetype'+i];
+        option.value = 'L'+i;
+        select.add(option); 
+    }
+
+    // DashType options
+    var select = document.getElementById("Select-DashType");
+    for (var i = 0; i < DP_DashType.length; i++) {
+        var option = document.createElement("option");
+        if (ChhLanguage.default.historian['dashtype'+i]) {
+           option.text = ChhLanguage.default.historian['dashtype'+i];
+        } else {
+           option.text = DP_DashType[i];
+        }
+        option.value = 'D'+i;
+        select.add(option); 
+    }
 
     // Add mouse wheel for legend
     (function(H) {
@@ -740,6 +736,7 @@ $(document).ready(function() {
                                        mark: 'M0',
                                        color: 'F0',
                                        visible: dp_vis,
+                                       dash: 'D0',
                                       };
                            DP_attribute.push(attr);
                            attrpos = DP_attribute.findIndex( obj => obj.id === dp_id );
@@ -757,6 +754,8 @@ $(document).ready(function() {
                              DP_attribute[attrpos].line = text2[k];
                           } else if (text2[k].substr(0,1) === 'M') {
                              DP_attribute[attrpos].mark = text2[k];
+                          } else if (text2[k].substr(0,1) === 'D') {
+                             DP_attribute[attrpos].dash = text2[k];
                           } else if (text2[k].substr(0,1) === 'V') {
                              DP_attribute[attrpos].visible = parseInt(text2[k].substr(1,1));
                           }
@@ -1024,6 +1023,11 @@ $(document).ready(function() {
                   }
                   chart.setSize(null ,null, false);
                 },
+              },{
+                text: ChhLanguage.default.historian.buttonLink,
+                onclick: function() {
+                    createUrl();
+                },
               }, "separator", "printChart", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG",
               ]
             }
@@ -1230,8 +1234,8 @@ $(document).ready(function() {
             tickAmount: 11, 
         }],
 
-        legend: {
-            enabled: DP_Legend,
+        legend: ((DP_Legend)?({
+            enabled: true,
             layout: 'vertical',
             backgroundColor: '#FFFFFF',
             align: 'left',
@@ -1241,8 +1245,20 @@ $(document).ready(function() {
             y: 0,
             navigation: {
                 arrowSize: 20,
-            },
-        },
+            }
+        }):({
+            enabled: true,
+            layout: 'horizontal',
+            backgroundColor: '#FFFFFF',
+            align: 'center',
+            verticalAlign: 'top',
+            floating: true,
+            x: 0,
+            y: 0,
+            navigation: {
+                arrowSize: 20,
+            }
+        })),
 
         plotOptions: {
             series: {
@@ -1253,21 +1269,25 @@ $(document).ready(function() {
                             getDataH2(this.name, this.index);
                         }
                         if (this.visible) {
-                           var pos = DP_Aktive.indexOf(this.options.id);
+/*                           var pos = DP_Aktive.indexOf(this.options.id);
                            if (pos != -1) {
                               DP_Aktive.splice(pos,1);
 
-                              for (var i = chart.series.length - 1; i >= 0; i--) {
-                                if (this.options.id === chart.series[i].options.linkedTo && chart.series[i].options.name === 'MinMax') { 
-                                   chart.series[i].remove(false);
-                                }
+                           }
+*/
+                           var attr = DP_attribute.findIndex( obj => obj.id === this.options.id.toString() );
+                           if (attr != -1) {
+                              DP_attribute[attr].visible = (DP_Limit)?1:0;
+                              if (DP_attribute[attr].aggr === 'A3') {
+                                 for (var i = chart.series.length - 1; i >= 0; i--) {
+                                   if (this.options.id === chart.series[i].options.linkedTo && chart.series[i].options.name === 'MinMax') { 
+                                      chart.series[i].remove(false);
+                                   }
+                                 }
                               }
                            }
-
-							      var attr = DP_attribute.findIndex( obj => obj.id === this.options.id.toString() );
-                           if (attr != -1) DP_attribute[attr].visible = 1;
                         } else {
-                           DP_Aktive.push(this.options.id);
+//                           DP_Aktive.push(this.options.id);
 
 							      var attr = DP_attribute.findIndex( obj => obj.id === this.options.id.toString() );
                            if (attr != -1) DP_attribute[attr].visible = 2;
@@ -1290,9 +1310,19 @@ $(document).ready(function() {
         }]
     });
 
+    chart = $('#container').highcharts();
+
+    if ((typeof chart.options.chart.backgroundColor) === 'string') {
+       $('body').css('background-color', chart.options.chart.backgroundColor );
+    } else if ((typeof chart.options.background2) === 'string') {
+       $('body').css('background-color', chart.options.background2 );
+    } else if ((typeof chart.options.chart.borderColor) === 'string') {
+       $('body').css('background-color', chart.options.chart.borderColor );
+    }
+    $('#message').css('color', chart.options.labels.style.color );
+    
 
     // Color options
-    chart = $('#container').highcharts();
     var select = document.getElementById("Select-Color");
     for (i = 0; i < chart.options.colors.length; i++) {
         var option = document.createElement("option");
@@ -1567,6 +1597,7 @@ function createUrl() {
                   url2 += (DP_attribute[attr].color === 'F0')?'':'|'+ DP_attribute[attr].color;
                   url2 += (DP_attribute[attr].comp  === 'C0')?'':'|'+ DP_attribute[attr].comp;
                   url2 += (DP_attribute[attr].mark  === 'M0')?'':'|'+ DP_attribute[attr].mark;
+                  url2 += (DP_attribute[attr].dash  === 'D0')?'':'|'+ DP_attribute[attr].dash;
                   url2 += (DP_attribute[attr].visible  === 2)?'':'|V'+ DP_attribute[attr].visible;
                   url2 += ',';
                }
@@ -1587,6 +1618,7 @@ function createUrl() {
                url2 += (DP_attribute[attr].color === 'F0')?'':'|'+ DP_attribute[attr].color;
                url2 += (DP_attribute[attr].comp  === 'C0')?'':'|'+ DP_attribute[attr].comp;
                url2 += (DP_attribute[attr].mark  === 'M0')?'':'|'+ DP_attribute[attr].mark;
+               url2 += (DP_attribute[attr].dash  === 'D0')?'':'|'+ DP_attribute[attr].dash;
                url2 += (DP_attribute[attr].visible  === 2)?'':'|V'+ DP_attribute[attr].visible;
             }
             url2 += ',';
@@ -1648,7 +1680,7 @@ function createUrl() {
 
 	 // AutoRefresh    
     if (DP_AutoRefresh != 0) {
-        url += '&refresh=true';
+        url += '&refresh='+(DP_AutoRefresh===60?true:DP_AutoRefresh);
     }
 
 	 // ShowFilterLine    
@@ -1656,6 +1688,10 @@ function createUrl() {
         url += '&filterline=false';
     }
 
+	 // Theme    
+    if (DP_Theme != '') {
+        url += '&theme='+DP_Theme;
+    }
 
     window.open(url, '_blank');
     window.focus();
@@ -1763,6 +1799,7 @@ function AddCompSeries(serieObjV,CompType) {
             var lineType;
             var type;
             var step;
+            var dashtype = DP_DashType[1];
 
             if (result.result.values) {
                 
@@ -1805,6 +1842,10 @@ function AddCompSeries(serieObjV,CompType) {
                          color = chart.options.colors[ parseInt(DP_attribute[attr].color.substr(1,2)) ];
                          aggrType = parseInt(DP_attribute[attr].aggr.substr(1,2))
                          lineType = parseInt(DP_attribute[attr].line.substr(1,2))
+
+                         var dashID = parseInt(DP_attribute[attr].dash.substr(1,2));
+                         if (dashID > 0) { dashtype = DP_DashType[dashID]; }
+
                       } 
                    }
 
@@ -1891,7 +1932,7 @@ function AddCompSeries(serieObjV,CompType) {
                       }
 
                      var serie2 = chart.addSeries({
-                                      name: series.name+'('+CType+')',
+                                      name: series.name+'('+ChhLanguage.default.historian['comptype'+CType]+')',
                                       id: 'C'+series.options.id.toString(),
                                       fillOpacity: 0.4,
                                       color: color,
@@ -1899,6 +1940,7 @@ function AddCompSeries(serieObjV,CompType) {
                                       type: type,
                                       step: step,
                                       dataGrouping: grouping,
+                                      dashStyle: dashtype,
                                       data: arr,
                                       tooltip: {
                                          valueDecimals: series.userOptions.tooltip.valueDecimals,
@@ -1926,7 +1968,8 @@ function AddCompSeries(serieObjV,CompType) {
 			                                     mark:  'M0',
 			                                     color: 'F'+serie2.colorIndex,
                                               visible:  (serie2.visible)?2:1,
-            			                        });
+                                              dash:  'D'+DP_DashType.indexOf(serie2.options.dashStyle),
+                                            });
                       }
 
                       if (aggrType === 3) {
@@ -1960,13 +2003,14 @@ function ShowDialog(serieObj) {
                          mark:  'M0',
                          color: 'F'+serieObj.colorIndex,
                          visible: 2,
+                         dash:  'D0',
                         };
        DP_attribute.push(attr);
      }
      if ('C' === serieObj.options.id.toString().substr(0,1)) {
-        document.getElementById("Select-Compare").style.display = 'none';
+        document.getElementById("compare").style.display = 'none';
      } else {
-        document.getElementById("Select-Compare").style.display = '';
+        document.getElementById("compare").style.display = '';
      }
 
      // set value on Popup
@@ -1977,6 +2021,10 @@ function ShowDialog(serieObj) {
      document.getElementById("Select-Line").value        = attr.line;
      document.getElementById("Select-Color").value       = attr.color;
      document.getElementById("Select-Marker").value      = attr.mark;
+     document.getElementById("Select-DashType").value    = attr.dash;
+
+
+     document.getElementById("Select-Color").style.color = chart.options.colors[parseInt(document.getElementById("Select-Color").value.substr(1,1))];
 
      $("#LinePopup").modal();
   }
@@ -1995,6 +2043,7 @@ $("#DialogBtnOK").click(function(){
     DP_attribute[attr].line  = document.getElementById("Select-Line").value;
     DP_attribute[attr].color = document.getElementById("Select-Color").value;
     DP_attribute[attr].mark  = document.getElementById("Select-Marker").value;
+    DP_attribute[attr].dash  = document.getElementById("Select-DashType").value;
 
     $("#LinePopup").modal('hide');
 
@@ -2017,4 +2066,7 @@ function ResetOptions() {
 }
 
 
-
+// *** set function for Filter Room
+$("#Select-Color").on("change", function() {
+   document.getElementById("Select-Color").style.color = chart.options.colors[parseInt(document.getElementById("Select-Color").value.substr(1,1))];
+});

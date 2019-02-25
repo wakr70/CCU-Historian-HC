@@ -54,3 +54,8 @@
 .navbar {
 	margin-bottom: 7px;
 }
+
+.LinePopup-text {
+   float: left;
+   width: 150px;
+}
