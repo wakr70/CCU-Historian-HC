@@ -35,14 +35,42 @@ renderer.content={
 	span id: "count_val", ""
 	span id: "count_text", ""
 	span id: "aggr_text", ""
+	span id: "autorefresh", ""
+
+   div(id:"LinePopup", class:"modal fade", role:"dialog") {
+    div(class:"modal-dialog") {
+      div(class:"modal-content") {
+
+        div(class:"modal-header") {
+          button type:"button", class:"close", id:"DialogBtnClose", "x"
+          h4 class:"modal-title", "Modal Header"
+        }
+        div(class:"modal-body") {
+         select(id: "Select-Yaxis", class:"form-select-h2")  { }
+         select(id: "Select-Aggregation", class:"form-select-h2")  { }
+         select(id: "Select-Compare", class:"form-select-h2")  { }
+         select(id: "Select-Color", class:"form-select-h2")  { }
+         select(id: "Select-Line", class:"form-select-h2")  { }
+         select(id: "Select-Marker", class:"form-select-h2")  { }
+        }
+        div(class:"modal-footer") {
+          button type:"button", class:"btn btn-default", id:"DialogBtnOK", "Ok"
+        }
+
+
+      }      
+    }
+  }
 
 }
 
 renderer.end={
    script src:'highstock.js'
+   script src:'highcharts-more.js'
    script src:'exporting.js'
    script src:'offline-exporting.js'
    script src:'language.js'
+   script src:'themes.js'
    script src:'H2-HighChart.js'
 }
 
