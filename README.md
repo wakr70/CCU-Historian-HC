@@ -25,7 +25,7 @@ Over the chart you can select which timeframe should be loaded from the database
 
 Over the legend you can select/deselect the datapoint you want to see on the chart.
 
-3 axis are at the moment build in automatic. % percentage (0-100%), state (0 or 1) and all others.  
+11 axis are at the moment build in automatic. % percentage (0-100%), state (0 or 1) and all others.  
 ![](docs/screen.png)
 
 As highlight is in the background gray for night (20:00 - 06:00) and yellow for day ( 06:00 - 20:00). This can be activate or deactivate over the popup-menue.
@@ -33,5 +33,16 @@ As highlight is in the background gray for night (20:00 - 06:00) and yellow for 
 With button "Link erzeugen" you can create an Link which will open a new window and this could be also used as shortcuts. 
 The whole selection will be added to this link also zoom, periode, daylight, legend, navigator, all selected datapoint, all filters
 
-http://<host>:<port>/custom/h2-highchart/H2-HighChart.gy?periode=??&room=??&function=??&filterkey=??&zoom=??&legend=false&navigator=false&labels=true&daylight=false
+http://<host>:<port>/custom/h2-highchart/H2-HighChart.gy?periode=??dp=131|Y5|L1|V1|A1,???&room=??&function=??&filterkey=??&zoom=??&legend=false&navigator=false&labels=true&daylight=false&filterline=false&theme=dark-green
+
+Parameters for dp=<CCU-Historian-ID>|A0|Y0|L0|F0|C0|M0|V2  
+   * A0 - Aggregation (0-no, 1-dyn, 2-delta, 3-min/max)
+   * Y0 - Y-axis (0-13)
+   * L0 - Linetype (0-SP-line, 1-Line/left, 2-Line/center, 3-Line/right, 4-Scatter, 5-Area, 6-column)
+   * F0 - Color (0-len out of Themes variable Color)
+   * C0 - Comparisation (0-none, 1-day-1, 2-day-2, 3-day-3, 4-day-4, 5-week-1, 6-week-2, 7-week-3, 8-week-4, 9-12-month, 13-year
+   * M0 - Marker (0-none, 1-circle, 2-diamont, 3-squar, 4-triangle, 5-triangle-down)
+   * V0 - Visible (0-not, 1-deacitated, 2-activated)
+  
+This options can be set on click to a line/point on the chart.
 
