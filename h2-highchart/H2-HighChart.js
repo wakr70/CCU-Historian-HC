@@ -12,7 +12,6 @@ var DP_rooms = [];
 var DP_gewerk = [];
 var Zeitraum_Ende = new Date(Date.now());
 var Zeitraum_Start = new Date(Zeitraum_Ende - (new Date(86400000 * 1)));
-var DP_Aktive = [];
 var DP_start = [];
 var DP_start_room = '';
 var DP_start_func = '';
@@ -31,8 +30,7 @@ var DP_PopupID;
 var DP_Theme = '';
 var HCDefaults;
 var DP_DashType = ['Solid','Dash','DashDot','Dot','LongDash','LongDashDot','LongDashDotDot','ShortDash','ShortDashDot','ShortDashDotDot','ShortDot'];
-
-
+var DP_Queue = [ ];
 
 function createChart() {
 //    var chartingOptions = HCDefaults;
@@ -47,7 +45,7 @@ function createChart() {
 /**
 * create serien option and add it to HighStock Chart
 */
-function addSerie(DP) {
+function addSerie(DP,DP_type) {
 
     var unit = DP.attributes.unit;
     var valueDecimals = 1;
@@ -71,7 +69,10 @@ function addSerie(DP) {
     var aggrType = DP_Grouping; 
     var dptype = DP.id.identifier;
     var dashtype = DP_DashType[0];
+    var linewidth = 2;
 
+    var attrIDX = (DP_type === '')?DP.idx.toString():(DP_type+'_'+DP.idx.toString()) ;
+    
     switch (dptype) {
     case "ABS_HUMIDITY":
         yAxis = 10;
@@ -100,7 +101,7 @@ function addSerie(DP) {
     case "SET_TEMPERATURE":
     case "SETPOINT":
         yAxis = 1;
-        lineType = 1;
+        lineType = 2;
         valueDecimals = 1;
         break;
     case "MEAN5MINUTES":
@@ -113,7 +114,7 @@ function addSerie(DP) {
         lineType = 0;
         break;
     case "LEVEL":
-        lineType = 1;
+        lineType = 2;
         unit = "";
         yAxis = 4;
         valueDecimals = 1;
@@ -121,7 +122,7 @@ function addSerie(DP) {
     case "STATE":
         yAxis = 5,
         valueDecimals = 0;
-        lineType = 1;
+        lineType = 2;
         break;
     case "PRESS_SHORT":
     case "PRESS_LONG":
@@ -132,11 +133,11 @@ function addSerie(DP) {
             enabled: true
         };
         factor = 5;
-        lineType = 4;
+        lineType = 5;
         break;
     case "VALVE_STATE":
         valueDecimals = 0;
-        lineType = 1;
+        lineType = 2;
         unit = "%";
         yAxis = 4;
         break;
@@ -159,8 +160,7 @@ function addSerie(DP) {
 
     // Popup Change types
 
-    var attr = DP_attribute.findIndex( obj => obj.id === DP.idx.toString() );
-
+    var attr = DP_attribute.findIndex( obj => obj.id === attrIDX );
     if (attr != -1) {
        yAxis = parseInt(DP_attribute[attr].yaxis.substr(1,2));
        color = chart.options.colors[ parseInt(DP_attribute[attr].color.substr(1,2)) ];
@@ -170,6 +170,8 @@ function addSerie(DP) {
 
        var dashID = parseInt(DP_attribute[attr].dash.substr(1,2));
        if (dashID > 0) { dashtype = DP_DashType[dashID]; }
+
+       linewidth = parseInt(DP_attribute[attr].width.substr(1,2)); 
 
        var markerID = parseInt(DP_attribute[attr].mark.substr(1,2))
        if (markerID > 0) {
@@ -185,23 +187,38 @@ function addSerie(DP) {
     
     if (lineType === 0) {
        type = "spline";
-       step = "left";
+       step = "";
     } else if (lineType === 1) {
        type = "line";
-       step = "left";
+       step = "";
     } else if (lineType === 2) {
        type = "line";
-       step = "center";
+       step = "left";
     } else if (lineType === 3) {
        type = "line";
-       step = "right";
+       step = "center";
     } else if (lineType === 4) {
+       type = "line";
+       step = "right";
+    } else if (lineType === 5) {
        type = "scatter";
        step = "";
-    } else if (lineType === 5) {
+    } else if (lineType === 6) {
+       type = "areaspline";
+       step = "";
+    } else if (lineType === 7) {
        type = "area";
        step = "";
-    } else if (lineType === 6) {
+    } else if (lineType === 8) {
+       type = "area";
+       step = "left";
+    } else if (lineType === 9) {
+       type = "area";
+       step = "center";
+    } else if (lineType === 10) {
+       type = "area";
+       step = "right";
+    } else if (lineType === 11) {
        type = "column";
        step = "";
     };
@@ -233,87 +250,89 @@ function addSerie(DP) {
                    ]
         };
         type = (type="line")?"spline":type;
+    } else if (aggrType === 4) {
+        grouping = {
+            enabled: true,
+            approximation: 'sum',
+            groupPixelWidth: 50,
+            units: [ [ 'hour', [1] ], 
+                     [ 'day' , [1] ]                     
+                   ]
+        };
     } else {
         grouping = {
             enabled: false,
         };
     }
 
-    if (DP.id.interfaceId === "SysVar") {
-        var def_serie = {
-            id: DP.idx,
-            name: DP.attributes.displayName,
-            type: type,
-            step: step,
-            yAxis: yAxis,
-            marker: marker,
-            visible: (dp_vis===2)?true:false,
-            color: color,
-            dashStyle: dashtype,
-            data: [],
-            tooltip: {
-                valueDecimals: valueDecimals,
-                headerFormat: '<span style="font-size: 12px">{point.key}</span><br/>',
-                pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>',
-                valueSuffix: ' ' + DP.attributes.unit,
+    var pointFormater = null;
+    var headerformat  = null;
+    var pointFormat   = null;
+    var serienName    = '';
 
-            },
-            dataGrouping: grouping,
-            dataLabels : {
-              enabled : DP_Labels,
-				  allowOverlap: true,
-              color: null,
-              style: { "color": null, },
-              formatter: function() {
-                var last  = this.series.data[this.series.data.length - 1];                  
-                if (last) {
-                  if (this.point.category === last.category ) {
-                     return this.series.name;
-                }}
-                return "";
-              }
-            },
-        };
+    if (DP_type.substr(0,1) === 'C') {
+       serienName    = (DP.id.interfaceId === "SysVar")? (DP.attributes.displayName): (DP.attributes.displayName + '.' + DP.id.identifier) + '('+ChhLanguage.default.historian['comptype'+DP_type]+')'
+       pointFormat   = null;
+       headerformat  = null;
+       pointFormater = function () { var xDate = new Date(this.x + (3600*24*1000*getComparisionBackDay(this.series.options.id.split('_')[0])));
+                                     return "<tspan style='fill:"+this.color+"'>● </tspan>" + this.series.name + ": <b>" + 
+                                     Highcharts.numberFormat(this.y , 2, ",", ".") +" "+ this.series.tooltipOptions.valueSuffix +"</b><br/>" +
+                                     "<b>"+Highcharts.dateFormat('%A, %b %e, %H:%M:%S', xDate )+"</b>" 
+                                  ;} 
+
+    } else if (DP.id.interfaceId === "SysVar") {
+       serienName    = DP.attributes.displayName;
+       pointFormat  = '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>';
+       headerformat = '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>';
     } else {
-        var def_serie = {
-            id: DP.idx,
-            name: DP.attributes.displayName + '.' + DP.id.identifier,
-            type: type,
-            step: step,
-            yAxis: yAxis,
-            marker: marker,
-            visible: (dp_vis===2)?true:false,
-            color: color,
-            dashStyle: dashtype,
-            data: [],
-            tooltip: {
-                valueDecimals: valueDecimals,
-                headerFormat: '<span style="font-size: 12px">{point.key}</span><br/>',
-                pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>' + DP.id.interfaceId + '.' + DP.id.address + '.' + DP.id.identifier + '<br/>',
-                valueSuffix: ' ' + DP.attributes.unit,
-
-            },
-            dataGrouping: grouping,
-            dataLabels : {
-              enabled : DP_Labels,
-				  allowOverlap: true,
-              color: null,
-              style: { "color": null,  },
-              formatter: function() {
-                var last  = this.series.data[this.series.data.length - 1];
-                if ( last ) {
-                   if ( this.point.category === last.category ) {
-                     return this.series.name;
-                }}
-                return "";
-              }
-            },
-        };
+       serienName    = DP.attributes.displayName + '.' + DP.id.identifier;
+       pointFormat  = '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>' + DP.id.interfaceId + '.' + DP.id.address + '.' + DP.id.identifier + '<br/>';
+       headerformat = '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>';
     }
 
+    var def_serie = {
+        id: attrIDX,
+        name: serienName,
+        type: type,
+        step: step,
+        yAxis: yAxis,
+        marker: marker,
+        visible: (dp_vis===2)?true:false,
+        color: color,
+        dashStyle: dashtype,
+        lineWidth: linewidth,
+        fillOpacity: 0.4,
+        borderColor: color,
+        borderWidth: 2,
+        data: [],
+        tooltip: {
+                  valueDecimals: valueDecimals,
+                  headerFormat:  headerformat,
+                  pointFormat:   pointFormat,
+                  pointFormatter: pointFormater,
+                  valueSuffix: ' ' + DP.attributes.unit,
+               },
+        dataGrouping: grouping,
+        dataLabels : {
+          enabled : DP_Labels,
+				lowOverlap: true,
+          color: null,
+          style: { "color": null, },
+          formatter: function() {
+            var last  = this.series.data[this.series.data.length - 1];                  
+            if (last) {
+              if (this.point.category === last.category ) {
+                 return this.series.name;
+            }}
+            return "";
+          }
+        },
+    };
+
+    // Create Chart Serie !!!
     var serie2 = chart.addSeries(def_serie, false, false);
 
-    attr = DP_attribute.findIndex( obj => obj.id === serie2.options.id.toString() );
+    attr = DP_attribute.findIndex( obj => obj.id === attrIDX );
     if (attr === -1) {
         DP_attribute.push( {id: serie2.options.id.toString(),
                  aggr:  'A'+aggrType,
@@ -324,24 +343,242 @@ function addSerie(DP) {
 	              color: 'F'+serie2.colorIndex,
                  visible: dp_vis,
                  dash:  'D0',
+                 width: 'W2',
+                 buffer_data: { timestamps: [], values: [], buffer_start: 0 , buffer_end: 0 },
               });
+    }
+
+}
+
+function SetData(objSerie) {
+
+    var datStart = Zeitraum_Start.getTime();
+    var datEnd   = Zeitraum_Ende.getTime();
+    var serie    = objSerie;
+    var attrIDX;
+
+    if (objSerie.options.name === 'MinMax') { return; }
+
+    // get main DP
+    if (objSerie.options.id.toString().substr(0,1) === 'C') {
+       attrIDX = objSerie.options.id.toString().split('_')[1];
+    } else {
+       attrIDX = objSerie.options.id.toString();
+    }
+
+    var found = false;
+
+    var attr = DP_attribute.findIndex( obj => obj.id === attrIDX );
+    if (attr != -1) {
+       
+       if (DP_attribute[attr].comp != 'C0') {
+
+          if (objSerie.options.id.toString().substr(0,1) === 'C' && DP_attribute[attr].visible === 2 ) { 
+             // main is visible and all will be loaded together
+            return;
+          }
+
+          // correct start for comparisation data, do read only once
+          datStart += getComparisionBackDay(DP_attribute[attr].comp)*86400000;
+
+          if (objSerie.options.id.toString().substr(0,1) === 'C') {
+             datEnd   += getComparisionBackDay(DP_attribute[attr].comp)*86400000;
+          }
+       }
+
+       // check buffer timestamps and decide to read additional data
+       if ((DP_attribute[attr].buffer_data) && (DP_attribute[attr].buffer_data.buffer_start) && (DP_attribute[attr].buffer_data.buffer_end) ) {
+          if ((DP_attribute[attr].buffer_data.buffer_start <= datStart) && ( DP_attribute[attr].buffer_data.buffer_end >= datEnd)) {
+              // all data already in the buffer
+              found = true;
+              SetSerienData(attr, objSerie);
+          } else if (DP_attribute[attr].buffer_data.buffer_start > datStart && DP_attribute[attr].buffer_data.buffer_start <= datEnd && DP_attribute[attr].buffer_data.buffer_end >= datEnd && DP_attribute[attr].buffer_data.values.length > 0 ) {
+              // append to begin
+              datEnd = DP_attribute[attr].buffer_data.buffer_start;
+          } else if (DP_attribute[attr].buffer_data.buffer_start <= datStart && DP_attribute[attr].buffer_data.buffer_end >= datStart && DP_attribute[attr].buffer_data.buffer_end < datEnd && DP_attribute[attr].buffer_data.values.length > 0 ) {
+              // append to end by refresh button
+              datStart = DP_attribute[attr].buffer_data.buffer_end;
+          }
+       }
+       // missing data found ?
+       if (!found) {
+          getDataH2(objSerie, DP_attribute[attr].id, attr, datStart, datEnd);
+       }
+    }
+}
+
+/* not used at the moment 
+// queue Ajax calls
+var Queue = function() {
+  var previous = new $.Deferred().resolve();
+
+  return function(fn, fail) {
+    if (typeof fn !== 'function') {
+      throw 'must be a function';
+    }
+    return previous = previous.then(fn, fail || fn);
+  };
+};
+*/
+
+// save received data 
+function SetDataAsync(id,data) {
+
+   if (!id) { console.log('ID missing'); return;}
+
+   // find queue entry
+   // DP_Queue.push({key,p_attrID,series,datStart,datEnd);
+
+   var q_i = DP_Queue.findIndex( obj => obj[0] === id );
+
+   var attrIDX = DP_Queue[q_i][3];
+
+   if (data.values.length > 0) {
+     if ( DP_attribute[attrIDX].buffer_data.buffer_start >= DP_Queue[q_i][4] 
+        && DP_attribute[attrIDX].buffer_data.buffer_start === DP_Queue[q_i][5] 
+        && DP_attribute[attrIDX].buffer_data.values.length > 0 ) {
+
+        DP_attribute[attrIDX].buffer_data.buffer_start = DP_Queue[q_i][4];
+        DP_attribute[attrIDX].buffer_data.timestamps = data.timestamps.concat( DP_attribute[attrIDX ].buffer_data.timestamps ) ;
+        DP_attribute[attrIDX].buffer_data.values     = data.values.concat( DP_attribute[attrIDX ].buffer_data.values ) ;
+
+     } else if ( DP_attribute[attrIDX].buffer_data.buffer_end <= DP_Queue[q_i][5] 
+                && DP_attribute[attrIDX].buffer_data.buffer_end === DP_Queue[q_i][4] 
+                && DP_attribute[attrIDX].buffer_data.values.length > 0 ) {
+
+        DP_attribute[attrIDX].buffer_data.buffer_end   = DP_Queue[q_i][5];
+        DP_attribute[attrIDX].buffer_data.timestamps = DP_attribute[attrIDX ].buffer_data.timestamps.concat( data.timestamps ) ;
+        DP_attribute[attrIDX].buffer_data.values     = DP_attribute[attrIDX ].buffer_data.values.concat( data.values ) ;
+     } else {
+        DP_attribute[attrIDX].buffer_data.buffer_start = DP_Queue[q_i][4];
+        DP_attribute[attrIDX].buffer_data.buffer_end   = DP_Queue[q_i][5];
+        DP_attribute[attrIDX].buffer_data.timestamps = data.timestamps;
+        DP_attribute[attrIDX].buffer_data.values     = data.values;
+     }
+
+     // update counter
+     document.getElementById("count_val").innerHTML = (Number(document.getElementById("count_val").innerHTML) + data.values.length).toString();
+
+   }
+
+   // get which serie has to be updated
+   var serie = DP_Queue[q_i][2];
+
+   // queue clear for this one
+   DP_Queue.splice(q_i,1);
+   
+   SetSerienData(attrIDX, serie );
+}
+
+function SetSerienData(p_attr, serieObj) {
+
+    var aggrType = parseInt(DP_attribute[p_attr].aggr.substr(1,2));
+    var compType = DP_attribute[p_attr].comp;
+
+    var datStart = Zeitraum_Start.getTime();
+    var datEnd   = Zeitraum_Ende.getTime();
+
+    var id     = DP_attribute[p_attr].id;
+
+    var arr = [];
+    var backSec = 0;
+    
+    // Min/Max not needed         
+    if (serieObj.options.name === 'MinMax') { return; }
+
+    if (serieObj.options.id.toString().substr(0,1) === 'C') {
+
+        datStart += getComparisionBackDay(compType)*86400000;
+        datEnd   += getComparisionBackDay(compType)*86400000;
+
+        // Set backtime        
+        backSec = getComparisionBackDay(compType)*3600*24*1000;
+
+        var attr2 = DP_attribute.findIndex( obj => obj.id === serieObj.options.id.toString() );
+        if (attr2) {
+           aggrType = parseInt(DP_attribute[attr2].aggr.substr(1,2));
+        }
+    }
+
+    // collect all timesstamps and Valuse
+    if (aggrType === 2) {
+       // search first entry w
+       var last_value = DP_attribute[p_attr].buffer_data.values[0];
+       var last_time  = DP_attribute[p_attr].buffer_data.timestamps[0];
+       for (var i = 0; i < DP_attribute[p_attr].buffer_data.values.length; i++) {
+         if ( DP_attribute[p_attr].buffer_data.timestamps[i] >= datStart && DP_attribute[p_attr].buffer_data.timestamps[i] <= datEnd) {
+            last_value = DP_attribute[p_attr].buffer_data.values[i];
+            last_time  = DP_attribute[p_attr].buffer_data.timestamps[i];
+            break;
+          }
+       }       
+       
+       for ( ; i < DP_attribute[p_attr].buffer_data.values.length; i++) {
+         if ( DP_attribute[p_attr].buffer_data.timestamps[i] >= datStart && DP_attribute[p_attr].buffer_data.timestamps[i] <= datEnd) {
+           // fill missing times with delta 0 every 10 min.
+           if ((DP_attribute[p_attr].buffer_data.timestamps[i] - last_time) > 600000) {
+              for (var t = last_time; t < DP_attribute[p_attr].buffer_data.timestamps[i]; t=t+600000) {
+                 arr.push([t, 0 ]);
+              }
+           }
+           arr.push([DP_attribute[p_attr].buffer_data.timestamps[i]-backSec, Math.round((DP_attribute[p_attr].buffer_data.values[i]-last_value) * 1000) / 1000]);
+           last_value = DP_attribute[p_attr].buffer_data.values[i];
+           last_time  = DP_attribute[p_attr].buffer_data.timestamps[i];
+         }
+       }
+
+    } else {
+       for (var i = 0; i < DP_attribute[p_attr].buffer_data.values.length; i++) {
+         if ( DP_attribute[p_attr].buffer_data.timestamps[i] > datStart && DP_attribute[p_attr].buffer_data.timestamps[i] <= datEnd) {
+           arr.push([DP_attribute[p_attr].buffer_data.timestamps[i]-backSec, Math.round(DP_attribute[p_attr].buffer_data.values[i] * 1000) / 1000]);
+         }
+       }
+    }
+    if (arr.length > 0) {
+       serieObj.setData(arr, true, false, false);
+    }
+
+    // read data for comp series
+    if (DP_attribute[p_attr].comp != 'C0' && (serieObj.options.id.toString().substr(0,1) != 'C')) {
+
+       var sobj = chart.get(DP_attribute[p_attr].comp + '_' + DP_attribute[p_attr].id);
+       var attrC = DP_attribute.findIndex( obj => obj.id === DP_attribute[p_attr].comp + '_' + DP_attribute[p_attr].id );
+       if (sobj && attrC != -1 && DP_attribute[attrC].comp === 'C0' && DP_attribute[attrC].visible === 2 ) {
+          SetSerienData(p_attr, sobj);
+       }
+    }
+
+    // load min/max series
+    if (aggrType === 3) {
+       AddAggregationMinMax(serieObj);
     }
 }
 
 /**
 *  read timeSerien data for H2 database
 */
-function getDataH2(sysvar, p_series) {
+
+function getDataH2(p_series,p_attrID, p_attr,datStart,datEnd) {
     var text;
-    var series = chart.series[p_series];
-    if (series.options.name === 'MinMax') return;
 
-    var sysvar2 = series.options.id.toString();
+// Refresh for Min/Max Aggregation done directly
+    if (p_series.options.name === 'MinMax') return;
+    
+    var key =  p_attrID+'_'+Date.now();
+    var p_id = p_series.options.id.toString();
 
-    var url = 'http://' + H2_server + ':' + H2_port
-    url += '/query/jsonrpc.gy?j={%22id%22:' + series.index.toString()
-    url += ',%22method%22:%22getTimeSeries%22'
-    url += ',%22params%22:[' + sysvar2 + ',' + Zeitraum_Start.getTime() + ',' + Zeitraum_Ende.getTime() + ']}'
+    // refresh for comparisation done over real ID
+    if (p_series.options.id.toString().substr(0,1) === 'C') {
+       p_id = p_id.split('_')[1];
+    };
+
+    // save request to queue
+    DP_Queue.push([key,p_attrID,p_series,p_attr,datStart,datEnd]);
+
+    var url = 'http://' + H2_server + ':' + H2_port;
+    url += '/query/jsonrpc.gy?j={%22id%22:%22' + key +'%22';
+    url += ',%22method%22:%22getTimeSeriesRaw%22';
+    url += ',%22params%22:[' + p_id + ',' + datStart + ',' + datEnd + ']}';
 
     // get serien data from H2 database
     $.ajax({
@@ -350,67 +587,19 @@ function getDataH2(sysvar, p_series) {
         dataType: "json",
         async: true,
         cache: false,
+        error: function(xhr,status,error) {
+                 console.log('AXAJ-error:'); 
+                 console.log(xhr); 
+                 console.log(status); 
+                 console.log(error); 
+               },
         success: function(result) {
-
-            var arr = [];
-            var attr;
-            var aggrType;
-            var compType;
-
-
-            if (result.result.values) {
-
-
-                var series = chart.series[result.id];
-
-                if (series) {
-   					 // Popup Change types
-
-                   aggrType = DP_Grouping;
-                   compType = 'C0';
-                   if (series.options.id) {
-                      attr = DP_attribute.findIndex( obj => obj.id === series.options.id.toString() );
-                      if (attr != -1) {
-                         aggrType = parseInt(DP_attribute[attr].aggr.substr(1,2));
-                         compType = DP_attribute[attr].comp;
-                      }
+                   if (!result.result) {
+                       console.log(result);
+                   } else if (result.result) {
+                       SetDataAsync(result.id,result.result);
                    }
-
-                   // collect all timesstamps and Valuse
-                   if (aggrType === 2) {
-                      var last_value = result.result.values[0];
-                      var last_time  = result.result.timestamps[0];
-                      for (var i = 1; i < result.result.values.length; i++) {
-                        // fill missing times with delta 0 every 10 min.
-                        if ((result.result.timestamps[i] - last_time) > 600000) {
-                           for (var t = last_time; t < result.result.timestamps[i]; t=t+600000) {
-                              arr.push([t, 0 ]);
-                           }
-                        }
-                        arr.push([result.result.timestamps[i], Math.round((result.result.values[i]-last_value) * 1000) / 1000]);
-                        last_value = result.result.values[i];
-                        last_time  = result.result.timestamps[i];
-                      }
-
-                   } else {
-                      for (var i = 0; i < result.result.values.length; i++) {
-                        arr.push([result.result.timestamps[i], Math.round(result.result.values[i] * 1000) / 1000]);
-                      }
-                   }
-                   if (arr.length > 0) {
-                      series.setData(arr, true, false, false);
-
-                      if (aggrType === 3) {
-                         AddAggregationMinMax(series);
-                      }
-                      if (compType != 'C0') {
-                         AddCompSeries(series,compType);
-                      }
-                   }
-                   document.getElementById("count_val").innerHTML = (Number(document.getElementById("count_val").innerHTML) + result.result.values.length).toString();
-                }
-            }
-        }
+               }
     });
     return;
 }
@@ -432,8 +621,14 @@ function requestData() {
         dataType: "json",
         async: true,
         cache: false,
+        error: function(xhr,status,error) {
+                 console.log('AXAJ-error:'); 
+                 console.log(xhr); 
+                 console.log(status); 
+                 console.log(error); 
+               },
         success: function(result) {
-            requestData2(result);
+              requestData2(result);
         },
     });
 }
@@ -474,7 +669,6 @@ function requestData2(TXT_JSON) {
     // Alle Serien aufbauen und Räume & Gewerke sammeln nur für anzeigbare
     for (i = 0; i < DP_point.length; i++) {
         if (!DP_point[i].historyDisabled && !DP_point[i].historyHidden) {
-            //			  addSerie(DP_point[i]);
 
             // Räme sammeln
             if (DP_point[i].attributes.room != null) {
@@ -500,26 +694,20 @@ function requestData2(TXT_JSON) {
             }
         }
 
-/*        // find idx of DP in link for filter
-        if (DP_start.length > 0) {
+        // find idx of DP in link for filter
+        if (DP_attribute.length > 0) {
            if (DP_point[i].id.interfaceId === "SysVar") {
               var txt_search = DP_point[i].attributes.displayName;
            } else {
               var txt_search = DP_point[i].id.address + '.' + DP_point[i].id.identifier;
            }
            txt_search = txt_search.toLowerCase();
-           if ((DP_start.indexOf(txt_search) != -1) || (DP_start.indexOf(DP_point[i].idx.toString()) != -1)) {
-               DP_Aktive.push(DP_point[i].idx);
+           var attrpos = DP_attribute.findIndex( obj => obj.id.toLowerCase() === txt_search );
+           if (attrpos != -1) {
+              DP_attribute[attrpos].id = DP_point[i].idx.toString();
            }
         }
-*/
     }
-    // found idx from link
-/*    if (DP_Aktive.length > 0) {
-           DP_Limit = true;
-    } 
-*/
-//    DP_start = [];
 
     // Sort on Rooms
     DP_rooms.sort(function(a, b) {
@@ -629,7 +817,7 @@ $(document).ready(function() {
 
     // aggregation options
     var select = document.getElementById("Select-Aggregation");
-    for (var i = 0; i < 4; i++) {
+    for (var i = 0; i < 5; i++) {
         var option = document.createElement("option");
         option.text = ChhLanguage.default.highcharts['aggrtxt'+i];
         option.value = 'A'+i;
@@ -656,7 +844,7 @@ $(document).ready(function() {
 
     // LineType options
     var select = document.getElementById("Select-Line");
-    for (var i = 0; i < 7; i++) {
+    for (var i = 0; i < 12; i++) {
         var option = document.createElement("option");
         option.text = ChhLanguage.default.historian['linetype'+i];
         option.value = 'L'+i;
@@ -673,6 +861,15 @@ $(document).ready(function() {
            option.text = DP_DashType[i];
         }
         option.value = 'D'+i;
+        select.add(option); 
+    }
+
+    // LineType options
+    var select = document.getElementById("Select-LineWidth");
+    for (var i = 0; i < 11; i++) {
+        var option = document.createElement("option");
+        option.text = ChhLanguage.default.historian['linewidth'+i];
+        option.value = 'W'+i;
         select.add(option); 
     }
 
@@ -723,9 +920,9 @@ $(document).ready(function() {
                     var dp_vis = 2;
                     if (dp_id.substr(0,1) === '-') { dp_id = dp_id.substr(0,1); dp_vis = 1; }
 
-                    DP_start.push(dp_id);
+//                    DP_start.push(dp_id);
 
-                    if (text2.length > 1) {
+                    if (text2.length > 0) {
                         var attrpos = DP_attribute.findIndex( obj => obj.id === dp_id );
                         if (attrpos === -1) {
                            var attr = {id: dp_id,
@@ -737,6 +934,8 @@ $(document).ready(function() {
                                        color: 'F0',
                                        visible: dp_vis,
                                        dash: 'D0',
+                                       width: 'W2',
+                                       buffer_data: { timestamps: [], values: [], buffer_start: 0 , buffer_end: 0 },
                                       };
                            DP_attribute.push(attr);
                            attrpos = DP_attribute.findIndex( obj => obj.id === dp_id );
@@ -756,6 +955,8 @@ $(document).ready(function() {
                              DP_attribute[attrpos].mark = text2[k];
                           } else if (text2[k].substr(0,1) === 'D') {
                              DP_attribute[attrpos].dash = text2[k];
+                          } else if (text2[k].substr(0,1) === 'W') {
+                             DP_attribute[attrpos].width = text2[k];
                           } else if (text2[k].substr(0,1) === 'V') {
                              DP_attribute[attrpos].visible = parseInt(text2[k].substr(1,1));
                           }
@@ -814,7 +1015,7 @@ $(document).ready(function() {
 
     createChart();
 
-    if (DP_start.length >0) DP_Limit = true;
+    if (DP_attribute.length >0) DP_Limit = true;
 
     // Create the chart
     $('#container').highcharts('StockChart', {
@@ -903,6 +1104,7 @@ $(document).ready(function() {
                                            align: 'center',
                                            verticalAlign: 'top',
                                            floating: true,
+                                           y: 25,
                                          } );
                      DP_Legend = false;
                      $('.highcharts-contextmenu')[0].children[0].children[4].innerHTML = ChhLanguage.default.highcharts.limitactive;
@@ -915,6 +1117,7 @@ $(document).ready(function() {
                                            align: 'left',
                                            verticalAlign: 'top',
                                            floating: false,
+                                           y: 0,
                                          } );
                      DP_Legend = true;
                   }
@@ -984,8 +1187,11 @@ $(document).ready(function() {
                     $('.highcharts-contextmenu')[0].children[0].children[5].innerHTML = ChhLanguage.default.highcharts.aggractive3;
                     DP_Grouping = 2;
                   } else if (DP_Grouping === 2) {
-                    $('.highcharts-contextmenu')[0].children[0].children[5].innerHTML = ChhLanguage.default.highcharts.aggrdeactive;
+                    $('.highcharts-contextmenu')[0].children[0].children[5].innerHTML = ChhLanguage.default.highcharts.aggractive4;
                     DP_Grouping = 3;
+                  } else if (DP_Grouping === 3) {
+                    $('.highcharts-contextmenu')[0].children[0].children[5].innerHTML = ChhLanguage.default.highcharts.aggrdeactive;
+                    DP_Grouping = 4;
                   } else {
                     $('.highcharts-contextmenu')[0].children[0].children[5].innerHTML = ChhLanguage.default.highcharts.aggractive1;
                     DP_Grouping = 0;
@@ -1071,6 +1277,8 @@ $(document).ready(function() {
                             document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.highcharts.aggrtxt2 + ': ' + grouping.count + '/' + text;
                          } else if (aggrType === 3) {
                             document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.highcharts.aggrtxt3 + ': ' + grouping.count + '/' + text;
+                         } else if (aggrType === 4) {
+                            document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.highcharts.aggrtxt4 + ': ' + grouping.count + '/' + text;
                          } else {
                             document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.highcharts.aggrtxt4 + ': ' + grouping.count + '/' + text;
                          }  
@@ -1254,7 +1462,7 @@ $(document).ready(function() {
             verticalAlign: 'top',
             floating: true,
             x: 0,
-            y: 0,
+            y: 25,
             navigation: {
                 arrowSize: 20,
             }
@@ -1265,16 +1473,10 @@ $(document).ready(function() {
                 events: {
                     legendItemClick: function(event) {
                         var visibility = this.visible ? 'visible' : 'hidden';
-                        if (this.data.length === 0 && !this.visible) {
-                            getDataH2(this.name, this.index);
+                        if (!this.visible) {
+                            SetData(this);
                         }
                         if (this.visible) {
-/*                           var pos = DP_Aktive.indexOf(this.options.id);
-                           if (pos != -1) {
-                              DP_Aktive.splice(pos,1);
-
-                           }
-*/
                            var attr = DP_attribute.findIndex( obj => obj.id === this.options.id.toString() );
                            if (attr != -1) {
                               DP_attribute[attr].visible = (DP_Limit)?1:0;
@@ -1287,8 +1489,6 @@ $(document).ready(function() {
                               }
                            }
                         } else {
-//                           DP_Aktive.push(this.options.id);
-
 							      var attr = DP_attribute.findIndex( obj => obj.id === this.options.id.toString() );
                            if (attr != -1) DP_attribute[attr].visible = 2;
                         }
@@ -1405,6 +1605,7 @@ function ChangeEventRaumFilter() {
     var filter_gewerk = document.getElementById("Select-Gewerk").value;
     var save_active = [];
     var save_active_found = false;
+    var attr2
 
     chart = $('#container').highcharts();
     var series;
@@ -1418,34 +1619,66 @@ function ChangeEventRaumFilter() {
     for (i = 0; i < DP_point.length; i++) {
         if (check_filter(filter_raum, filter_gewerk, DP_point[i])) {
 
-            addSerie(DP_point[i]);
-            series = chart.get(DP_point[i].idx);
+            addSerie(DP_point[i],'');
+            series = chart.get(DP_point[i].idx.toString());
 
-            // check if active before refresh
-            if (DP_Aktive.indexOf(DP_point[i].idx) != -1) {
-//                series.visible = true;
-//                save_active_found = true;
-            }
             // check if should be visible
-		      var attr = DP_attribute.findIndex( obj => obj.id === series.options.id.toString() );
+            var attr = DP_attribute.findIndex( obj => obj.id === DP_point[i].idx.toString() );
             if (attr != -1) {
-               series.visible = (DP_attribute[attr].visible === 2)?true:false;
+
                if (DP_attribute[attr].visible === 2) {
                   series.visible = true;
                   save_active_found = true;
                } else {
                   series.visible = false;
                }
+
+               // load comparisation series
+               var compType = DP_attribute[attr].comp;
+               if (compType != 'C0') {
+                  // check if options exist, if not create it with default and C0
+                  attr2 = DP_attribute.findIndex( obj => obj.id === compType +'_'+DP_point[i].idx.toString() );
+                  if (attr2 === -1) {
+                     DP_attribute.push( {id:     compType +'_'+DP_point[i].idx.toString(),
+                                        aggr:    DP_attribute[attr].aggr,
+                                        yaxis:   DP_attribute[attr].yaxis,
+                                        comp:    'C0',
+                                        line:    DP_attribute[attr].line,
+                                        mark:    DP_attribute[attr].mark,
+                                        color:   DP_attribute[attr].color,
+                                        visible: DP_attribute[attr].visible,
+                                        dash:    'D1',
+                                        width:   DP_attribute[attr].width,
+                                        buffer_data: { timestamps: [], values: [], buffer_start: 0 , buffer_end: 0 },
+
+                                     });
+                     // Pointer setzen
+                     attr2 = DP_attribute.length-1;
+                  }
+
+                  addSerie(DP_point[i], compType );
+
+                  series = chart.get(DP_attribute[attr2].id);
+                  if (series) {
+                     if (DP_attribute[attr2].visible === 2) {
+                        series.visible = true;
+                        save_active_found = true;
+                     } else {
+                        series.visible = false;
+                     }
+                  }
+
+               }
             } 
         }
     }
 
-    loadNewPlotBand();
     if (save_active_found) {
-        loadNewSerienData();
+       loadNewSerienData();
+    } else {
+       loadNewPlotBand();
+       chart.redraw();
     }
-
-    chart.redraw();
 }
 
 //*******
@@ -1475,11 +1708,7 @@ function check_filter(p_raum, p_gewerk, p_dp) {
         }
     }
 
-/*    // Show only DP which are in Link or aktiv marked
-    if (DP_Limit && DP_Aktive.length > 0) {
-       if (DP_Aktive.indexOf(p_dp.idx) === -1) return false;
-    }
-*/
+    // only marked series are needed ?
     if (DP_Limit) {
        var attr = DP_attribute.findIndex( obj => obj.id === p_dp.idx.toString() );
        if (attr === -1)  return false;
@@ -1493,7 +1722,7 @@ function check_filter(p_raum, p_gewerk, p_dp) {
 function loadNewSerienData() {
     for (var serie = 0; serie < chart.series.length; serie++) {
         if (chart.series[serie].visible && chart.series[serie].options.group != "nav") {
-            getDataH2("", serie)
+            SetData(chart.series[serie]);
         }
     };
     chart.xAxis[0].setExtremes(Zeitraum_Start.getTime(), Zeitraum_Ende.getTime(), true);
@@ -1515,6 +1744,7 @@ function loadNewPlotBand() {
       }
   }
 
+  // gray in night, day yellow
   if (DP_DayLight === 1) {
     var id = 1;
     for (var loopDate = Zeitraum_Start.getTime(); loopDate <= Zeitraum_Ende.getTime(); loopDate += 86400000) {
@@ -1539,6 +1769,7 @@ function loadNewPlotBand() {
         });
         id++;
     }
+  // only line at 06:00 and 20:00
   } else if (DP_DayLight === 2) {
     var id = 1;
     for (var loopDate = Zeitraum_Start.getTime(); loopDate <= Zeitraum_Ende.getTime(); loopDate += 86400000) {
@@ -1557,6 +1788,7 @@ function loadNewPlotBand() {
         });
         id++;
     }
+  // only line at 00:00
   } else if (DP_DayLight === 3) {
     var id = 1;
     for (var loopDate = Zeitraum_Start.getTime(); loopDate <= Zeitraum_Ende.getTime(); loopDate += 86400000) {
@@ -1598,6 +1830,7 @@ function createUrl() {
                   url2 += (DP_attribute[attr].comp  === 'C0')?'':'|'+ DP_attribute[attr].comp;
                   url2 += (DP_attribute[attr].mark  === 'M0')?'':'|'+ DP_attribute[attr].mark;
                   url2 += (DP_attribute[attr].dash  === 'D0')?'':'|'+ DP_attribute[attr].dash;
+                  url2 += (DP_attribute[attr].width === 'W2')?'':'|'+ DP_attribute[attr].width;
                   url2 += (DP_attribute[attr].visible  === 2)?'':'|V'+ DP_attribute[attr].visible;
                   url2 += ',';
                }
@@ -1619,6 +1852,7 @@ function createUrl() {
                url2 += (DP_attribute[attr].comp  === 'C0')?'':'|'+ DP_attribute[attr].comp;
                url2 += (DP_attribute[attr].mark  === 'M0')?'':'|'+ DP_attribute[attr].mark;
                url2 += (DP_attribute[attr].dash  === 'D0')?'':'|'+ DP_attribute[attr].dash;
+               url2 += (DP_attribute[attr].width === 'W2')?'':'|'+ DP_attribute[attr].width;
                url2 += (DP_attribute[attr].visible  === 2)?'':'|V'+ DP_attribute[attr].visible;
             }
             url2 += ',';
@@ -1715,7 +1949,6 @@ function AutoRefresh() {
    }
 }
 
-
 //********************
 function AddAggregationMinMax(serieObj) {
 
@@ -1749,243 +1982,6 @@ function AddAggregationMinMax(serieObj) {
         })
 }
 
-//********************
-function AddCompSeries(serieObjV,CompType) {
-
-    // first delete all linked series
-    for (var i = chart.series.length - 1; i >= 0; i--) {
-        if ('C'+serieObjV.options.id.toString() === chart.series[i].options.id) { 
-            chart.series[i].remove(false);
-        }
-    }
-
-    var backTime = 0;
-    if (CompType === 'C1')      { backTime = -1;
-    } else if (CompType === 'C2')  { backTime = -2;
-    } else if (CompType === 'C3')  { backTime = -3;
-    } else if (CompType === 'C4')  { backTime = -4;
-    } else if (CompType === 'C5')  { backTime = -1*7;
-    } else if (CompType === 'C6')  { backTime = -2*7;
-    } else if (CompType === 'C7')  { backTime = -3*7;
-    } else if (CompType === 'C8')  { backTime = -4*7;
-    } else if (CompType === 'C9')  { backTime = -1*7*4;
-    } else if (CompType === 'C10') { backTime = -2*7*4;
-    } else if (CompType === 'C11') { backTime = -3*7*4;
-    } else if (CompType === 'C12') { backTime = -4*7*4;
-    } else if (CompType === 'C13') { backTime = -1*7*52;
-    }
-
-    var sysvar2 = serieObjV.options.id.toString();
-    var backSec = backTime*3600*24*1000;
-
-    var url = 'http://' + H2_server + ':' + H2_port
-    url += '/query/jsonrpc.gy?j={%22id%22:%22C' + serieObjV.index.toString() + '|'+CompType+'%22';
-    url += ',%22method%22:%22getTimeSeries%22';
-    url += ',%22params%22:[' + serieObjV.options.id.toString() + ',' + (Zeitraum_Start.getTime()+backSec) + ',' + (Zeitraum_Ende.getTime()+backSec) + ']}';
-
-    // get serien data from H2 database
-    $.ajax({
-        type: "GET",
-        url: url,
-        dataType: "json",
-        async: true,
-        cache: false,
-        success: function(result) {
-
-            var arr = [];
-            var attr;
-            var color;
-            var grouping;
-            var lineType;
-            var type;
-            var step;
-            var dashtype = DP_DashType[1];
-
-            if (result.result.values) {
-                
-                var series = result.id;
-                var orgSerie = result.id.split('|')[0].substr(1,5);
-                var CType = result.id.split('|')[1]
-                var backTime = 0;
-                if (CType === 'C1')      { backTime = -1;
-                } else if (CType === 'C2')  { backTime = -2;
-                } else if (CType === 'C3')  { backTime = -3;
-                } else if (CType === 'C4')  { backTime = -4;
-                } else if (CType === 'C5')  { backTime = -1*7;
-                } else if (CType === 'C6')  { backTime = -2*7;
-                } else if (CType === 'C7')  { backTime = -3*7;
-                } else if (CType === 'C8')  { backTime = -4*7;
-                } else if (CType === 'C9')  { backTime = -1*7*4;
-                } else if (CType === 'C10') { backTime = -2*7*4;
-                } else if (CType === 'C11') { backTime = -3*7*4;
-                } else if (CType === 'C12') { backTime = -4*7*4;
-                } else if (CType === 'C13') { backTime = -1*7*52; 
-                }
-                var backSec = backTime*3600*24*1000;
-
-                var series = chart.series[orgSerie];
-
-                var aggrType;
-                if (series) {
-   					 // Popup Change types
-
-                   aggrType = DP_Grouping;
-                   if (series.options.id) {
-                      attr = DP_attribute.findIndex( obj => obj.id === series.options.id.toString() );
-                      if (attr != -1) {
-                         aggrType = parseInt(DP_attribute[attr].aggr.substr(1,2))
-                         lineType = parseInt(DP_attribute[attr].line.substr(1,2))
-                      }
-                     
-                      attr = DP_attribute.findIndex( obj => obj.id === 'C'+series.options.id.toString() );
-                      if (attr != -1) {
-                         color = chart.options.colors[ parseInt(DP_attribute[attr].color.substr(1,2)) ];
-                         aggrType = parseInt(DP_attribute[attr].aggr.substr(1,2))
-                         lineType = parseInt(DP_attribute[attr].line.substr(1,2))
-
-                         var dashID = parseInt(DP_attribute[attr].dash.substr(1,2));
-                         if (dashID > 0) { dashtype = DP_DashType[dashID]; }
-
-                      } 
-                   }
-
-                   // collect all timesstamps and Valuse
-                   if (aggrType === 2) {
-                      var last_value = result.result.values[0];
-                      var last_time  = result.result.timestamps[0];
-                      for (var i = 1; i < result.result.values.length; i++) {
-                        // fill missing times with delta 0 every 10 min.
-                        if ((result.result.timestamps[i] - last_time) > 600000) {
-                           for (var t = last_time; t < result.result.timestamps[i]; t=t+600000) {
-                              arr.push([t, 0 ]);
-                           }
-                        }
-                        arr.push([result.result.timestamps[i]-backSec, Math.round((result.result.values[i]-last_value) * 1000) / 1000]);
-                        last_value = result.result.values[i];
-                        last_time  = result.result.timestamps[i];
-                      }
-
-                   } else {
-                      for (var i = 0; i < result.result.values.length; i++) {
-                        arr.push([result.result.timestamps[i]-backSec, Math.round(result.result.values[i] * 1000) / 1000]);
-                      }
-                   }
-                   if (arr.length > 0) {
-                      grouping = series.userOptions.dataGrouping;
-                      type = series.userOptions.type;
-                      step = series.userOptions.step;
-
-                      if (lineType === 0) {
-                         type = "spline";
-                         step = "left";
-                      } else if (lineType === 1) {
-                         type = "line";
-                         step = "left";
-                      } else if (lineType === 2) {
-                         type = "line";
-                         step = "center";
-                      } else if (lineType === 3) {
-                         type = "line";
-                         step = "right";
-                      } else if (lineType === 4) {
-                         type = "scatter";
-                         step = "";
-                      } else if (lineType === 5) {
-                         type = "area";
-                         step = "";
-                      } else if (lineType === 6) {
-                         type = "column";
-                         step = "";
-                      };
-
-                      if (aggrType === 1) {
-                          grouping = {
-                              enabled: true,
-                              groupPixelWidth: 50,
-                          };
-                      } else if (aggrType === 2) {
-                          grouping = {
-                              enabled: true,
-                              approximation: 'sum',
-                              groupPixelWidth: 50,
-                              units: [ [ 'hour', [1] ], 
-                                       [ 'day' , [1] ]                     
-                                     ]
-                          };
-                      } else if (aggrType === 3) {
-                          grouping = {
-                              enabled: true,
-                              groupPixelWidth: 50,
-                              units: [ [ 'minute', [15,30] ], 
-                                       [ 'hour', [1,2,3,4,6,8,12] ], 
-                                       [ 'day' , [1] ],                     
-                                       [ 'week' , [1] ],                     
-                                       [ 'month' , [1,3,6] ],                     
-                                       [ 'year' , [1] ],                     
-                                     ]
-                          };
-                          type = (type="line")?"spline":type;
-                      } else {
-                          grouping = {
-                              enabled: false,
-                          };
-                      }
-
-                     var serie2 = chart.addSeries({
-                                      name: series.name+'('+ChhLanguage.default.historian['comptype'+CType]+')',
-                                      id: 'C'+series.options.id.toString(),
-                                      fillOpacity: 0.4,
-                                      color: color,
-                                      yAxis: series.options.yAxis,
-                                      type: type,
-                                      step: step,
-                                      dataGrouping: grouping,
-                                      dashStyle: dashtype,
-                                      data: arr,
-                                      tooltip: {
-                                         valueDecimals: series.userOptions.tooltip.valueDecimals,
-                                         valueSuffix:   series.userOptions.tooltip.valueSuffix,
-                                         headerFormat: '<span style="font-size: 12px">{point.y-backSec}</span><br/>',
-                                         formatter: function () {
-                                              // The first returned item is the header, subsequent items are the
-                                              // points
-                                              return ['<b>' + this.x + '</b>'].concat(
-                                              this.points.map(function (point) {
-                                                    return point.series.name + ': ' + point.y + 'm';
-                                                    })
-                                              );
-                                         },
-                                      },
-                                    })
-
-						     attr = DP_attribute.findIndex( obj => obj.id === serie2.options.id.toString() );
-						     if (attr === -1) {
-                          DP_attribute.push( {id: serie2.options.id.toString(),
-			                                     aggr:  'A'+aggrType,
-             			                         yaxis: 'Y'+serie2.options.yAxis,
-			                                     comp:  'C0',
-             			                         line:  'L'+lineType,
-			                                     mark:  'M0',
-			                                     color: 'F'+serie2.colorIndex,
-                                              visible:  (serie2.visible)?2:1,
-                                              dash:  'D'+DP_DashType.indexOf(serie2.options.dashStyle),
-                                            });
-                      }
-
-                      if (aggrType === 3) {
-                         AddAggregationMinMax(serie2);
-                      }
-
-                   }
-                   document.getElementById("count_val").innerHTML = (Number(document.getElementById("count_val").innerHTML) + result.result.values.length).toString();
-                }
-            }
-        }
-    });
-    return;
-}
-
-
 // Show Dialog
 function ShowDialog(serieObj) {
 
@@ -1993,9 +1989,9 @@ function ShowDialog(serieObj) {
   if (serieObj.options.id) {
      DP_PopupID = serieObj.options.id.toString();
 
-     var attr = DP_attribute.filter( obj => obj.id === serieObj.options.id.toString() )[0];
-     if (!attr) {
-        attr = {id: serieObj.options.id.toString(),
+     var attr = DP_attribute.findIndex( obj => obj.id === serieObj.options.id.toString() );
+     if (attr === -1) {
+        var ArrAttr = {id: serieObj.options.id.toString(),
                          aggr:  'A0',
                          yaxis: 'Y'+serieObj.options.yAxis,
                          comp:  'C0',
@@ -2004,8 +2000,11 @@ function ShowDialog(serieObj) {
                          color: 'F'+serieObj.colorIndex,
                          visible: 2,
                          dash:  'D0',
+                         width: 'W2',
+                         buffer_data: { timestamps: [], values: [], buffer_start: 0 , buffer_end: 0 },
                         };
-       DP_attribute.push(attr);
+       DP_attribute.push(ArrAttr);
+       attr = DP_attribute.length-1;
      }
      if ('C' === serieObj.options.id.toString().substr(0,1)) {
         document.getElementById("compare").style.display = 'none';
@@ -2015,13 +2014,15 @@ function ShowDialog(serieObj) {
 
      // set value on Popup
      document.getElementsByClassName("modal-title")[0].innerHTML = serieObj.name;
-     document.getElementById("Select-Aggregation").value = attr.aggr;
-     document.getElementById("Select-Yaxis").value       = attr.yaxis;
-     document.getElementById("Select-Compare").value     = attr.comp;
-     document.getElementById("Select-Line").value        = attr.line;
-     document.getElementById("Select-Color").value       = attr.color;
-     document.getElementById("Select-Marker").value      = attr.mark;
-     document.getElementById("Select-DashType").value    = attr.dash;
+     document.getElementById("Select-Aggregation").value = DP_attribute[attr].aggr;
+     document.getElementById("Select-Yaxis").value       = DP_attribute[attr].yaxis;
+     document.getElementById("Select-Compare").value     = DP_attribute[attr].comp;
+     document.getElementById("Select-Line").value        = DP_attribute[attr].line;
+     document.getElementById("Select-Color").value       = DP_attribute[attr].color;
+     document.getElementById("Select-Marker").value      = DP_attribute[attr].mark;
+     document.getElementById("Select-DashType").value    = DP_attribute[attr].dash;
+     document.getElementById("Select-LineWidth").value   = DP_attribute[attr].width;
+
 
 
      document.getElementById("Select-Color").style.color = chart.options.colors[parseInt(document.getElementById("Select-Color").value.substr(1,1))];
@@ -2036,6 +2037,14 @@ $("#DialogBtnOK").click(function(){
 
     var attr = DP_attribute.findIndex( obj => obj.id === DP_PopupID );
 
+    if (DP_attribute[attr].comp != document.getElementById("Select-Compare").value && document.getElementById("Select-Compare").value != 'C0' && DP_attribute[attr].comp != 'C0') {
+       // change comparisation ID on old one, search any old one to update ID
+       var attrC = DP_attribute.findIndex( obj => obj.id.substr(0,1) === 'C' && obj.id.split('_')[1] === DP_PopupID );
+       if (attrC != -1) {
+          DP_attribute[attrC].id = document.getElementById("Select-Compare").value +'_'+ DP_PopupID;
+       }
+    }
+
     // get value on Popup
     DP_attribute[attr].aggr  = document.getElementById("Select-Aggregation").value;
     DP_attribute[attr].yaxis = document.getElementById("Select-Yaxis").value;
@@ -2044,6 +2053,8 @@ $("#DialogBtnOK").click(function(){
     DP_attribute[attr].color = document.getElementById("Select-Color").value;
     DP_attribute[attr].mark  = document.getElementById("Select-Marker").value;
     DP_attribute[attr].dash  = document.getElementById("Select-DashType").value;
+    DP_attribute[attr].width = document.getElementById("Select-LineWidth").value;
+
 
     $("#LinePopup").modal('hide');
 
@@ -2070,3 +2081,21 @@ function ResetOptions() {
 $("#Select-Color").on("change", function() {
    document.getElementById("Select-Color").style.color = chart.options.colors[parseInt(document.getElementById("Select-Color").value.substr(1,1))];
 });
+
+// define Comparisation days back
+function getComparisionBackDay(str_compType) {
+    if (str_compType=== 'C1')   return -1;
+    if (str_compType === 'C2')  return -2;
+    if (str_compType === 'C3')  return -3;
+    if (str_compType === 'C4')  return -4;
+    if (str_compType === 'C5')  return -1*7;
+    if (str_compType === 'C6')  return -2*7;
+    if (str_compType === 'C7')  return -3*7;
+    if (str_compType === 'C8')  return -4*7;
+    if (str_compType === 'C9')  return -1*7*4;
+    if (str_compType === 'C10') return -2*7*4;
+    if (str_compType === 'C11') return -3*7*4;
+    if (str_compType === 'C12') return -4*7*4;
+    if (str_compType === 'C13') return -1*7*52;
+    return 0
+}

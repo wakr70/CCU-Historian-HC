@@ -75,6 +75,10 @@ renderer.content={
            span id: "Text-DashType", class:"LinePopup-text", "Line-Art" 
            select(id: "Select-DashType", class:"form-select-h2")  { }
          }
+         div(id:"linewidth") {
+           span id: "Text-LineWidth", class:"LinePopup-text", "Line-Width" 
+           select(id: "Select-LineWidth", class:"form-select-h2")  { }
+         }
         }
         div(class:"modal-footer") {
           button type:"button", class:"btn btn-default", id:"DialogBtnOK", "Ok"
