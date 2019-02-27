@@ -36,25 +36,31 @@ The whole selection will be added to this link also zoom, periode, daylight, leg
 http://<host>:<port>/custom/h2-highchart/H2-HighChart.gy?periode=??dp=131|Y5|L1|V1|A1,???&room=??&function=??&filterkey=??&zoom=??&legend=false&navigator=false&labels=true&daylight=false&filterline=false&theme=dark-green
 
 Parameters for dp=<CCU-Historian-ID>|A0|Y0|L0|F0|C0|M0|V2  
-   * A0 - Aggregation (0-no, 1-dyn, 2-delta, 3-min/max)
+   * A0 - Aggregation (0-no, 1-dyn, 2-delta, 3-min/max, 4-sum)
    * Y0 - Y-axis (0-13)
-   * L0 - Linetype (0-SP-line, 1-Line/left, 2-Line/center, 3-Line/right, 4-Scatter, 5-Area, 6-column)
+   * L0 - Linetype (0-SP-line, 1-Line, 2-Line/left, 3-Line/center, 4-Line/right, 5-Scatter, 
+          6-SP-Area, 7-Area, 8-Area/left, 9-Area/center, 10-Area/right, 11-column)
    * F0 - Color (0-len out of Themes variable Color)
    * C0 - Comparisation (0-none, 1-day-1, 2-day-2, 3-day-3, 4-day-4, 5-week-1, 6-week-2, 7-week-3, 8-week-4, 9-12-month, 13-year
    * M0 - Marker (0-none, 1-circle, 2-diamont, 3-squar, 4-triangle, 5-triangle-down)
-   * V0 - Visible (0-not, 1-deacitated, 2-activated)
+   * V2 - Visible (0-not, 1-deacitated, 2-activated)
    * D0 - Dashtype (0-solid,1-Dash,2-DashDot,3-Dot,4-LongDash,5-LongDashDot,6-LongDashDotDot,7-ShortDash,
           8-ShortDashDot,9-ShortDashDotDot,10-ShortDot
+   * W2 - Line width (0-10)
   
 This options can be set on click to a line/point on the chart.
 ![](docs/line-menu.png) 
 
 Add new themes: dark-green, avocado, dark-blue, dark-unica, gray, grid-light, grid, skies, sunset
+![](docs/screen3.png) 
 
 Fullscreen is possible with:  
    * hide filter line
    * navigator
    * legende
-   
+
+
+
 Refresh time can be set in url as default 60 sec. with "&refresh=true" or "&refresh=300" (for 5 Min. or 300 sec.)
+
 
