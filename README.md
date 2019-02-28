@@ -37,6 +37,7 @@ http://<host>:<port>/custom/h2-highchart/H2-HighChart.gy?periode=??dp=131|Y5|L1|
 
 Parameters for dp=<CCU-Historian-ID>|A0|Y0|L0|F0|C0|M0|V2  
    * A0 - Aggregation (0-no, 1-dyn, 2-delta, 3-min/max, 4-sum)
+   * T1 - Aggregation Time (0-dyn, 1-dyn. 15min, 2-no/hour/day, 3-fix hour, 4-fix day, 5-fix week, 6-fix month, 7-fix quarter
    * Y0 - Y-axis (0-13)
    * L0 - Linetype (0-SP-line, 1-Line, 2-Line/left, 3-Line/center, 4-Line/right, 5-Scatter, 
           6-SP-Area, 7-Area, 8-Area/left, 9-Area/center, 10-Area/right, 11-column)
@@ -47,6 +48,9 @@ Parameters for dp=<CCU-Historian-ID>|A0|Y0|L0|F0|C0|M0|V2
    * D0 - Dashtype (0-solid,1-Dash,2-DashDot,3-Dot,4-LongDash,5-LongDashDot,6-LongDashDotDot,7-ShortDash,
           8-ShortDashDot,9-ShortDashDotDot,10-ShortDot
    * W2 - Line width (0-10)
+   * X1 - Multiplication factor of value, standard 1 = no effect
+   * O0 - Offset, will be add to every value
+   * Ukg - Unit which should be used
   
 This options can be set on click to a line/point on the chart.
 ![](docs/line-menu.png) 
@@ -58,8 +62,6 @@ Fullscreen is possible with:
    * hide filter line
    * navigator
    * legende
-
-
 
 Refresh time can be set in url as default 60 sec. with "&refresh=true" or "&refresh=300" (for 5 Min. or 300 sec.)
 
