@@ -55,6 +55,10 @@ renderer.content={
            span id: "Text-Aggregation", class:"LinePopup-text", "Aggregation" 
            select(id: "Select-Aggregation", class:"form-select-h2")  { }
          }
+         div(id:"aggrtime") {
+           span id: "Text-AggrTime", class:"LinePopup-text", "Aggr.Zeitraum" 
+           select(id: "Select-AggrTime", class:"form-select-h2")  { }
+         }
          div(id:"compare") {
            span id: "Text-Compare", class:"LinePopup-text", "Compare" 
            select(id: "Select-Compare", class:"form-select-h2")  { }
@@ -78,6 +82,18 @@ renderer.content={
          div(id:"linewidth") {
            span id: "Text-LineWidth", class:"LinePopup-text", "Line-Width" 
            select(id: "Select-LineWidth", class:"form-select-h2")  { }
+         }
+         div(id:"linefactor") {
+           span id: "Text-LineFactor", class:"LinePopup-text", "Faktor" 
+           input(id: "Line-Factor", type:"number", step: "any", class:"form-input-h2") 
+         }
+         div(id:"lineoffset") {
+           span id: "Text-LineOffSet", class:"LinePopup-text", "Offset" 
+           input(id: "Line-OffSet", type:"number", step: "any", class:"form-input-h2") 
+         }
+         div(id:"lineunit") {
+           span id: "Text-LineUnit", class:"LinePopup-text", "Einheit" 
+           input(id: "Line-Unit", class:"form-input-h2") 
          }
         }
         div(class:"modal-footer") {
