@@ -65,4 +65,14 @@ Fullscreen is possible with:
 
 Refresh time can be set in url as default 60 sec. with "&refresh=true" or "&refresh=300" (for 5 Min. or 300 sec.)
 
+Example for CUxD.SUM_ON_TIME where we get minutes:
+![](docs/screen7.png)
 
+Some with Delta Aggregation and Daily Aggregation additional factor 0.0373065 for L and new Unit L, here the settings:
+![](docs/screen5.png)
+
+and the outcome:
+![](docs/screen6.png)
+
+Same with aggregation time Fix to hour:
+![](docs/screen8.png)
