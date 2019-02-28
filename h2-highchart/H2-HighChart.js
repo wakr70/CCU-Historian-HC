@@ -323,6 +323,15 @@ function addSerie(DP,DP_type) {
             groupPixelWidth: groupwidth,
             units: groupUnits, 
         };
+    } else if (aggrType === 5) {
+        grouping = {
+            enabled: true,
+            approximation: 'sum',
+            forced: groupforced,
+            smoothed: groupsmoothed,
+            groupPixelWidth: groupwidth,
+            units: groupUnits, 
+        };
     } else {
         grouping = {
             enabled: false,
@@ -607,6 +616,64 @@ function SetSerienData(p_attr, serieObj) {
           }
        }
 
+    // collect all timesstamps and Values for TIME_ON Aggregation
+    } else if (aggrType === 5) {
+
+       // get start and end position if buffer over binary search
+       var arrStart = sortedIndex(buffer.timestamps, datStart );
+       var arrEnd   = sortedIndex(buffer.timestamps, datEnd   );
+
+       // only if values found
+       if (arrStart < buffer.timestamps.length) {
+
+          var last_value = (buffer.values[arrStart] > 0)?1:0;
+          var last_time  = buffer.timestamps[arrStart];
+  
+          for (var i = arrStart+1 ; i < arrEnd ; i++) {
+            if (last_value>0 && buffer.values[i] === 0) {
+
+               last_value = buffer.timestamps[i] - last_time;
+               // fill every minute with 1 as run time
+               if (last_value > 60000) {
+                  for (var t = last_time; t < buffer.timestamps[i]-60000; t=t+60000) {
+                     arr.push([t - backSec, ( 1 * DP_attribute[p_attr].factor ) + DP_attribute[p_attr].offset ]);
+                     last_value -= 60000;
+                  }
+               }
+               if (last_value > 0) {
+                  arr.push([t - backSec , ( Math.round(last_value/60)/1000  * DP_attribute[p_attr].factor ) + DP_attribute[p_attr].offset ]);
+               };
+               last_value = 0;
+               last_time  = buffer.timestamps[i];
+            } else if (last_value === 0 && buffer.values[i] > 0){
+
+               last_value = buffer.timestamps[i] - last_time;
+               // fill every minute with 1 as run time
+               if (last_value > 60000) {
+                  for (var t = last_time; t < buffer.timestamps[i]-60000; t=t+60000) {
+                     arr.push([t - backSec, 0 ]);
+                     last_value -= 60000;
+                  }
+               }
+
+              last_value = 1;
+              last_time  = buffer.timestamps[i];
+            }
+          }
+          // fill also last minutes if still on
+          if (last_value>0 ) {
+               last_value = arrEnd - last_time;
+               if (last_value > 60000) {
+                  for (var t = last_time; t < arrEnd-60000; t=t+60000) {
+                     arr.push([t - backSec, ( 1 * DP_attribute[p_attr].factor ) + DP_attribute[p_attr].offset ]);
+                     last_value -= 60000;
+                  }
+               }
+               if (last_value > 0) {
+                  arr.push([t - backSec , ( Math.round(last_value/60)/1000  * DP_attribute[p_attr].factor ) + DP_attribute[p_attr].offset ]);
+               };
+            }
+       }
     } else {
 
        // get start and end position over binary search
@@ -992,7 +1059,7 @@ $(document).ready(function() {
 
     // aggregation options
     var select = document.getElementById("Select-Aggregation");
-    for (var i = 0; i < 5; i++) {
+    for (var i = 0; i < 6; i++) {
         var option = document.createElement("option");
         option.text = ChhLanguage.default.highcharts['aggrtxt'+i];
         option.value = 'A'+i;
@@ -1870,8 +1937,11 @@ function ChartSetOptions() {
                     $('.highcharts-contextmenu')[0].children[0].children[5].innerHTML = ChhLanguage.default.highcharts.aggractive4;
                     DP_Grouping = 3;
                   } else if (DP_Grouping === 3) {
-                    $('.highcharts-contextmenu')[0].children[0].children[5].innerHTML = ChhLanguage.default.highcharts.aggrdeactive;
+                    $('.highcharts-contextmenu')[0].children[0].children[5].innerHTML = ChhLanguage.default.highcharts.aggractive5;
                     DP_Grouping = 4;
+                  } else if (DP_Grouping === 4) {
+                    $('.highcharts-contextmenu')[0].children[0].children[5].innerHTML = ChhLanguage.default.highcharts.aggrdeactive;
+                    DP_Grouping = 5;
                   } else {
                     $('.highcharts-contextmenu')[0].children[0].children[5].innerHTML = ChhLanguage.default.highcharts.aggractive1;
                     DP_Grouping = 0;
@@ -1959,8 +2029,10 @@ function ChartSetOptions() {
                             document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.highcharts.aggrtxt3 + ': ' + grouping.count + '/' + text;
                          } else if (aggrType === 4) {
                             document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.highcharts.aggrtxt4 + ': ' + grouping.count + '/' + text;
+                         } else if (aggrType === 5) {
+                            document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.highcharts.aggrtxt5 + ': ' + grouping.count + '/' + text;
                          } else {
-                            document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.highcharts.aggrtxt4 + ': ' + grouping.count + '/' + text;
+                            document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.highcharts.aggrtxt1 + ': ' + grouping.count + '/' + text;
                          }  
                       } else {
                          document.getElementById('aggr_text').innerHTML = ' -  ' + ChhLanguage.default.highcharts.aggrtxt0;
