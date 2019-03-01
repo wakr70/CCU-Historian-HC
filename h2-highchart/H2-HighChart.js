@@ -336,10 +336,10 @@ function addSerie(DP,DP_type) {
     var pointFormat   = null;
     var serienName    = '';
 
-       pointFormater = function () { var xDate = new Date(this.x + (getComparisionBackDay(this.series.options.id.split('_')[0])));
+    pointFormater = function () { var xDate = new Date(this.x + (getComparisionBackDay(this.series.options.id.split('_')[0])));
 
-                                     var txta = "<span style='fill:"+this.color+"'>\u25CF </span>" + this.series.name + ": <b>" + Highcharts.numberFormat(this.y , 2, ",", ".") +" "+ this.series.tooltipOptions.valueSuffix +"</b><br/>";
-                                     
+                                     var txta = "<span style='fill:"+this.color+"'>\u25CF </span>" + this.series.name + ": <b>" + 
+                                                Highcharts.numberFormat(this.y , 2, ",", ".") + " "+ this.series.tooltipOptions.valueSuffix +"</b><br/>";
 
                                      if (this.series.hasGroupedData) {
 
@@ -352,8 +352,6 @@ function addSerie(DP,DP_type) {
                                           }
                                        }
 
-
-
                                        var pointRange;
                                        if (this.series.currentDataGrouping.totalRange) {
                                           pointRange = this.series.currentDataGrouping.totalRange;
@@ -362,21 +360,17 @@ function addSerie(DP,DP_type) {
                                        var xEnde = Highcharts.dateFormat('%H:%M', xDate.getTime() + pointRange);
                                        if (xEnde == '00:00') xEnde = '24:00';
 
+                                       // get Timeframe text
                                        if ( pointRange < 3600000 ) {
-                                         // txta += pointRange / 60000 + ' Minuten</i><br/>';
                                           txta += "<b>"+Highcharts.dateFormat('%A, %b %e, %H:%M', xDate ) + '-' + xEnde+"</b>";
                                        } else if (pointRange < 86400000) {
-                                         // txta += pointRange / 3600000 + ' Stunde' + (pointRange > 3600000 ? 'n' : '') + '</i><br/>';
                                           txta += "<b>"+Highcharts.dateFormat('%A, %b %e, %H:%M', xDate ) + '-' + xEnde+"</b>";
                                        } else {
-                                         // txta += pointRange / 86400000 + ' Tag' + (pointRange > 86400000 ? 'e' : '') + '</i><br/>';
                                           txta += "<b>"+Highcharts.dateFormat('%A, %b %e', xDate)+"</b>";
                                        }
 
-
-
+                                       // get Aggregation Symbol
                                        txta += '<i> (<b>';
-
                                        if (aggrType === 1) txta += jQuery('<div/>').html('&#x00d8; ').text();  // average
                                        if (aggrType === 2) txta += jQuery('<div/>').html('&#x0394; ').text();  // delta
                                        if (aggrType === 3) txta += jQuery('<div/>').html('&#x03a8; ').text();  // min/max
@@ -391,28 +385,19 @@ function addSerie(DP,DP_type) {
                                           }
                                           txta += '</b> '+grouping.count + ' ' +text;
                                        }
-
                                        txta +=  ")</i><br/>";
 
-
                                      } else {
-                                           txta += "<b>"+Highcharts.dateFormat('%A, %b %e, %H:%M:%S', xDate)+"</b>";
+                                        txta += "<b>"+Highcharts.dateFormat('%A, %b %e, %H:%M:%S', xDate)+"</b>";
                                      }
-
                                      return txta; } 
-
-
 
     if (DP_type.substr(0,1) === 'C') {
        serienName    = (DP.id.interfaceId === "SysVar")? (DP.attributes.displayName): (DP.attributes.displayName + '.' + DP.id.identifier) + '('+ChhLanguage.default.historian['comptype'+DP_type]+')'
-//       pointFormat   = null;
-
     } else if (DP.id.interfaceId === "SysVar") {
        serienName    = DP.attributes.displayName;
-//       pointFormat  = '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>';
     } else {
        serienName    = DP.attributes.displayName + '.' + DP.id.identifier;
-//       pointFormat  = '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>' + DP.id.interfaceId + '.' + DP.id.address + '.' + DP.id.identifier + '<br/>';
     }
 
     var def_serie = {
@@ -1297,7 +1282,6 @@ $(document).ready(function() {
                 // only filterline without menue
                 if (decodeURIComponent(nv[1].toLowerCase()) === '2') { 
                    DP_ShowFilter = 2; 
-                   // document.getElementById("filter").style.display = "none";
                    $('nav.navbar.navbar-default')[0].style.display = "none";
                    document.getElementById("container").setAttribute("style", "height:" + ($(document).height() -90 ) + "px");
                 }
@@ -1305,7 +1289,6 @@ $(document).ready(function() {
                 if (decodeURIComponent(nv[1].toLowerCase()) === '3') { 
                    DP_ShowFilter = 3; 
                    document.getElementById("filter").style.display = "none";
-                   // $('nav.navbar.navbar-default')[0].style.display = "none";
                    document.getElementById("container").setAttribute("style", "height:" + ($(document).height() -125 ) + "px");
                 }
 
