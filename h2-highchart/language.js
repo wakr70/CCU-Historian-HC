@@ -210,6 +210,12 @@ var ChhLanguage = {
             aggrhour: 'Stunde',
             aggrminute: 'Minute',
             aggrsecond: 'Sekunde',
+            aggrmonth2: 'Monate',
+            aggrweek2: 'Wochen',
+            aggrday2: 'Tage',
+            aggrhour2: 'Stunden',
+            aggrminute2: 'Minuten',
+            aggrsecond2: 'Sekunden',
         }
     }
 };

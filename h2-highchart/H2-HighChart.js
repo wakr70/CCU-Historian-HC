@@ -16,7 +16,6 @@ var DP_Navigator = true;
 var DP_Labels = false;
 var DP_DayLight = 1;
 var DP_Limit = false;
-var DP_Grouping = 0;
 var DP_AutoRefresh = 0;
 var DP_ShowFilter = 1;
 var AutoRefreshCount = 0;
@@ -67,7 +66,7 @@ function addSerie(DP,DP_type) {
     var step = "left";
     var color = null;
     var lineType = 0;
-    var aggrType = DP_Grouping; 
+    var aggrType = 0; 
     var aggrTime = 1;
     var dptype = DP.id.identifier;
     var dashtype = DP_DashType[0];
@@ -337,21 +336,83 @@ function addSerie(DP,DP_type) {
     var pointFormat   = null;
     var serienName    = '';
 
+       pointFormater = function () { var xDate = new Date(this.x + (getComparisionBackDay(this.series.options.id.split('_')[0])));
+
+                                     var txta = "<span style='fill:"+this.color+"'>\u25CF </span>" + this.series.name + ": <b>" + Highcharts.numberFormat(this.y , 2, ",", ".") +" "+ this.series.tooltipOptions.valueSuffix +"</b><br/>";
+                                     
+
+                                     if (this.series.hasGroupedData) {
+
+                                       var aggrType = '';
+                                       if (this.series.options.id) {
+                                          attr = DP_attribute.findIndex( obj => obj.id === this.series.options.id.toString() );
+                                          aggrType = 0;
+                                          if (attr != -1) {
+                                             aggrType = parseInt(DP_attribute[attr].aggr.substr(1,2));
+                                          }
+                                       }
+
+
+
+                                       var pointRange;
+                                       if (this.series.currentDataGrouping.totalRange) {
+                                          pointRange = this.series.currentDataGrouping.totalRange;
+                                       }
+
+                                       var xEnde = Highcharts.dateFormat('%H:%M', xDate.getTime() + pointRange);
+                                       if (xEnde == '00:00') xEnde = '24:00';
+
+                                       if ( pointRange < 3600000 ) {
+                                         // txta += pointRange / 60000 + ' Minuten</i><br/>';
+                                          txta += "<b>"+Highcharts.dateFormat('%A, %b %e, %H:%M', xDate ) + '-' + xEnde+"</b>";
+                                       } else if (pointRange < 86400000) {
+                                         // txta += pointRange / 3600000 + ' Stunde' + (pointRange > 3600000 ? 'n' : '') + '</i><br/>';
+                                          txta += "<b>"+Highcharts.dateFormat('%A, %b %e, %H:%M', xDate ) + '-' + xEnde+"</b>";
+                                       } else {
+                                         // txta += pointRange / 86400000 + ' Tag' + (pointRange > 86400000 ? 'e' : '') + '</i><br/>';
+                                          txta += "<b>"+Highcharts.dateFormat('%A, %b %e', xDate)+"</b>";
+                                       }
+
+
+
+                                       txta += '<i> (<b>';
+
+                                       if (aggrType === 1) txta += jQuery('<div/>').html('&#x00d8; ').text();  // average
+                                       if (aggrType === 2) txta += jQuery('<div/>').html('&#x0394; ').text();  // delta
+                                       if (aggrType === 3) txta += jQuery('<div/>').html('&#x03a8; ').text();  // min/max
+                                       if (aggrType === 4) txta += jQuery('<div/>').html('&#x01a9; ').text();  // sum
+                                       if (aggrType === 5) txta += jQuery('<div/>').html('&#x01ac; ').text();  // TIME_ON
+
+                                       var grouping = this.series.currentDataGrouping;
+                                       if (grouping) {
+                                          var text = grouping.unitName+((grouping.count > 1)?'2':'').toString();
+                                          if (ChhLanguage.default.highcharts['aggr'+text]) {
+                                             text = ChhLanguage.default.highcharts['aggr'+text];
+                                          }
+                                          txta += '</b> '+grouping.count + ' ' +text;
+                                       }
+
+                                       txta +=  ")</i><br/>";
+
+
+                                     } else {
+                                           txta += "<b>"+Highcharts.dateFormat('%A, %b %e, %H:%M:%S', xDate)+"</b>";
+                                     }
+
+                                     return txta; } 
+
+
+
     if (DP_type.substr(0,1) === 'C') {
        serienName    = (DP.id.interfaceId === "SysVar")? (DP.attributes.displayName): (DP.attributes.displayName + '.' + DP.id.identifier) + '('+ChhLanguage.default.historian['comptype'+DP_type]+')'
-       pointFormat   = null;
-       pointFormater = function () { var xDate = new Date(this.x + (3600*24*1000*getComparisionBackDay(this.series.options.id.split('_')[0])));
-                                     return "<tspan style='fill:"+this.color+"'>● </tspan>" + this.series.name + ": <b>" + 
-                                     Highcharts.numberFormat(this.y , 2, ",", ".") +" "+ this.series.tooltipOptions.valueSuffix +"</b><br/>" +
-                                     "<b>"+Highcharts.dateFormat('%A, %b %e, %H:%M:%S', xDate )+"</b>" 
-                                  ;} 
+//       pointFormat   = null;
 
     } else if (DP.id.interfaceId === "SysVar") {
        serienName    = DP.attributes.displayName;
-       pointFormat  = '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>';
+//       pointFormat  = '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>';
     } else {
        serienName    = DP.attributes.displayName + '.' + DP.id.identifier;
-       pointFormat  = '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>' + DP.id.interfaceId + '.' + DP.id.address + '.' + DP.id.identifier + '<br/>';
+//       pointFormat  = '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>' + DP.id.interfaceId + '.' + DP.id.address + '.' + DP.id.identifier + '<br/>';
     }
 
     var def_serie = {
@@ -450,10 +511,10 @@ function SetData(objSerie) {
           }
 
           // correct start for comparisation data, do read only once
-          datStart += getComparisionBackDay(DP_attribute[attr].comp)*86400000;
+          datStart += getComparisionBackDay(DP_attribute[attr].comp);
 
           if (objSerie.options.id.toString().substr(0,1) === 'C') {
-             datEnd   += getComparisionBackDay(DP_attribute[attr].comp)*86400000;
+             datEnd   += getComparisionBackDay(DP_attribute[attr].comp);
           }
        }
 
@@ -565,11 +626,11 @@ function SetSerienData(p_attr, serieObj) {
 
     if (serieObj.options.id.toString().substr(0,1) === 'C') {
 
-        datStart += getComparisionBackDay(compType)*86400000;
-        datEnd   += getComparisionBackDay(compType)*86400000;
-
         // Set backtime        
-        backSec = getComparisionBackDay(compType)*3600*24*1000;
+        backSec = getComparisionBackDay(compType);
+
+        datStart += backSec;
+        datEnd   += backSec;
 
         var attr2 = DP_attribute.findIndex( obj => obj.id === serieObj.options.id.toString() );
         if (attr2) {
@@ -601,6 +662,7 @@ function SetSerienData(p_attr, serieObj) {
                      arr.push([t, 0 ]);
                   }
                }
+
                arr.push([ buffer.timestamps[i]-backSec, 
                           ( ( buffer.values[i]-last_value) * DP_attribute[p_attr].factor ) + DP_attribute[p_attr].offset
                         ]);
@@ -640,6 +702,7 @@ function SetSerienData(p_attr, serieObj) {
                };
                last_value = 0;
                last_time  = buffer.timestamps[i];
+
             } else if (last_value === 0 && buffer.values[i] > 0){
 
                last_value = buffer.timestamps[i] - last_time;
@@ -691,9 +754,10 @@ function SetSerienData(p_attr, serieObj) {
 
        for (var i = arrStart ; i < arrEnd; i++) {
 
+           // fill long empty periods with last_value, that aggregation works
            if ((buffer.timestamps[i] - last_time) > 600000) {
               for (var t = last_time; t < buffer.timestamps[i]-300000; t=t+600000) {
-                 arr.push([t, last_value ]);
+                 arr.push([t-backSec, last_value ]);
               }
            }
            
@@ -707,13 +771,14 @@ function SetSerienData(p_attr, serieObj) {
 
     if (arr.length > 0) {
 
+
        // Here Data are ready to set for Serie
        serieObj.setData(arr, true, false, false);
 
-      // prepare and show min/max series
-      if (aggrType === 3) {
-         AddAggregationMinMax(serieObj);
-      }
+       // prepare and show min/max series
+       if (aggrType === 3) {
+          AddAggregationMinMax(serieObj);
+       }
 
     }
 
@@ -951,7 +1016,7 @@ function requestData2(TXT_JSON) {
                     if (text2.length > 0) {
 
                         var default_unit = '';
-                        var DP_pos = DP_point.findIndex( obj => obj.idx.toString() === dp_id.toString() || 
+                        var DP_pos = DP_point.findIndex( obj => obj.idx.toString().toUpperCase() === dp_id.toString().toUpperCase() || 
                                                                ((obj.attributes.displayName) && obj.attributes.displayName.toUpperCase() === dp_id.toUpperCase()) ||
                                                                 (obj.id.address + '.' + obj.id.identifier).toUpperCase() === dp_id.toUpperCase() );
                         if (DP_pos != -1) {
@@ -1063,7 +1128,15 @@ function requestData2(TXT_JSON) {
 $(document).ready(function() {
 
     // ajust height of content to screen height
-    document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - ((DP_ShowFilter===0)?0:160)) + "px");
+    if (DP_ShowFilter===0) {
+       document.getElementById("container").setAttribute("style", "height:" + $(document).height() + "px");
+    } else if (DP_ShowFilter===1) {
+       document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - 160) + "px");
+    } else if (DP_ShowFilter===2) {
+       document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - 80 ) + "px");
+    } else if (DP_ShowFilter===3) {
+       document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - 80 ) + "px");
+    }
 
     // Translate to Language Set
     document.getElementById('button1').innerHTML = ChhLanguage.default.historian.buttonDay;
@@ -1203,10 +1276,6 @@ $(document).ready(function() {
                 if (decodeURIComponent(nv[1].toLowerCase()) === '1') { DP_DayLight = 1; }
                 if (decodeURIComponent(nv[1].toLowerCase()) === '2') { DP_DayLight = 2; }
                 if (decodeURIComponent(nv[1].toLowerCase()) === '3') { DP_DayLight = 3; }
-            } else if (nv[0].toLowerCase() === 'aggregation') {
-                if (decodeURIComponent(nv[1].toLowerCase()) === '1') { DP_Grouping = 1; }
-                if (decodeURIComponent(nv[1].toLowerCase()) === '2') { DP_Grouping = 2; }
-                if (decodeURIComponent(nv[1].toLowerCase()) === '3') { DP_Grouping = 3; }
             } else if (nv[0].toLowerCase() === 'refresh') {
                 if (parseInt(decodeURIComponent(nv[1])) > 0 ) { 
                     H2_refreshSec = parseInt(decodeURIComponent(nv[1]));
@@ -1219,13 +1288,28 @@ $(document).ready(function() {
                     setTimeout(AutoRefresh, 1000);
                 }
             } else if (nv[0].toLowerCase() === 'filterline') {
-                if (decodeURIComponent(nv[1].toLowerCase()) === 'false') { 
+                if (decodeURIComponent(nv[1].toLowerCase()) === 'false' || decodeURIComponent(nv[1].toLowerCase()) === '0') { 
                    DP_ShowFilter = 0; 
                    document.getElementById("filter").style.display = "none";
                    $('nav.navbar.navbar-default')[0].style.display = "none";
                    document.getElementById("container").setAttribute("style", "height:" + ($(document).height() -50 ) + "px");
-
                 }
+                // only filterline without menue
+                if (decodeURIComponent(nv[1].toLowerCase()) === '2') { 
+                   DP_ShowFilter = 2; 
+                   // document.getElementById("filter").style.display = "none";
+                   $('nav.navbar.navbar-default')[0].style.display = "none";
+                   document.getElementById("container").setAttribute("style", "height:" + ($(document).height() -90 ) + "px");
+                }
+                // only menue without filterline
+                if (decodeURIComponent(nv[1].toLowerCase()) === '3') { 
+                   DP_ShowFilter = 3; 
+                   document.getElementById("filter").style.display = "none";
+                   // $('nav.navbar.navbar-default')[0].style.display = "none";
+                   document.getElementById("container").setAttribute("style", "height:" + ($(document).height() -125 ) + "px");
+                }
+
+
             }
         }
     }
@@ -1581,11 +1665,6 @@ function createUrl() {
         url += '&daylight='+DP_DayLight;
     }
 
-	 // Grouping show    
-    if (DP_Grouping != 0) {
-        url += '&aggregation='+DP_Grouping;
-    }
-
 	 // AutoRefresh    
     if (DP_AutoRefresh != 0) {
         url += '&refresh='+(DP_AutoRefresh===60?true:DP_AutoRefresh);
@@ -1594,6 +1673,8 @@ function createUrl() {
 	 // ShowFilterLine    
     if (DP_ShowFilter === 0) {
         url += '&filterline=false';
+    } else if (DP_ShowFilter != 1) {
+        url += '&filterline='+DP_ShowFilter;
     }
 
 	 // Theme    
@@ -1696,8 +1777,26 @@ function ShowDialog(serieObj) {
         document.getElementById("compare").style.display = '';
      }
 
+     var techName = '';
+     if (serieObj.options.id.substr(0,1) === 'C') {
+        DP_pos = DP_point.findIndex( obj => obj.idx.toString() === serieObj.options.id.split('_')[1].toString() );
+     } else {
+        DP_pos = DP_point.findIndex( obj => obj.idx.toString() === serieObj.options.id.toString() );
+     }
+
+     if (DP_pos === -1) {
+         techName = 'n/a';
+     } else if (DP_point[DP_pos].id.interfaceId === "SysVar") {
+        techName =  '<br/>Systemvariable';
+     } else {
+        techName =  '<br/>' +DP_point[DP_pos].id.interfaceId + '.' + DP_point[DP_pos].id.address + '.' + DP_point[DP_pos].id.identifier;
+     }
+
+
      // set value on Popup
-     document.getElementsByClassName("modal-title")[0].innerHTML = serieObj.name;
+     document.getElementsByClassName("modal-title")[0].innerHTML = serieObj.name + techName;
+
+
      document.getElementById("Select-Aggregation").value = DP_attribute[attr].aggr;
      document.getElementById("Select-AggrTime").value    = DP_attribute[attr].atime;
      document.getElementById("Select-Yaxis").value       = DP_attribute[attr].yaxis;
@@ -1776,19 +1875,19 @@ $("#Select-Color").on("change", function() {
 
 // define Comparisation days back
 function getComparisionBackDay(str_compType) {
-    if (str_compType === 'C1')  return -1;
-    if (str_compType === 'C2')  return -2;
-    if (str_compType === 'C3')  return -3;
-    if (str_compType === 'C4')  return -4;
-    if (str_compType === 'C5')  return -1*7;
-    if (str_compType === 'C6')  return -2*7;
-    if (str_compType === 'C7')  return -3*7;
-    if (str_compType === 'C8')  return -4*7;
-    if (str_compType === 'C9')  return -1*7*4;
-    if (str_compType === 'C10') return -2*7*4;
-    if (str_compType === 'C11') return -3*7*4;
-    if (str_compType === 'C12') return -4*7*4;
-    if (str_compType === 'C13') return -1*7*52;
+    if (str_compType === 'C1')  return -1*86400000;
+    if (str_compType === 'C2')  return -2*86400000;
+    if (str_compType === 'C3')  return -3*86400000;
+    if (str_compType === 'C4')  return -4*86400000;
+    if (str_compType === 'C5')  return -1*7*86400000;
+    if (str_compType === 'C6')  return -2*7*86400000;
+    if (str_compType === 'C7')  return -3*7*86400000;
+    if (str_compType === 'C8')  return -4*7*86400000;
+    if (str_compType === 'C9')  return -1*7*4*86400000;
+    if (str_compType === 'C10') return -2*7*4*86400000;
+    if (str_compType === 'C11') return -3*7*4*86400000;
+    if (str_compType === 'C12') return -4*7*4*86400000;
+    if (str_compType === 'C13') return -1*7*52*86400000;
     return 0
 }
 
@@ -1956,28 +2055,10 @@ function ChartSetOptions() {
                   ChangeEventRaumFilter();
                 },
               },{
-                text: (DP_Grouping===0) ? ChhLanguage.default.highcharts.aggractive1: ((DP_Grouping===1) ? ChhLanguage.default.highcharts.aggractive2: ((DP_Grouping===2) ? ChhLanguage.default.highcharts.aggractive3: ChhLanguage.default.highcharts.aggrdeactive)),
+                text: ChhLanguage.default.historian.buttonRefresh,
                 onclick: function() {
-                  if (DP_Grouping === 0) {
-                    $('.highcharts-contextmenu')[0].children[0].children[5].innerHTML = ChhLanguage.default.highcharts.aggractive2;
-                    DP_Grouping = 1;
-                  } else if (DP_Grouping === 1) {
-                    $('.highcharts-contextmenu')[0].children[0].children[5].innerHTML = ChhLanguage.default.highcharts.aggractive3;
-                    DP_Grouping = 2;
-                  } else if (DP_Grouping === 2) {
-                    $('.highcharts-contextmenu')[0].children[0].children[5].innerHTML = ChhLanguage.default.highcharts.aggractive4;
-                    DP_Grouping = 3;
-                  } else if (DP_Grouping === 3) {
-                    $('.highcharts-contextmenu')[0].children[0].children[5].innerHTML = ChhLanguage.default.highcharts.aggractive5;
-                    DP_Grouping = 4;
-                  } else if (DP_Grouping === 4) {
-                    $('.highcharts-contextmenu')[0].children[0].children[5].innerHTML = ChhLanguage.default.highcharts.aggrdeactive;
-                    DP_Grouping = 5;
-                  } else {
-                    $('.highcharts-contextmenu')[0].children[0].children[5].innerHTML = ChhLanguage.default.highcharts.aggractive1;
-                    DP_Grouping = 0;
-                  }
-                  ChangeEventRaumFilter();
+                    Zeitraum_Ende = new Date(Date.now());
+                    loadNewSerienData();
                 },
               },{
                 text: (DP_AutoRefresh===0) ? ChhLanguage.default.highcharts.autorefresh1 + H2_refreshSec + ' Sek.': ChhLanguage.default.highcharts.autorefresh0,
@@ -2046,7 +2127,7 @@ function ChartSetOptions() {
                          }
                          if (this.series[serie].options.id) {
                             attr = DP_attribute.findIndex( obj => obj.id === this.series[serie].options.id.toString() );
-                            aggrType = DP_Grouping;
+                            aggrType = 0;
                             if (attr != -1) {
                                aggrType = parseInt(DP_attribute[attr].aggr.substr(1,2))
                             }
