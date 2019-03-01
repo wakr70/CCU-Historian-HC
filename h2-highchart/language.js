@@ -48,9 +48,9 @@ var ChhLanguage = {
             '${funcSecurity}': 'Sicherheit',
 
             // Select Option Filter default
-            roomALL: 'Datenpunkte von allen Räumen',
+            roomALL: 'alle Räume',
             sysvarALL: 'Systemvariablen',
-            functionALL: 'Datenpunkte von allen Gewerken',
+            functionALL: 'alle Gewerke',
 
             // Button and Screen text
             buttonDay: 'Tag',

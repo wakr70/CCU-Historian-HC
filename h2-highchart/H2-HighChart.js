@@ -267,23 +267,18 @@ function addSerie(DP,DP_type) {
     } else if (aggrTime === 3) {
        groupUnits =[ [ 'hour', [1] ], ];
        groupforced = true;
-       groupsmoothed = true;
     } else if (aggrTime === 4) {
        groupUnits =[ [ 'day', [1] ], ];
        groupforced = true;
-       groupsmoothed = true;
     } else if (aggrTime === 5) {
        groupUnits =[ [ 'week', [1] ], ];
        groupforced = true;
-       groupsmoothed = true;
     } else if (aggrTime === 6) {
        groupUnits =[ [ 'month', [1] ], ];
        groupforced = true;
-       groupsmoothed = true;
     } else if (aggrTime === 7) {
        groupUnits =[ [ 'month', [3] ], ];
        groupforced = true;
-       groupsmoothed = true;
     }
 
     if (aggrType === 1) {
@@ -674,7 +669,7 @@ function SetSerienData(p_attr, serieObj) {
                };
             }
        }
-    } else {
+    } else if (aggrType === 0) {
 
        // get start and end position over binary search
        var arrStart = sortedIndex(buffer.timestamps, datStart );
@@ -683,6 +678,30 @@ function SetSerienData(p_attr, serieObj) {
            arr.push([ buffer.timestamps[i]-backSec,
                       ( buffer.values[i] * DP_attribute[p_attr].factor ) + DP_attribute[p_attr].offset
                     ]);
+       }  
+
+    } else {
+
+       // get start and end position over binary search
+       var arrStart = sortedIndex(buffer.timestamps, datStart );
+       var arrEnd   = sortedIndex(buffer.timestamps, datEnd   );
+
+       var last_value = buffer.values[arrStart];
+       var last_time  = buffer.timestamps[arrStart];
+
+       for (var i = arrStart ; i < arrEnd; i++) {
+
+           if ((buffer.timestamps[i] - last_time) > 600000) {
+              for (var t = last_time; t < buffer.timestamps[i]-300000; t=t+600000) {
+                 arr.push([t, last_value ]);
+              }
+           }
+           
+           last_value = ( buffer.values[i] * DP_attribute[p_attr].factor ) + DP_attribute[p_attr].offset;
+           last_time  = buffer.timestamps[i];
+
+           arr.push([ buffer.timestamps[i]-backSec,
+                      last_value ]);
        }  
     }
 
@@ -1345,6 +1364,12 @@ function loadNewSerienData() {
     for (var serie = 0; serie < chart.series.length; serie++) {
         if (chart.series[serie].visible && chart.series[serie].options.group != "nav") {
             SetData(chart.series[serie]);
+            
+            chart.series[serie].yAxis.update({
+                          lineColor: chart.series[serie].color,
+                          labels:    { style: {"color": chart.series[serie].color } }, 
+                          title:     { style: {"color": chart.series[serie].color } }, 
+                                             }, false);
         }
     };
     chart.xAxis[0].setExtremes(Zeitraum_Start.getTime(), Zeitraum_Ende.getTime(), true);
@@ -1621,8 +1646,14 @@ function AddAggregationMinMax(serieObj) {
             yAxis: serieObj.options.yAxis,
             linkedTo: serieObj.options.id,
             type: 'arearange',
-            lineWidth: 0,
-            dataGrouping: serieObj.userOptions.dataGrouping,
+            lineWidth: 1,
+            dataGrouping: {
+               enabled: true,
+               forced: true,
+//               approximation: 'averages',
+               groupPixelWidth: 10,
+               units: serieObj.userOptions.dataGrouping.units
+            },
             data: arr_dp,
             tooltip: {
                 valueDecimals: serieObj.userOptions.tooltip.valueDecimals,
