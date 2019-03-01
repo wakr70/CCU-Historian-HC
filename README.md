@@ -61,7 +61,13 @@ Add new themes: dark-green, avocado, dark-blue, dark-unica, gray, grid-light, gr
 Fullscreen is possible with:  
    * hide filter line
    * navigator
-   * legende
+   * legende  
+   
+and &filterline=<value> could now have following value:
+   false or 0 - no display of filterline and no Historian menu (fullscreen)
+   1 - both filterline and Historian menu visible
+   2 - only filterline visible
+   3 - only Historian menu visible   
 
 Refresh time can be set in url as default 60 sec. with "&refresh=true" or "&refresh=300" (for 5 Min. or 300 sec.)
 
