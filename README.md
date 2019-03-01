@@ -52,7 +52,7 @@ Parameters for dp=<CCU-Historian-ID>|A0|Y0|L0|F0|C0|M0|V2
    * O0 - Offset, will be add to every value
    * Ukg - Unit which should be used
   
-This options can be set on click to a line/point on the chart.
+This options can be set on click to a line/point on the chart or <b>SHIFT-key+(left-mouse-click)</b> on legend item.
 ![](docs/line-menu.png) 
 
 Add new themes: dark-green, avocado, dark-blue, dark-unica, gray, grid-light, grid, skies, sunset
