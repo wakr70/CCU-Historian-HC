@@ -36,7 +36,7 @@ The whole selection will be added to this link also zoom, periode, daylight, leg
 http://<host>:<port>/custom/h2-highchart/H2-HighChart.gy?periode=??dp=131|Y5|L1|V1|A1,???&room=??&function=??&filterkey=??&zoom=??&legend=false&navigator=false&labels=true&daylight=false&filterline=false&theme=dark-green
 
 Parameters for dp=<CCU-Historian-ID>|A0|Y0|L0|F0|C0|M0|V2  
-   * A0 - Aggregation (0-no, 1-dyn, 2-delta, 3-min/max, 4-sum, 5-TIME_ON)
+   * A0 - Aggregation (0-no, 1-dyn, 2-delta, 3-min/max, 4-sum, 5-TIME_ON, 6-Time round to min.)
    * T1 - Aggregation Time (0-dyn, 1-dyn. 15min, 2-no/hour/day, 3-fix hour, 4-fix day, 5-fix week, 6-fix month, 7-fix quarter
    * Y0 - Y-axis (0-13)
    * L0 - Linetype (0-SP-line, 1-Line, 2-Line/left, 3-Line/center, 4-Line/right, 5-Scatter, 
@@ -54,7 +54,10 @@ Parameters for dp=<CCU-Historian-ID>|A0|Y0|L0|F0|C0|M0|V2
   
 This options can be set on click to a line/point on the chart or <b>SHIFT-key+(left-mouse-click)</b> on legend item.
 ![](docs/line-menu.png) 
-
+  
+All Settings can be changed under Popup-menu settings:  
+![](docs/setting.png)  
+  
 Add new themes: dark-green, avocado, dark-blue, dark-unica, gray, grid-light, grid, skies, sunset
 ![](docs/screen3.png) 
 
