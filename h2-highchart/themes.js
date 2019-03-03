@@ -1,4 +1,241 @@
 var DP_Themes = {
+'Standard': {
+    colors: ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1"],
+        
+    chart: {
+      backgroundColor: "#ffffff",
+      borderColor: "#335cad",
+      borderRadius: 0,  
+      borderWidth: null,
+      colorCount: 10,
+      ignoreHiddenSeries: true,
+      spacing:  [0,10,15,10 ] ,
+      styledMode: false,
+      style: null,
+      width: null, 
+      height: null,
+      className: null,
+      plotBorderColor: "#cccccc",
+      plotBorderWidth: null,
+      plotBackgroundColor: null,
+      plotShadow: null,
+      plotBackgroundImage: null,
+      resetZoomButton: {
+         position: {
+            align: "right",
+            x:-10,
+            y: 10 
+         }
+      },  
+      theme: {
+         zIndex: 6 
+      },
+    },
+    title: {
+        align: "center",
+        margin: 15,
+        text: "",
+        widthAdjust: -44,
+//        style: null,
+    },
+    subtitle: {
+        align: "center",
+        margin: null,
+        text: "",
+        widthAdjust: -44,
+//        style: null,
+    },
+    xAxis: null,
+    yAxis: null,
+    tooltip: {
+       animation: true,
+       backgroundColor: "rgba(247,247,247,0.85)",
+       borderRadius: 3,
+       borderWidth: 1,
+       dateTimeLabelFormats: {
+          day: "%A, %b %e, %Y",
+          hour: "%A, %b %e, %H:%M",
+          millisecond: "%A, %b %e, %H:%M:%S.%L",
+          minute: "%A, %b %e, %H:%M",
+          month: "%B %Y",
+          second: "%A, %b %e, %H:%M:%S",
+          week: "Week from %A, %b %e, %Y",
+          year: "%Y",
+       },
+       enabled: true,
+       footerFormat: "",
+       headerFormat: "<span style=\"font-size: 10px\">{point.key}</span><br/>",
+       padding: 8,
+       pointFormat: "<span style=\"color:{point.color}\">●</span> {series.name}: <b>{point.y}</b><br/>",
+       shadow: true,
+       snap: 10,
+       style: {
+          color: "#333333",
+          cursor: "default",
+          fontSize: "12px",
+          pointerEvents: "none",
+          whiteSpace: "nowrap"
+      }
+   },
+   toolbar: null,
+   plotOptions: {
+        series: null,
+        line: {
+            dataLabels: {
+                color: null
+            },
+            marker: {
+                lineColor: "#ffffff"
+            }
+        },
+        spline: {
+            marker: {
+                lineColor: "#ffffff"
+            }
+        },
+        scatter: {
+            marker: {
+                lineColor: "#ffffff"
+            }
+        },
+        candlestick: {
+            lineColor: "#000000"
+        }
+    },
+    legend: {
+        align: "center",
+        alignColumns: true,
+        borderColor: "#999999",
+        borderRadius: 0,
+        enabled: true,
+        itemCheckboxStyle: {
+           height: "13px",
+           position: "absolute",
+           width: "13px"
+        },
+        itemHiddenStyle: {
+           color: "#cccccc",
+        },
+        itemHoverStyle: {
+           color: "#000000"
+        },
+        itemStyle: {
+           color: "#333333",
+           cursor: "pointer",
+           font: null,
+           fontSize: "12px",
+           fontWeight: "bold",
+           textOverflow: "ellipsis"
+        },
+        layout: "horizontal",
+        navigation: {
+           activeColor: "#003399",
+           inactiveColor: "#cccccc"
+        },
+        shadow: false,
+        squareSymbol: true,
+        symbolPadding: 5,
+        title: {
+           style: {
+              fontWeight: "bold"
+           }
+        },
+        verticalAlign: "bottom",
+        x: 0,
+        y: 0,
+    },
+    credits: {
+       enabled: true,
+       href: "https://www.highcharts.com?credits",
+       position: {
+          align: "right",
+          verticalAlign: "bottom",
+          x: -10,
+          y: -5
+      },
+      style: {
+         color: "#999999",
+         cursor: "pointer",
+         fontSize: "9px",
+      },
+      text: "Highcharts.com"
+   },
+   labels: {
+      style: {
+         color: "#333333",
+         position: "absolute"
+      }
+   },
+   lang: {},
+   navigation: {
+      buttonOptions: {
+         symbolStroke: "#666666",
+         hoverSymbolStroke: null,
+         theme: {
+            padding: 5,
+            fill: null,
+            stroke: null
+         }
+      }
+   },
+   rangeSelector: {
+      buttonTheme: {
+         fill: null,
+         stroke: null,
+         style: null,
+         states: null,
+         inputStyle: null
+      },
+      inputBoxBorderColor: null,
+      inputStyle: null,
+      labelStyle: {
+         color: "#666666"
+      }
+   },
+   navigator: {
+      handles: {
+         backgroundColor: "#f2f2f2",
+         borderColor: "#999999"
+      },
+      outlineColor: "#cccccc",
+      maskFill: "rgba(102,133,194,0.3)",
+      series: {
+         color: null,
+         lineColor: null
+      },
+      xAxis: {
+         gridLineColor: "#e6e6e6"
+      }
+   },
+   scrollbar: {
+      barBackgroundColor: "#cccccc",
+      barBorderColor: "#cccccc",
+      barBorderRadius: 0,
+      barBorderWidth: 1,
+      buttonArrowColor: "#333333",
+      buttonBackgroundColor: "#e6e6e6",
+      buttonBorderColor: "#cccccc",
+      buttonBorderRadius: 0,
+      buttonBorderWidth: 1,
+      height: 14,
+      margin: 10,
+      minWidth: 6,
+      rifleColor: "#333333",
+      step: 0.2,
+      trackBackgroundColor: "#f2f2f2",
+      trackBorderColor: "#f2f2f2",
+      trackBorderWidth: 1,
+      rifleColor: null
+    },
+    drilldown: null,
+    colorAxis: null,
+    legendBackgroundColor: null,
+    background2: null,
+    dataLabelsColor: null,
+    textColor: null,
+    maskColor: null
+},
+
 'dark-green': {
     colors: ['#DDDF0D', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee',
         '#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'],
@@ -253,12 +490,6 @@ var DP_Themes = {
     colorAxis: {
         maxColor: '#05426E',
         minColor: '#F3E796'
-    },
-
-    plotOptions: {
-        map: {
-            nullColor: '#fcfefe'
-        }
     },
 
     navigator: {
@@ -593,15 +824,6 @@ var DP_Themes = {
             marker: {
                 lineColor: '#333'
             }
-        },
-        boxplot: {
-            fillColor: '#505053'
-        },
-        candlestick: {
-            lineColor: 'white'
-        },
-        errorbar: {
-            color: 'white'
         }
     },
     legend: {
@@ -1018,12 +1240,6 @@ var DP_Themes = {
             }
         }
     },
-    plotOptions: {
-        candlestick: {
-            lineColor: '#404048'
-        }
-    },
-
 
     // General
     background2: '#F0F0EA'
@@ -1219,12 +1435,6 @@ var DP_Themes = {
     colorAxis: {
         maxColor: '#60042E',
         minColor: '#FDD089'
-    },
-
-    plotOptions: {
-        map: {
-            nullColor: '#fefefc'
-        }
     },
 
     navigator: {

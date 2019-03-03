@@ -11,9 +11,9 @@ var DP_point = [];
 var Zeitraum_Ende = new Date(Date.now());
 var Zeitraum_Start = new Date(Zeitraum_Ende - (new Date(86400000 * 1)));
 var Scroll_Legend = true;
-var DP_Legend = true;
-var DP_Navigator = true;
-var DP_Labels = false;
+var DP_Legend = 1;
+var DP_Navigator = 1;
+var DP_Labels = 0;
 var DP_DayLight = 1;
 var DP_Limit = false;
 var DP_AutoRefresh = 0;
@@ -21,24 +21,19 @@ var DP_ShowFilter = 1;
 var AutoRefreshCount = 0;
 var DP_attribute = [];
 var DP_PopupID;
-var DP_Theme = '';
-var HCDefaults;
+var DP_Theme = 'Standard';
 var DP_DashType = ['Solid','Dash','DashDot','Dot','LongDash','LongDashDot','LongDashDotDot','ShortDash','ShortDashDot','ShortDashDotDot','ShortDot'];
 var DP_Queue = [ ];
 
 function createChart() {
-//    var chartingOptions = HCDefaults;
-    if (DP_Themes[DP_Theme]) {
-       var chartingOptions = Highcharts.merge(HCDefaults,DP_Themes[DP_Theme]);
-       Highcharts.setOptions(chartingOptions);
-    }   
+   if (DP_Theme != 'Standard' && DP_Themes[DP_Theme]) {
+      var chartingOptions = Highcharts.merge(DP_Themes.Standard,DP_Themes[DP_Theme]);
+      Highcharts.setOptions(chartingOptions);
+   }   
     
-    
-//    chart = new Highcharts.StockChart(chartingOptions);
+   ChartSetOptions();
 
-    ChartSetOptions();
-
-    chartSetElements();
+   chartSetElements();
 
 }
 
@@ -326,6 +321,10 @@ function addSerie(DP,DP_type) {
             groupPixelWidth: groupwidth,
             units: groupUnits, 
         };
+    } else if (aggrType === 6) {
+        grouping = {
+            enabled: false,
+        };
     } else {
         grouping = {
             enabled: false,
@@ -376,6 +375,7 @@ function addSerie(DP,DP_type) {
                                        if (aggrType === 3) txta += jQuery('<div/>').html('&#x03a8; ').text();  // min/max
                                        if (aggrType === 4) txta += jQuery('<div/>').html('&#x01a9; ').text();  // sum
                                        if (aggrType === 5) txta += jQuery('<div/>').html('&#x01ac; ').text();  // TIME_ON
+                                       if (aggrType === 6) txta += jQuery('<div/>').html('&#x2248; ').text();  // TIME_ON
 
                                        var grouping = this.series.currentDataGrouping;
                                        if (grouping) {
@@ -423,7 +423,7 @@ function addSerie(DP,DP_type) {
                },
         dataGrouping: grouping,
         dataLabels : {
-          enabled : DP_Labels,
+          enabled : (DP_Labels==1)?true:false,
 				lowOverlap: true,
           color: null,
           style: { "color": null, },
@@ -627,7 +627,31 @@ function SetSerienData(p_attr, serieObj) {
     var buffer = DP_attribute[p_attr].buffer_data;
 
     // collect all timesstamps and Values
-    if (aggrType === 2) {
+    if (aggrType === 0) {
+
+       // get start and end position over binary search
+       var arrStart = sortedIndex(buffer.timestamps, datStart );
+       var arrEnd   = sortedIndex(buffer.timestamps, datEnd   );
+       for (var i = arrStart ; i < arrEnd; i++) {
+           arr.push([ buffer.timestamps[i]-backSec,
+                      ( buffer.values[i] * DP_attribute[p_attr].factor ) + DP_attribute[p_attr].offset
+                    ]);
+       }  
+// no aggregation but rounded to min, better for mouse over sync to other lines
+    } else if (aggrType === 6) {
+
+       // get start and end position over binary search
+       var arrStart = sortedIndex(buffer.timestamps, datStart );
+       var arrEnd   = sortedIndex(buffer.timestamps, datEnd   );
+       for (var i = arrStart ; i < arrEnd; i++) {
+
+           var timestamprounded = Math.round((buffer.timestamps[i]-backSec) / 60000) * 60000;
+           arr.push([ timestamprounded,
+                      ( buffer.values[i] * DP_attribute[p_attr].factor ) + DP_attribute[p_attr].offset
+                    ]);
+
+       }  
+    } else if (aggrType === 2) {
 
        // get start and end position if buffer over binary search
        var arrStart = sortedIndex(buffer.timestamps, datStart );
@@ -643,6 +667,7 @@ function SetSerienData(p_attr, serieObj) {
             if ( buffer.timestamps[i] >= datStart && buffer.timestamps[i] <= datEnd) {
                // fill missing times with delta 0 every 10 min.
                if ((buffer.timestamps[i] - last_time) > 600000) {
+                  last_time = Math.round((last_time+600000) / 60000) * 60000;
                   for (var t = last_time; t < buffer.timestamps[i]; t=t+600000) {
                      arr.push([t, 0 ]);
                   }
@@ -717,16 +742,6 @@ function SetSerienData(p_attr, serieObj) {
                };
             }
        }
-    } else if (aggrType === 0) {
-
-       // get start and end position over binary search
-       var arrStart = sortedIndex(buffer.timestamps, datStart );
-       var arrEnd   = sortedIndex(buffer.timestamps, datEnd   );
-       for (var i = arrStart ; i < arrEnd; i++) {
-           arr.push([ buffer.timestamps[i]-backSec,
-                      ( buffer.values[i] * DP_attribute[p_attr].factor ) + DP_attribute[p_attr].offset
-                    ]);
-       }  
 
     } else {
 
@@ -741,6 +756,7 @@ function SetSerienData(p_attr, serieObj) {
 
            // fill long empty periods with last_value, that aggregation works
            if ((buffer.timestamps[i] - last_time) > 600000) {
+              last_time = Math.round((last_time+600000) / 60000) * 60000;
               for (var t = last_time; t < buffer.timestamps[i]-300000; t=t+600000) {
                  arr.push([t-backSec, last_value ]);
               }
@@ -891,7 +907,6 @@ function requestData2(TXT_JSON) {
         }
     }
 
-
     // Sort data points on DisplayName
     DP_point.sort(function(a, b) {
         var x = a.attributes.displayName + '.' + a.id.identifier;
@@ -990,7 +1005,6 @@ function requestData2(TXT_JSON) {
             var nv = parts[i].split('=');
             if (!nv[0])
                 continue;
-
             // nur noch DP Werte
             if (nv[0].toLowerCase() === 'dp') {
                 var text = decodeURIComponent(nv[1]).toLowerCase().split(',');
@@ -1083,6 +1097,23 @@ function requestData2(TXT_JSON) {
                         break;
                     }
                 }
+
+               // FilterLine
+            } else if (nv[0].toLowerCase() === 'filterline') {
+                if (decodeURIComponent(nv[1].toLowerCase()) === 'false' || decodeURIComponent(nv[1].toLowerCase()) === '0') { 
+                   DP_ShowFilter = 0; 
+                   ShowFilterLine();
+                }
+                // only filterline without menue
+                if (decodeURIComponent(nv[1].toLowerCase()) === '2') { 
+                   DP_ShowFilter = 2; 
+                   ShowFilterLine();
+                }
+                // only menue without filterline
+                if (decodeURIComponent(nv[1].toLowerCase()) === '3') { 
+                   DP_ShowFilter = 3; 
+                   ShowFilterLine();
+                }
             }
         }
     }
@@ -1112,16 +1143,7 @@ function requestData2(TXT_JSON) {
 */
 $(document).ready(function() {
 
-    // ajust height of content to screen height
-    if (DP_ShowFilter===0) {
-       document.getElementById("container").setAttribute("style", "height:" + $(document).height() + "px");
-    } else if (DP_ShowFilter===1) {
-       document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - 160) + "px");
-    } else if (DP_ShowFilter===2) {
-       document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - 80 ) + "px");
-    } else if (DP_ShowFilter===3) {
-       document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - 80 ) + "px");
-    }
+    document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - 160) + "px");
 
     // Translate to Language Set
     document.getElementById('button1').innerHTML = ChhLanguage.default.historian.buttonDay;
@@ -1136,7 +1158,7 @@ $(document).ready(function() {
 
     // aggregation options
     var select = document.getElementById("Select-Aggregation");
-    for (var i = 0; i < 6; i++) {
+    for (var i = 0; i < 7; i++) {
         var option = document.createElement("option");
         option.text = ChhLanguage.default.highcharts['aggrtxt'+i];
         option.value = 'A'+i;
@@ -1201,6 +1223,60 @@ $(document).ready(function() {
         select.add(option); 
     }
 
+    // Legend options
+    var select = document.getElementById("Select-Legend");
+    for (var i = 0; i < 5; i++) {
+        var option = document.createElement("option");
+        option.text = ChhLanguage.default.historian['legendtxt'+i];
+        option.value = i;
+        select.add(option); 
+    }
+
+    // Navigator options
+    var select = document.getElementById("Select-Navigator");
+    for (var i = 0; i < 2; i++) {
+        var option = document.createElement("option");
+        option.text = ChhLanguage.default.historian['navitxt'+i];
+        option.value = i;
+        select.add(option); 
+    }
+
+    // Label options
+    var select = document.getElementById("Select-Label");
+    for (var i = 0; i < 2; i++) {
+        var option = document.createElement("option");
+        option.text = ChhLanguage.default.historian['labeltxt'+i];
+        option.value = i;
+        select.add(option); 
+    }
+
+    // Layout options
+    var select = document.getElementById("Select-Layout");
+    for (var i = 0; i < 4; i++) {
+        var option = document.createElement("option");
+        option.text = ChhLanguage.default.historian['layouttxt'+i];
+        option.value = i;
+        select.add(option); 
+    }
+
+    // Content options
+    var select = document.getElementById("Select-Content");
+    for (var i = 0; i < 4; i++) {
+        var option = document.createElement("option");
+        option.text = ChhLanguage.default.historian['contenttxt'+i];
+        option.value = i;
+        select.add(option); 
+    }
+
+    // themes
+    var select = document.getElementById("Select-Theme");
+    for (var key in DP_Themes) {
+       var option = document.createElement("option");
+       option.text = key;
+       option.value = key;
+       select.add(option); 
+    }
+
     // Add mouse wheel for legend
     (function(H) {
         H.wrap(H.Legend.prototype, 'render', function(proceed) {
@@ -1227,9 +1303,6 @@ $(document).ready(function() {
         lang: ChhLanguage.default.highcharts,
     });
 
-    HCDefaults = Highcharts.getOptions();
-
-
     // check parameter from get-link
     if (location.search) {
         var parts = location.search.substring(1).split('&');
@@ -1248,13 +1321,22 @@ $(document).ready(function() {
             } else if (nv[0].toLowerCase() === 'filterkey') {
                 filter_feld = decodeURIComponent(nv[1].toLowerCase());
             } else if (nv[0].toLowerCase() === 'legend') {
-                if (decodeURIComponent(nv[1].toLowerCase()) === 'false') { DP_Legend = false; }
+                if (decodeURIComponent(nv[1].toLowerCase()) === 'false') { DP_Legend = 0; }
+                if (decodeURIComponent(nv[1].toLowerCase()) === '0') { DP_Legend = 0; }
+                if (decodeURIComponent(nv[1].toLowerCase()) === '1') { DP_Legend = 1; }
+                if (decodeURIComponent(nv[1].toLowerCase()) === '2') { DP_Legend = 2; }
+                if (decodeURIComponent(nv[1].toLowerCase()) === '3') { DP_Legend = 3; }
+                if (decodeURIComponent(nv[1].toLowerCase()) === '4') { DP_Legend = 4; }
             } else if (nv[0].toLowerCase() === 'navigator') {
-                if (decodeURIComponent(nv[1].toLowerCase()) === 'false') { DP_Navigator = false; }
+                if (decodeURIComponent(nv[1].toLowerCase()) === 'false') { DP_Navigator = 0; }
+                if (decodeURIComponent(nv[1].toLowerCase()) === '0') { DP_Navigator = 0; }
+                if (decodeURIComponent(nv[1].toLowerCase()) === '1') { DP_Navigator = 1; }
             } else if (nv[0].toLowerCase() === 'theme') {
                 DP_Theme = decodeURIComponent(nv[1].toLowerCase());
             } else if (nv[0].toLowerCase() === 'labels') {
-                if (decodeURIComponent(nv[1].toLowerCase()) === 'true') { DP_Labels = true; }
+                if (decodeURIComponent(nv[1].toLowerCase()) === 'true') { DP_Labels = 1; }
+                if (decodeURIComponent(nv[1].toLowerCase()) === '0') { DP_Labels = 0; }
+                if (decodeURIComponent(nv[1].toLowerCase()) === '1') { DP_Labels = 1; }
             } else if (nv[0].toLowerCase() === 'daylight') {
                 if (decodeURIComponent(nv[1].toLowerCase()) === 'false') { DP_DayLight = 0; }
                 if (decodeURIComponent(nv[1].toLowerCase()) === '0') { DP_DayLight = 0; }
@@ -1272,27 +1354,6 @@ $(document).ready(function() {
                     AutoRefreshCount = DP_AutoRefresh;
                     setTimeout(AutoRefresh, 1000);
                 }
-            } else if (nv[0].toLowerCase() === 'filterline') {
-                if (decodeURIComponent(nv[1].toLowerCase()) === 'false' || decodeURIComponent(nv[1].toLowerCase()) === '0') { 
-                   DP_ShowFilter = 0; 
-                   document.getElementById("filter").style.display = "none";
-                   $('nav.navbar.navbar-default')[0].style.display = "none";
-                   document.getElementById("container").setAttribute("style", "height:" + ($(document).height() -50 ) + "px");
-                }
-                // only filterline without menue
-                if (decodeURIComponent(nv[1].toLowerCase()) === '2') { 
-                   DP_ShowFilter = 2; 
-                   $('nav.navbar.navbar-default')[0].style.display = "none";
-                   document.getElementById("container").setAttribute("style", "height:" + ($(document).height() -90 ) + "px");
-                }
-                // only menue without filterline
-                if (decodeURIComponent(nv[1].toLowerCase()) === '3') { 
-                   DP_ShowFilter = 3; 
-                   document.getElementById("filter").style.display = "none";
-                   document.getElementById("container").setAttribute("style", "height:" + ($(document).height() -125 ) + "px");
-                }
-
-
             }
         }
     }
@@ -1529,77 +1590,41 @@ function createUrl() {
 
     var url2 = '';
     // Add DP Filter if some selected
-    if (DP_Limit) {
-      for (var serie = 0; serie < chart.series.length; serie++) {
-        if (chart.series[serie].options.group != "nav" && chart.series[serie].options.name != 'MinMax' ) {
-            // add Attribute if exist
-            attr = DP_attribute.findIndex( obj => obj.id === chart.series[serie].options.id.toString() );
-            if (attr != -1) {
-               if (attr.visible != 0) {
-                  url2 += chart.series[serie].options.id;
-                  url2 += (DP_attribute[attr].aggr  === 'A0')?'':'|'+ DP_attribute[attr].aggr;
-                  url2 += (DP_attribute[attr].atime === 'T1')?'':'|'+ DP_attribute[attr].atime;
-                  url2 += (DP_attribute[attr].yaxis === 'Y0')?'':'|'+ DP_attribute[attr].yaxis;
-                  url2 += (DP_attribute[attr].line  === 'L0')?'':'|'+ DP_attribute[attr].line;
-                  url2 += (DP_attribute[attr].color === 'F0')?'':'|'+ DP_attribute[attr].color;
-                  url2 += (DP_attribute[attr].comp  === 'C0')?'':'|'+ DP_attribute[attr].comp;
-                  url2 += (DP_attribute[attr].mark  === 'M0')?'':'|'+ DP_attribute[attr].mark;
-                  url2 += (DP_attribute[attr].dash  === 'D0')?'':'|'+ DP_attribute[attr].dash;
-                  url2 += (DP_attribute[attr].width === 'W2')?'':'|'+ DP_attribute[attr].width;
-                  url2 += (DP_attribute[attr].factor === 1  )?'':'|X'+ DP_attribute[attr].factor;
-                  url2 += (DP_attribute[attr].offset === 0  )?'':'|O'+ DP_attribute[attr].offset;
+    for (var serie = 0; serie < chart.series.length; serie++) {
+       if (chart.series[serie].options.group != "nav" && chart.series[serie].options.name != 'MinMax' ) {
+          // add Attribute if exist
+          attr = DP_attribute.findIndex( obj => obj.id === chart.series[serie].options.id.toString() );
+          if (attr != -1) {
+             if (DP_attribute[attr].visible == 2 || (DP_attribute[attr].visible == 1 && DP_Limit) ) {
+                url2 += chart.series[serie].options.id;
+                url2 += (DP_attribute[attr].aggr  === 'A0')?'':'|'+ DP_attribute[attr].aggr;
+                url2 += (DP_attribute[attr].atime === 'T1')?'':'|'+ DP_attribute[attr].atime;
+                url2 += (DP_attribute[attr].yaxis === 'Y0')?'':'|'+ DP_attribute[attr].yaxis;
+                url2 += (DP_attribute[attr].line  === 'L0')?'':'|'+ DP_attribute[attr].line;
+                url2 += (DP_attribute[attr].color === 'F0')?'':'|'+ DP_attribute[attr].color;
+                url2 += (DP_attribute[attr].comp  === 'C0')?'':'|'+ DP_attribute[attr].comp;
+                url2 += (DP_attribute[attr].mark  === 'M0')?'':'|'+ DP_attribute[attr].mark;
+                url2 += (DP_attribute[attr].dash  === 'D0')?'':'|'+ DP_attribute[attr].dash;
+                url2 += (DP_attribute[attr].width === 'W2')?'':'|'+ DP_attribute[attr].width;
+                url2 += (DP_attribute[attr].factor === 1  )?'':'|X'+ DP_attribute[attr].factor;
+                url2 += (DP_attribute[attr].offset === 0  )?'':'|O'+ DP_attribute[attr].offset;
 
-                  // check if still default unit, otherwise add to url
-                  if (chart.series[serie].options.id.substr(0,1) === 'C') {
-                     DP_pos = DP_point.findIndex( obj => obj.idx.toString() === chart.series[serie].options.id.split('_')[1].toString() );
-                  } else {
-                     DP_pos = DP_point.findIndex( obj => obj.idx.toString() === chart.series[serie].options.id.toString() );
-                  }
-                  if (DP_pos === -1 ||  DP_point[DP_pos].attributes.unit != DP_attribute[attr].unit) {
-                     url2 += (DP_attribute[attr].unit  === 'xx')?'':'|U'+ DP_attribute[attr].unit;
-                  }
+                // check if still default unit, otherwise add to url
+                if (chart.series[serie].options.id.substr(0,1) === 'C') {
+                   DP_pos = DP_point.findIndex( obj => obj.idx.toString() === chart.series[serie].options.id.split('_')[1].toString() );
+                } else {
+                   DP_pos = DP_point.findIndex( obj => obj.idx.toString() === chart.series[serie].options.id.toString() );
+                }
+                if (DP_pos === -1 ||  DP_point[DP_pos].attributes.unit != DP_attribute[attr].unit) {
+                   url2 += (DP_attribute[attr].unit  === 'xx')?'':'|U'+ DP_attribute[attr].unit;
+                }
 
-                  url2 += (DP_attribute[attr].visible  === 2)?'':'|V'+ DP_attribute[attr].visible;
-                  url2 += ',';
-               }
-            }
-        }
-      };
-    } else {
-      for (var serie = 0; serie < chart.series.length; serie++) {
-        if (chart.series[serie].visible && chart.series[serie].options.group != "nav" && chart.series[serie].options.name != 'MinMax' ) {
-            url2 += chart.series[serie].options.id;
-            // add Attribute if exist
-            attr = DP_attribute.findIndex( obj => obj.id === chart.series[serie].options.id.toString() );
-            if (attr != -1) {
-               url2 += (DP_attribute[attr].aggr  === 'A0')?'':'|'+ DP_attribute[attr].aggr;
-               url2 += (DP_attribute[attr].atime === 'T1')?'':'|'+ DP_attribute[attr].atime;
-               url2 += (DP_attribute[attr].yaxis === 'Y0')?'':'|'+ DP_attribute[attr].yaxis;
-               url2 += (DP_attribute[attr].line  === 'L0')?'':'|'+ DP_attribute[attr].line;
-               url2 += (DP_attribute[attr].color === 'F0')?'':'|'+ DP_attribute[attr].color;
-               url2 += (DP_attribute[attr].comp  === 'C0')?'':'|'+ DP_attribute[attr].comp;
-               url2 += (DP_attribute[attr].mark  === 'M0')?'':'|'+ DP_attribute[attr].mark;
-               url2 += (DP_attribute[attr].dash  === 'D0')?'':'|'+ DP_attribute[attr].dash;
-               url2 += (DP_attribute[attr].width === 'W2')?'':'|'+ DP_attribute[attr].width;
-               url2 += (DP_attribute[attr].factor === 1  )?'':'|X'+ DP_attribute[attr].factor;
-               url2 += (DP_attribute[attr].offset === 0  )?'':'|O'+ DP_attribute[attr].offset;
-
-               // check if still default unit, otherwise add to url
-               if (chart.series[serie].options.id.substr(0,1) === 'C') {
-                  DP_pos = DP_point.findIndex( obj => obj.idx.toString() === chart.series[serie].options.id.split('_')[1].toString() );
-               } else {
-                  DP_pos = DP_point.findIndex( obj => obj.idx.toString() === chart.series[serie].options.id.toString() );
-               }
-               if (DP_pos === -1 ||  DP_point[DP_pos].attributes.unit != DP_attribute[attr].unit) {
-                  url2 += (DP_attribute[attr].unit  === 'xx')?'':'|U'+ DP_attribute[attr].unit;
-               }
-
-               url2 += (DP_attribute[attr].visible  === 2)?'':'|V'+ DP_attribute[attr].visible;
-            }
-            url2 += ',';
-        }
-      };
-    }
+                url2 += (DP_attribute[attr].visible  === 2)?'':'|V'+ DP_attribute[attr].visible;
+                url2 += ',';
+             }
+          }
+       }
+    };
     
     if (url2.length > 0) {
         url += '&dp=' + url2.substring(0, url2.length - 1);
@@ -1629,8 +1654,8 @@ function createUrl() {
     }
 
 	 // Legend not show    
-    if (!DP_Legend) {
-        url += '&legend=false';
+    if (DP_Legend != 1) {
+        url += '&legend='+DP_Legend;
 	 }
 
 	 // Navigator not show    
@@ -1639,7 +1664,7 @@ function createUrl() {
     }
 
 	 // Labels show    
-    if (DP_Labels) {
+    if (DP_Labels != 0) {
         url += '&labels=true';
     }
 
@@ -1661,7 +1686,7 @@ function createUrl() {
     }
 
 	 // Theme    
-    if (DP_Theme != '') {
+    if (DP_Theme != '' && DP_Theme != 'Standard') {
         url += '&theme='+DP_Theme;
     }
 
@@ -1799,7 +1824,6 @@ function ShowDialog(serieObj) {
   }
 }
 
-
 // Close Dialog
 $("#DialogBtnOK").click(function(){
 
@@ -1835,21 +1859,192 @@ $("#DialogBtnOK").click(function(){
     ChangeEventRaumFilter();
 });
 
-// Close Dialog
+// Close Dialog Line
 $("#DialogBtnClose").click(function(){
     $("#LinePopup").modal('hide');
 });
 
 
-function ResetOptions() {
-    var defaultOptions = Highcharts.getOptions();
-    for (var prop in defaultOptions) {
-        if (typeof defaultOptions[prop] !== 'function') delete defaultOptions[prop];
-    }
-    // Fall back to the defaults that we captured initially, this resets the theme
-    Highcharts.setOptions(HCDefaults);
+
+// Show Dialog
+function ShowDialog2() {
+
+  // set value on Popup
+  document.getElementsByClassName("modal-title2")[0].innerHTML = ChhLanguage.default.historian.settings;
+  document.getElementById("Select-Legend").value    = DP_Legend.toString();
+  document.getElementById("Select-Navigator").value = DP_Navigator.toString();
+  document.getElementById("Select-Label").value     = DP_Labels.toString();
+  document.getElementById("Select-Layout").value    = DP_DayLight.toString();
+  document.getElementById("Select-Content").value     = DP_ShowFilter.toString();
+  document.getElementById("Select-Theme").value     = DP_Theme;
+  document.getElementById("Line-Refresh").value     = DP_AutoRefresh;
+
+  $("#SettingPopup").modal();
 }
 
+
+
+// Close Dialog Settings
+$("#Dialog2BtnOK").click(function(){
+
+   $("#SettingPopup").modal('hide');
+
+   var filterrefresh = false;
+
+// Legend
+   if (DP_Legend.toString() != document.getElementById("Select-Legend").value) {
+      DP_Legend = parseInt(document.getElementById("Select-Legend").value);
+      chart.legend.update( DefineLegend() );
+      if (DP_Legend == 3 || DP_Legend == 4 ) {
+          if (!DP_Limit) {
+              DP_Limit = true;
+              filterrefresh = true;
+          }
+      }
+   }
+
+// Navigator
+   if (DP_Navigator.toString() != document.getElementById("Select-Navigator").value) {
+      DP_Navigator = parseInt(document.getElementById("Select-Navigator").value);
+      if (DP_Navigator == 1) {
+         chart.navigator.update( { enabled: true, } );
+      } else {
+         chart.navigator.update( { enabled: false, } );
+      }
+      chart.legend.update( DefineLegend() );
+      chart.redraw();
+   }
+
+// Labels
+   if (DP_Labels.toString() != document.getElementById("Select-Label").value) {
+      DP_Labels= parseInt(document.getElementById("Select-Label").value);
+      filterrefresh = true;
+   }
+
+// Layout
+   if (DP_DayLight.toString() != document.getElementById("Select-Layout").value) {
+      DP_DayLight= parseInt(document.getElementById("Select-Layout").value);
+      filterrefresh = true;
+   }
+
+// FilterLine
+   if (DP_ShowFilter.toString() != document.getElementById("Select-Content").value) {
+      DP_ShowFilter= parseInt(document.getElementById("Select-Content").value);
+      ShowFilterLine();
+      filterrefresh = true;
+   }
+
+// Theme
+   if (DP_Theme != document.getElementById("Select-Theme").value) {
+      DP_Theme = document.getElementById("Select-Theme").value;
+      if (DP_Theme == 'Standard') {
+          Highcharts.setOptions( DP_Themes.Standard );
+      } else {
+        if (DP_Themes[DP_Theme]) {
+           var chartingOptions = Highcharts.merge(DP_Themes.Standard,DP_Themes[DP_Theme]);
+           Highcharts.setOptions( chartingOptions );
+        }   
+      }
+
+      ChartSetOptions();
+      
+      chartSetElements();
+     
+      filterrefresh = false;
+   }
+// AutoRefresh
+
+   if (DP_AutoRefresh != parseInt(document.getElementById("Line-Refresh").value)) {
+      H2_refreshSec = parseInt(document.getElementById("Line-Refresh").value);
+      AutoRefreshCount = H2_refreshSec;
+      if (DP_AutoRefresh == 0 && H2_refreshSec > 0) {
+         setTimeout(AutoRefresh, 1000);
+      }
+      DP_AutoRefresh = H2_refreshSec;
+   }
+
+   if (filterrefresh) { 
+      ChangeEventRaumFilter();
+   }
+
+});
+
+
+// Close Dialog Settings
+$("#Dialog2BtnClose").click(function(){
+    $("#SettingPopup").modal('hide');
+});
+
+
+function ShowFilterLine() {
+    // ajust height of content to screen height
+    if (DP_ShowFilter===0) {
+       document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - 55)+ "px");
+       document.getElementById("filter").style.display = "none";
+       $('nav.navbar.navbar-default')[0].style.display = "none";
+    } else if (DP_ShowFilter===1) {
+       document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - 160) + "px");
+       document.getElementById("filter").style.display = "";
+       $('nav.navbar.navbar-default')[0].style.display = "";
+    } else if (DP_ShowFilter===2) {
+       document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - 90 ) + "px");
+       document.getElementById("filter").style.display = "";
+       $('nav.navbar.navbar-default')[0].style.display = "none";
+    } else if (DP_ShowFilter===3) {
+       document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - 125 ) + "px");
+       document.getElementById("filter").style.display = "none";
+       $('nav.navbar.navbar-default')[0].style.display = "";
+    }
+    if (chart) {
+       chart.setSize(null ,null, false);
+    }
+}
+
+function DefineLegend() {
+var ret={};
+      if (DP_Legend == 0) {
+         ret = { enabled: false,
+               };
+      } else if (DP_Legend == 2) {
+         ret = { enabled: true,
+                 layout: 'vertical',
+                 align: 'right',
+                 verticalAlign: 'top',
+                 floating: false,
+                 y: 30,
+               };
+      } else if (DP_Legend == 3) {
+          ret = { enabled: true, 
+                  layout: 'horizontal',
+                  align: 'center',
+                  verticalAlign: 'top',
+                  floating: true,
+                  y: 25,
+                };
+      } else if (DP_Legend == 4) {
+          ret =  { enabled: true, 
+                   layout: 'horizontal',
+                   align: 'center',
+                   verticalAlign: 'bottom',
+                   floating: true,
+                   y: (DP_Navigator == 1)?-50:-70,
+                 };
+// on DP_Legend = 1 and default
+      } else{
+         ret = { enabled: true,
+                 layout: 'vertical',
+                 align: 'left',
+                 verticalAlign: 'top',
+                 floating: false,
+                 y: 0,
+               };
+      }
+      ret['backgroundColor'] = '#FFFFFF';
+      ret['x'] = 0;
+      ret['navigation'] = { arrowSize: 20 };
+
+      return ret;
+}
 
 // *** set function for Filter Room
 $("#Select-Color").on("change", function() {
@@ -1877,8 +2072,7 @@ function getComparisionBackDay(str_compType) {
 
 function ChartSetOptions() {
 
-    // Create the chart
-    $('#container').highcharts('StockChart', {
+    Highcharts.stockChart('container', {
         chart: {
             events: {
                 load: requestData,
@@ -1946,7 +2140,7 @@ function ChartSetOptions() {
            }
         },
         navigator: {
-        enabled: DP_Navigator,
+        enabled: (DP_Navigator == 1)?true:false,
         },
 
         exporting: {
@@ -1955,76 +2149,10 @@ function ChartSetOptions() {
               symbol: "menu",
               enabled: true,
               menuItems: [{
-                text: (DP_Legend) ? ChhLanguage.default.highcharts.legenddeactive: ChhLanguage.default.highcharts.legendactive,
+                text: ChhLanguage.default.historian.settings,
                 onclick: function() {
-                  if (DP_Legend) {
-                     $('.highcharts-contextmenu')[0].children[0].children[0].innerHTML = ChhLanguage.default.highcharts.legendactive;
-                     this.legend.update( { enabled: true, 
-                                           layout: 'horizontal',
-                                           align: 'center',
-                                           verticalAlign: 'top',
-                                           floating: true,
-                                           y: 25,
-                                         } );
-                     DP_Legend = false;
-                     $('.highcharts-contextmenu')[0].children[0].children[4].innerHTML = ChhLanguage.default.highcharts.limitactive;
-                     DP_Limit = true;
-                     ChangeEventRaumFilter();
-                  } else {
-                     $('.highcharts-contextmenu')[0].children[0].children[0].innerHTML = ChhLanguage.default.highcharts.legenddeactive;
-                     this.legend.update( { enabled: true,
-                                           layout: 'vertical',
-                                           align: 'left',
-                                           verticalAlign: 'top',
-                                           floating: false,
-                                           y: 0,
-                                         } );
-                     DP_Legend = true;
-                  }
+                  ShowDialog2();
                  }
-              },{
-                text: (DP_Navigator) ? ChhLanguage.default.highcharts.navigatordeactive: ChhLanguage.default.highcharts.navigatoractive,
-                onclick: function() {
-                  if (this.navigator.navigatorEnabled) {
-                    $('.highcharts-contextmenu')[0].children[0].children[1].innerHTML = ChhLanguage.default.highcharts.navigatoractive;
-                    this.navigator.update( { enabled: false, } );
-                    this.redraw();
-                  } else {
-                    $('.highcharts-contextmenu')[0].children[0].children[1].innerHTML = ChhLanguage.default.highcharts.navigatordeactive;
-                    this.navigator.update( { enabled: true, } );
-                    this.redraw();
-                  }
-                }
-              },{
-                text: (DP_Labels) ? ChhLanguage.default.highcharts.labelsdeactive: ChhLanguage.default.highcharts.labelsactive,
-                onclick: function() {
-                  if (DP_Labels) {
-                    $('.highcharts-contextmenu')[0].children[0].children[2].innerHTML = ChhLanguage.default.highcharts.labelsactive;
-                    DP_Labels = false;
-                  } else {
-                    $('.highcharts-contextmenu')[0].children[0].children[2].innerHTML = ChhLanguage.default.highcharts.labelsdeactive;
-                    DP_Labels = true;
-                  }
-                  ChangeEventRaumFilter();
-                },
-              },{
-                text: (DP_DayLight===3) ? ChhLanguage.default.highcharts.daylight0: ((DP_DayLight===0)? ChhLanguage.default.highcharts.daylight1 : ((DP_DayLight===1) ? ChhLanguage.default.highcharts.daylight2 : ChhLanguage.default.highcharts.daylight3)),
-                onclick: function() {
-                  if (DP_DayLight===0) {
-                    $('.highcharts-contextmenu')[0].children[0].children[3].innerHTML = ChhLanguage.default.highcharts.daylight2;
-                    DP_DayLight = 1;
-                  } else if (DP_DayLight===1) {
-                    $('.highcharts-contextmenu')[0].children[0].children[3].innerHTML = ChhLanguage.default.highcharts.daylight3;
-                    DP_DayLight = 2;
-                  } else if (DP_DayLight===2) {
-                    $('.highcharts-contextmenu')[0].children[0].children[3].innerHTML = ChhLanguage.default.highcharts.daylight0;
-                    DP_DayLight = 3;
-                  } else {
-                    $('.highcharts-contextmenu')[0].children[0].children[3].innerHTML = ChhLanguage.default.highcharts.daylight1;
-                    DP_DayLight = 0;
-                  }
-                  ChangeEventRaumFilter();
-                },
               },{
                 text: (DP_Limit) ? ChhLanguage.default.highcharts.limitactive: ChhLanguage.default.highcharts.limitdeactive,
                 onclick: function() {
@@ -2042,37 +2170,6 @@ function ChartSetOptions() {
                 onclick: function() {
                     Zeitraum_Ende = new Date(Date.now());
                     loadNewSerienData();
-                },
-              },{
-                text: (DP_AutoRefresh===0) ? ChhLanguage.default.highcharts.autorefresh1 + H2_refreshSec + ' Sek.': ChhLanguage.default.highcharts.autorefresh0,
-                onclick: function() {
-                  if (DP_AutoRefresh === 0) {
-                    $('.highcharts-contextmenu')[0].children[0].children[6].innerHTML = ChhLanguage.default.highcharts.autorefresh0;
-                    DP_AutoRefresh = H2_refreshSec;
-                    AutoRefreshCount = DP_AutoRefresh;
-                    setTimeout(AutoRefresh, 1000);
-                  } else {
-                    $('.highcharts-contextmenu')[0].children[0].children[6].innerHTML = ChhLanguage.default.highcharts.autorefresh1 + H2_refreshSec + ' Sek.';
-                    DP_AutoRefresh = 0;
-                  }
-                },
-              },{
-                text: (DP_ShowFilter===0) ? ChhLanguage.default.highcharts.showfilter1 : ChhLanguage.default.highcharts.showfilter0,
-                onclick: function() {
-                  if (DP_ShowFilter=== 0) {
-                    $('.highcharts-contextmenu')[0].children[0].children[7].innerHTML = ChhLanguage.default.highcharts.showfilter0;
-                    document.getElementById("filter").style.display = "";
-                    $('nav.navbar.navbar-default')[0].style.display = "";
-                    document.getElementById("container").setAttribute("style", "height:" + ($(document).height() -250 ) + "px");
-                    DP_ShowFilter = 1;
-                  } else {
-                    $('.highcharts-contextmenu')[0].children[0].children[7].innerHTML = ChhLanguage.default.highcharts.showfilter1;
-                    document.getElementById("filter").style.display = "none";
-                    $('nav.navbar.navbar-default')[0].style.display = "none";
-                    document.getElementById("container").setAttribute("style", "height:" + ($(document).height() -50 ) + "px");
-                    DP_ShowFilter = 0;
-                  }
-                  chart.setSize(null ,null, false);
                 },
               },{
                 text: ChhLanguage.default.historian.buttonLink,
@@ -2126,6 +2223,8 @@ function ChartSetOptions() {
                             document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.highcharts.aggrtxt4 + ': ' + grouping.count + '/' + text;
                          } else if (aggrType === 5) {
                             document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.highcharts.aggrtxt5 + ': ' + grouping.count + '/' + text;
+                         } else if (aggrType === 6) {
+                            document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.highcharts.aggrtxt6;
                          } else {
                             document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.highcharts.aggrtxt1 + ': ' + grouping.count + '/' + text;
                          }  
@@ -2289,31 +2388,7 @@ function ChartSetOptions() {
             tickAmount: 11, 
         }],
 
-        legend: ((DP_Legend)?({
-            enabled: true,
-            layout: 'vertical',
-            backgroundColor: '#FFFFFF',
-            align: 'left',
-            verticalAlign: 'top',
-            floating: false,
-            x: 0,
-            y: 0,
-            navigation: {
-                arrowSize: 20,
-            }
-        }):({
-            enabled: true,
-            layout: 'horizontal',
-            backgroundColor: '#FFFFFF',
-            align: 'center',
-            verticalAlign: 'top',
-            floating: true,
-            x: 0,
-            y: 25,
-            navigation: {
-                arrowSize: 20,
-            }
-        })),
+        legend: DefineLegend(),
 
         plotOptions: {
             series: {
@@ -2364,7 +2439,6 @@ function ChartSetOptions() {
 
 }
 
-
 function chartSetElements() {
 
     chart = $('#container').highcharts();
@@ -2379,6 +2453,7 @@ function chartSetElements() {
     }
     $('#message').css('color', chart.options.labels.style.color );
 
+    $("#Select-Color").empty();
     // Color options
     var select = document.getElementById("Select-Color");
     for (i = 0; i < chart.options.colors.length; i++) {
@@ -2389,6 +2464,7 @@ function chartSetElements() {
         select.add(option); 
     }
 
+    $("#Select-Marker").empty();
     // Marker options
     var select = document.getElementById("Select-Marker");
         var option = document.createElement("option");
