@@ -33,7 +33,7 @@ As highlight is in the background gray for night (20:00 - 06:00) and yellow for 
 With button "Link erzeugen" you can create an Link which will open a new window and this could be also used as shortcuts. 
 The whole selection will be added to this link also zoom, periode, daylight, legend, navigator, all selected datapoint, all filters
 
-http://<host>:<port>/custom/h2-highchart/H2-HighChart.gy?periode=??dp=131|Y5|L1|V1|A1,???&room=??&function=??&filterkey=??&zoom=??&legend=false&navigator=false&labels=true&daylight=false&filterline=false&theme=dark-green
+http://<host>:<port>/custom/h2-highchart/H2-HighChart.gy?periode=??dp=131|Y5|L1|V1|A1,???&yaxis=Y0|P0|A1|L5|H70|G11|F0|TWatt,???&room=??&function=??&filterkey=??&zoom=??&legend=false&navigator=false&labels=true&daylight=false&filterline=false&theme=dark-green
 
 Parameters for dp=<CCU-Historian-ID>|A0|Y0|L0|F0|C0|M0|V2  
    * A0 - Aggregation (0-no, 1-dyn, 2-delta, 3-min/max, 4-sum, 5-TIME_ON, 6-Time round to min.)
@@ -50,11 +50,24 @@ Parameters for dp=<CCU-Historian-ID>|A0|Y0|L0|F0|C0|M0|V2
    * W2 - Line width (0-10)
    * X1 - Multiplication factor of value, standard 1 = no effect
    * O0 - Offset, will be add to every value
-   * Ukg - Unit which should be used
-  
+   * Ukg - Unit which should be used  
+
 This options can be set on click to a line/point on the chart or <b>SHIFT-key+(left-mouse-click)</b> on legend item.
 ![](docs/line-menu.png) 
-  
+
+Parmeters for yaxis=Y0|P0|A1|L5|H70|G11|F0|TWatt
+   * Y0  - Y-Axis number 0-12
+   * P0  - Position 0-left, 1-right
+   * A1  - Type of limits 0-dynamic, 1-soft, 2-hard
+   * L5  - Min. Limit
+   * H70 - Max. Limit
+   * G11 - Count of Ticks 
+   * F0  - Color (0-Theme default, 1-1.Series, 2-? Fix Theme colors)
+   * T...- Title of Y-Axis  
+
+By click on Y-Axis title or lables you get following config dialog for the Y-Axis:
+![](docs/axis-menu.png) 
+
 All Settings can be changed under Popup-menu settings:  
 ![](docs/setting.png)  
   
