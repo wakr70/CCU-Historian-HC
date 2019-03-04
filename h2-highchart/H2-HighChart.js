@@ -1606,6 +1606,13 @@ function loadNewAxisInfo() {
                                           title:     { style: {"color": axiscolor } }, 
                                         }, false);
          }
+
+         // set extrem if config HARD
+         if (DP_yAxis[axispos].limit == '2') {
+            chart.yAxis[axispos].setExtremes(
+                  parseFloat(DP_yAxis[axispos].min),
+                  parseFloat(DP_yAxis[axispos].max) );
+         }
       }
    }
    chart.redraw();
@@ -2299,12 +2306,6 @@ $("#Dialog3BtnOK").click(function(){
    DP_yAxis[DP_PopupAxisPos].max      = parseFloat(document.getElementById("Line-Max").value);
    DP_yAxis[DP_PopupAxisPos].tick     = parseInt(document.getElementById("Line-TickAmount").value);
    DP_yAxis[DP_PopupAxisPos].color    = parseInt(document.getElementById("Select-AxisColor").value);
-
-   if (document.getElementById("Select-Limit").value == '2') {
-      chart.yAxis[DP_PopupAxisPos].setExtremes(
-           parseFloat(document.getElementById("Line-Min").value),
-           parseFloat(document.getElementById("Line-Max").value) )
-   }
 
    loadNewAxisInfo();
 
