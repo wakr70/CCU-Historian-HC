@@ -28,19 +28,19 @@ var DP_DashType = ['Solid','Dash','DashDot','Dot','LongDash','LongDashDot','Long
 var DP_Queue = [ ];
 var DP_Title = '';
 var DP_Subtitle = '';
-var DP_yAxis = [{ position: false, limit: 0, min:  0, max:   0, tick: 11, text: ChhLanguage.default.highcharts.yaxis0 ,color: 1},
-                { position: false, limit: 1, min: 10, max:  30, tick: 11, text: ChhLanguage.default.highcharts.yaxis1 ,color: 1},
-                { position: true,  limit: 1, min:-20, max:  50, tick: 11, text: ChhLanguage.default.highcharts.yaxis2 ,color: 1},
-                { position: false, limit: 1, min: 20, max:  90, tick: 11, text: ChhLanguage.default.highcharts.yaxis3 ,color: 1},
-                { position: true,  limit: 1, min:  0, max: 100, tick: 11, text: ChhLanguage.default.highcharts.yaxis4 ,color: 1},
-                { position: true,  limit: 1, min:  0, max:   1, tick: 11, text: ChhLanguage.default.highcharts.yaxis5 ,color: 1},
-                { position: true,  limit: 1, min: 20, max: 100, tick: 11, text: ChhLanguage.default.highcharts.yaxis6 ,color: 1},
-                { position: false, limit: 1, min:900, max:1000, tick: 11, text: ChhLanguage.default.highcharts.yaxis7 ,color: 1},
-                { position: false, limit: 1, min:  0, max:5000, tick: 11, text: ChhLanguage.default.highcharts.yaxis8 ,color: 1},
-                { position: true,  limit: 1, min:300, max:3000, tick: 11, text: ChhLanguage.default.highcharts.yaxis9 ,color: 1},
-                { position: true,  limit: 1, min:  3, max:  15, tick: 11, text: ChhLanguage.default.highcharts.yaxis10,color: 1},
-                { position: true,  limit: 0, min:  0, max:   0, tick: 11, text: ChhLanguage.default.highcharts.yaxis11,color: 1},
-                { position: true,  limit: 0, min:  0, max:   0, tick: 11, text: ChhLanguage.default.highcharts.yaxis12,color: 1}];
+var DP_yAxis = [{ position: false, limit: 0, min:  0, max:   0, tick: 11, text: ChhLanguage.default.highcharts.yaxis0 ,color: 1, type: 0 },
+                { position: false, limit: 1, min: 10, max:  30, tick: 11, text: ChhLanguage.default.highcharts.yaxis1 ,color: 1, type: 0 },
+                { position: true,  limit: 1, min:-20, max:  50, tick: 11, text: ChhLanguage.default.highcharts.yaxis2 ,color: 1, type: 0 },
+                { position: false, limit: 1, min: 20, max:  90, tick: 11, text: ChhLanguage.default.highcharts.yaxis3 ,color: 1, type: 0 },
+                { position: true,  limit: 1, min:  0, max: 100, tick: 11, text: ChhLanguage.default.highcharts.yaxis4 ,color: 1, type: 0 },
+                { position: true,  limit: 1, min:  0, max:   2, tick: 11, text: ChhLanguage.default.highcharts.yaxis5 ,color: 1, type: 0 },
+                { position: true,  limit: 1, min: 20, max: 100, tick: 11, text: ChhLanguage.default.highcharts.yaxis6 ,color: 1, type: 0 },
+                { position: false, limit: 1, min:900, max:1000, tick: 11, text: ChhLanguage.default.highcharts.yaxis7 ,color: 1, type: 0 },
+                { position: false, limit: 1, min:  0, max:5000, tick: 11, text: ChhLanguage.default.highcharts.yaxis8 ,color: 1, type: 0 },
+                { position: true,  limit: 1, min:300, max:3000, tick: 11, text: ChhLanguage.default.highcharts.yaxis9 ,color: 1, type: 0 },
+                { position: true,  limit: 1, min:  3, max:  15, tick: 11, text: ChhLanguage.default.highcharts.yaxis10,color: 1, type: 0 },
+                { position: true,  limit: 0, min:  0, max:   0, tick: 11, text: ChhLanguage.default.highcharts.yaxis11,color: 1, type: 0 },
+                { position: false, limit: 0, min:  0, max:   0, tick: 11, text: ChhLanguage.default.highcharts.yaxis12,color: 1, type: 1 }];
 var DP_yAxis_default = JSON.parse(JSON.stringify( DP_yAxis ));
 
 function createChart() {
@@ -1298,6 +1298,17 @@ $(document).ready(function() {
        select.add(option); 
     }
 
+    // Axis Type
+    var select = document.getElementById("Select-AxisType");
+    var option = document.createElement("option");
+    option.text = ChhLanguage.default.historian.yaxistype0;
+    option.value = '0';
+    select.add(option); 
+    var option = document.createElement("option");
+    option.text = ChhLanguage.default.historian.yaxistype1;
+    option.value = '1';
+    select.add(option); 
+
     // Axis Position
     var select = document.getElementById("Select-Position");
     var option = document.createElement("option");
@@ -1373,6 +1384,9 @@ $(document).ready(function() {
                              if (text2[k].substr(0,1) === 'P') {
                                 if (text2[k].substr(1,1) === '0') DP_yAxis[axis_id].position = false;
                                 if (text2[k].substr(1,1) === '1') DP_yAxis[axis_id].position = true;
+                             } else if (text2[k].substr(0,1) === 'C') {
+                                if (text2[k].substr(1,1) === '0') DP_yAxis[axis_id].type = 0;
+                                if (text2[k].substr(1,1) === '1') DP_yAxis[axis_id].type = 1;
                              } else if (text2[k].substr(0,1) === 'A') {
                                 if (text2[k].substr(1,1) === '0') DP_yAxis[axis_id].limit = 0;
                                 if (text2[k].substr(1,1) === '1') DP_yAxis[axis_id].limit = 1;
@@ -1663,19 +1677,22 @@ function loadNewPlotBand() {
     for (var loopDate = Zeitraum_Start.getTime(); loopDate <= Zeitraum_Ende.getTime(); loopDate += 86400000) {
         var start = new Date(loopDate);
         chart.xAxis[0].addPlotBand({
-            color: '#EFE8E7',
+            color: 'rgba(239,232,231,0.5)',
+//            color: '#EFE8E7',
             from: start.setHours(0, 0, 0, 0),
             to: start.setHours(6, 0, 0, 0),
             id: ('DayLight1' + id.toString()),
         });
         chart.xAxis[0].addPlotBand({
-            color: '#fbfce3',
+            color: 'rgba(251,252,227,0.5)',
+//            color: '#fbfce3',
             from: start.setHours(6, 0, 0, 0),
             to: start.setHours(20, 0, 0, 0),
             id: ('DayLight2' + id.toString()),
         });
         chart.xAxis[0].addPlotBand({
-            color: '#EFE8E7',
+            color: 'rgba(239,232,231,0.5)',
+//            color: '#EFE8E7',
             from: start.setHours(20, 0, 0, 0),
             to: start.setHours(23, 59, 59, 999),
             id: ('DayLight3' + id.toString()),
@@ -1775,6 +1792,7 @@ function createUrl() {
 
             url2 += 'Y'+axispos;
             url2 += (DP_yAxis[axispos].position == DP_yAxis_default[axispos].position )?'':'|P'+ ((DP_yAxis[axispos].position)?'1':'0');
+            url2 += (DP_yAxis[axispos].type     == DP_yAxis_default[axispos].type     )?'':'|C'+ DP_yAxis[axispos].type;
             url2 += (DP_yAxis[axispos].limit    == DP_yAxis_default[axispos].limit    )?'':'|A'+ DP_yAxis[axispos].limit;
             url2 += (DP_yAxis[axispos].min      == DP_yAxis_default[axispos].min      )?'':'|L'+ DP_yAxis[axispos].min;
             url2 += (DP_yAxis[axispos].max      == DP_yAxis_default[axispos].max      )?'':'|H'+ DP_yAxis[axispos].max;
@@ -2271,6 +2289,7 @@ function ShowDialog3(id) {
      document.getElementById("Line-TickAmount").value  = DP_PopupAxisObj.tickAmount;
      document.getElementById("Select-AxisColor").value = DP_yAxis[DP_PopupAxisPos].color;
      document.getElementById("Select-Limit").value     = DP_yAxis[DP_PopupAxisPos].limit;
+     document.getElementById("Select-AxisType").value  = DP_yAxis[DP_PopupAxisPos].type;
 
   } else {
      return;
@@ -2289,6 +2308,7 @@ $("#Dialog3BtnOK").click(function(){
             title: { text: document.getElementById("Line-Title3").value },
             lineWidth: 2,
             opposite: (document.getElementById("Select-Position").value=='1')?true:false,
+            type: (document.getElementById("Select-AxisType").value=='1')?'logarithmic':'linear',
             tickAmount: parseInt(document.getElementById("Line-TickAmount").value),
             min:     (document.getElementById("Select-Limit").value == '2')?parseFloat(document.getElementById("Line-Min").value):null,
             max:     (document.getElementById("Select-Limit").value == '2')?parseFloat(document.getElementById("Line-Max").value):null,
@@ -2302,6 +2322,7 @@ $("#Dialog3BtnOK").click(function(){
    DP_yAxis[DP_PopupAxisPos].text     = document.getElementById("Line-Title3").value;
    DP_yAxis[DP_PopupAxisPos].position = (parseInt(document.getElementById("Select-Position").value)==0)?false:true;
    DP_yAxis[DP_PopupAxisPos].limit    = parseInt(document.getElementById("Select-Limit").value);
+   DP_yAxis[DP_PopupAxisPos].type     = parseInt(document.getElementById("Select-AxisType").value);
    DP_yAxis[DP_PopupAxisPos].min      = parseFloat(document.getElementById("Line-Min").value);
    DP_yAxis[DP_PopupAxisPos].max      = parseFloat(document.getElementById("Line-Max").value);
    DP_yAxis[DP_PopupAxisPos].tick     = parseInt(document.getElementById("Line-TickAmount").value);
@@ -2323,6 +2344,7 @@ function define_yaxis() {
    for ( var y = 0; y < DP_yAxis.length; y++) {
       arr.push({ id: 'AXISY'+y,
               className: 'axisy'+y,
+              type: (DP_yAxis[y].type == 1)?'logarithmic':'linear',
               title: { text: DP_yAxis[y].text },
               lineWidth: 2,
               showEmpty: false,
