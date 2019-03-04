@@ -12,6 +12,7 @@ var ChhLanguage = {
         'historian': {
             //Datenpunkte
             'settings': 'Einstellungen',
+            'axissetting': 'Achsen-Einstellung für Y-Axis',
             'interfaceId': 'Schnittstelle',
             'address': 'Seriennummer:Kanal',
             'identifier': 'Parameter',
@@ -83,6 +84,11 @@ var ChhLanguage = {
             yaxis10: 'Luftfeuchtigkeit g/kg',
             yaxis11: 'min-Max ± 5%',
             yaxis12: 'min-Max ± 2%',
+            yaxispos0:  'links',
+            yaxispos1:  'rechts',
+            yaxislimit0: 'dynamic',
+            yaxislimit1: 'soft',
+            yaxislimit2: 'hard',
             linetype0:  'SP-Line',
             linetype1:  'Line',
             linetype2:  'Line step left',
@@ -139,6 +145,8 @@ var ChhLanguage = {
             legendtxt2:  'rechts', 
             legendtxt3:  'inline oben', 
             legendtxt4:  'inline unten', 
+            legendtxt5:  'oben', 
+            legendtxt6:  'unten', 
             navitxt0:    'ausblenden',
             navitxt1:    'einblenden',
             labeltxt0:   'ausblenden',

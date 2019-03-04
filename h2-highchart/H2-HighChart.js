@@ -21,14 +21,34 @@ var DP_ShowFilter = 1;
 var AutoRefreshCount = 0;
 var DP_attribute = [];
 var DP_PopupID;
+var DP_PopupAxisObj;
+var DP_PopupAxisPos;
 var DP_Theme = 'Standard';
 var DP_DashType = ['Solid','Dash','DashDot','Dot','LongDash','LongDashDot','LongDashDotDot','ShortDash','ShortDashDot','ShortDashDotDot','ShortDot'];
 var DP_Queue = [ ];
+var DP_Title = '';
+var DP_Subtitle = '';
+var DP_yAxis = [{ position: false, limit: 0, min:  0, max:   0, tick: 11, text: ChhLanguage.default.highcharts.yaxis0 ,color: 1},
+                { position: false, limit: 1, min: 10, max:  30, tick: 11, text: ChhLanguage.default.highcharts.yaxis1 ,color: 1},
+                { position: true,  limit: 1, min:-20, max:  50, tick: 11, text: ChhLanguage.default.highcharts.yaxis2 ,color: 1},
+                { position: false, limit: 1, min: 20, max:  90, tick: 11, text: ChhLanguage.default.highcharts.yaxis3 ,color: 1},
+                { position: true,  limit: 1, min:  0, max: 100, tick: 11, text: ChhLanguage.default.highcharts.yaxis4 ,color: 1},
+                { position: true,  limit: 1, min:  0, max:   1, tick: 11, text: ChhLanguage.default.highcharts.yaxis5 ,color: 1},
+                { position: true,  limit: 1, min: 20, max: 100, tick: 11, text: ChhLanguage.default.highcharts.yaxis6 ,color: 1},
+                { position: false, limit: 1, min:900, max:1000, tick: 11, text: ChhLanguage.default.highcharts.yaxis7 ,color: 1},
+                { position: false, limit: 1, min:  0, max:5000, tick: 11, text: ChhLanguage.default.highcharts.yaxis8 ,color: 1},
+                { position: true,  limit: 1, min:300, max:3000, tick: 11, text: ChhLanguage.default.highcharts.yaxis9 ,color: 1},
+                { position: true,  limit: 1, min:  3, max:  15, tick: 11, text: ChhLanguage.default.highcharts.yaxis10,color: 1},
+                { position: true,  limit: 0, min:  0, max:   0, tick: 11, text: ChhLanguage.default.highcharts.yaxis11,color: 1},
+                { position: true,  limit: 0, min:  0, max:   0, tick: 11, text: ChhLanguage.default.highcharts.yaxis12,color: 1}];
+var DP_yAxis_default = JSON.parse(JSON.stringify( DP_yAxis ));
 
 function createChart() {
    if (DP_Theme != 'Standard' && DP_Themes[DP_Theme]) {
       var chartingOptions = Highcharts.merge(DP_Themes.Standard,DP_Themes[DP_Theme]);
       Highcharts.setOptions(chartingOptions);
+   } else {
+      Highcharts.setOptions(DP_Themes.Standard);
    }   
     
    ChartSetOptions();
@@ -781,6 +801,7 @@ function SetSerienData(p_attr, serieObj) {
           AddAggregationMinMax(serieObj);
        }
 
+       loadNewAxisInfo();
     }
 
     // read data for comp series
@@ -1225,7 +1246,7 @@ $(document).ready(function() {
 
     // Legend options
     var select = document.getElementById("Select-Legend");
-    for (var i = 0; i < 5; i++) {
+    for (var i = 0; i < 7; i++) {
         var option = document.createElement("option");
         option.text = ChhLanguage.default.historian['legendtxt'+i];
         option.value = i;
@@ -1277,6 +1298,34 @@ $(document).ready(function() {
        select.add(option); 
     }
 
+    // Axis Position
+    var select = document.getElementById("Select-Position");
+    var option = document.createElement("option");
+    option.text = ChhLanguage.default.historian.yaxispos0;
+    option.value = '0';
+    select.add(option); 
+    var option = document.createElement("option");
+    option.text = ChhLanguage.default.historian.yaxispos1;
+    option.value = '1';
+    select.add(option); 
+
+    // Axis min/max
+    var select = document.getElementById("Select-Limit");
+    var option = document.createElement("option");
+    option.text = ChhLanguage.default.historian.yaxislimit0;
+    option.value = '0';
+    select.add(option); 
+    var option = document.createElement("option");
+    option.text = ChhLanguage.default.historian.yaxislimit1;
+    option.value = '1';
+    select.add(option); 
+    var option = document.createElement("option");
+    option.text = ChhLanguage.default.historian.yaxislimit2;
+    option.value = '2';
+    select.add(option); 
+
+
+
     // Add mouse wheel for legend
     (function(H) {
         H.wrap(H.Legend.prototype, 'render', function(proceed) {
@@ -1313,20 +1362,49 @@ $(document).ready(function() {
 
             if (nv[0].toLowerCase() === 'dp') {
                DP_Limit = true;
-
+            } else if (nv[0].toLowerCase() === 'yaxis') {
+                var text = decodeURIComponent(nv[1]).toLowerCase().split(',');
+                for (var j = 0; j < text.length; j++) {
+                    var text2 = text[j].toUpperCase().split('|');
+                    var axis_id = parseInt(text2[0].substr(1,2));
+                    if (axis_id >=0 && axis_id < DP_yAxis.length) {
+                       if (text2.length > 0) {
+                          for (var k = 1; k < text2.length; k++) {
+                             if (text2[k].substr(0,1) === 'P') {
+                                if (text2[k].substr(1,1) === '0') DP_yAxis[axis_id].position = false;
+                                if (text2[k].substr(1,1) === '1') DP_yAxis[axis_id].position = true;
+                             } else if (text2[k].substr(0,1) === 'A') {
+                                if (text2[k].substr(1,1) === '0') DP_yAxis[axis_id].limit = 0;
+                                if (text2[k].substr(1,1) === '1') DP_yAxis[axis_id].limit = 1;
+                                if (text2[k].substr(1,1) === '2') DP_yAxis[axis_id].limit = 2;
+                             } else if (text2[k].substr(0,1) === 'L') {
+                                DP_yAxis[axis_id].min = parseFloat(text2[k].substr(1,15)) ;
+                             } else if (text2[k].substr(0,1) === 'H') {
+                                DP_yAxis[axis_id].max = parseFloat(text2[k].substr(1,15)) ;
+                             } else if (text2[k].substr(0,1) === 'G') {
+                                DP_yAxis[axis_id].tick = parseInt(text2[k].substr(1,15)) ;
+                             } else if (text2[k].substr(0,1) === 'F') {
+                                DP_yAxis[axis_id].color = parseInt(text2[k].substr(1,2)) ;
+                             } else if (text2[k].substr(0,1) === 'T') {
+                                DP_yAxis[axis_id].text = decodeURIComponent(nv[1]).split(',')[j].split('|')[k].substr(1,50) ;
+                             }
+                          }
+                       }
+                    }
+                }
             // parameter Periode (Stunden)
             } else if (nv[0].toLowerCase() === 'periode') {
                 Zeitraum_Start = new Date(Zeitraum_Ende - (new Date(3600 * 1000 * parseInt(nv[1]))));
                 // parameter Data Point
             } else if (nv[0].toLowerCase() === 'filterkey') {
                 filter_feld = decodeURIComponent(nv[1].toLowerCase());
+            } else if (nv[0].toLowerCase() === 'title') {
+                DP_Title = decodeURIComponent(nv[1]);
+            } else if (nv[0].toLowerCase() === 'subtitle') {
+                DP_Subtitle = decodeURIComponent(nv[1]);
             } else if (nv[0].toLowerCase() === 'legend') {
                 if (decodeURIComponent(nv[1].toLowerCase()) === 'false') { DP_Legend = 0; }
-                if (decodeURIComponent(nv[1].toLowerCase()) === '0') { DP_Legend = 0; }
-                if (decodeURIComponent(nv[1].toLowerCase()) === '1') { DP_Legend = 1; }
-                if (decodeURIComponent(nv[1].toLowerCase()) === '2') { DP_Legend = 2; }
-                if (decodeURIComponent(nv[1].toLowerCase()) === '3') { DP_Legend = 3; }
-                if (decodeURIComponent(nv[1].toLowerCase()) === '4') { DP_Legend = 4; }
+                if (parseInt(decodeURIComponent(nv[1])) >= 0 && parseInt(decodeURIComponent(nv[1])) < 7 ) { DP_Legend = parseInt(decodeURIComponent(nv[1])); }
             } else if (nv[0].toLowerCase() === 'navigator') {
                 if (decodeURIComponent(nv[1].toLowerCase()) === 'false') { DP_Navigator = 0; }
                 if (decodeURIComponent(nv[1].toLowerCase()) === '0') { DP_Navigator = 0; }
@@ -1492,17 +1570,70 @@ function loadNewSerienData() {
     for (var serie = 0; serie < chart.series.length; serie++) {
         if (chart.series[serie].visible && chart.series[serie].options.group != "nav") {
             SetData(chart.series[serie]);
-            
-            chart.series[serie].yAxis.update({
-                          lineColor: chart.series[serie].color,
-                          labels:    { style: {"color": chart.series[serie].color } }, 
-                          title:     { style: {"color": chart.series[serie].color } }, 
-                                             }, false);
-        }
+        } 
     };
     chart.xAxis[0].setExtremes(Zeitraum_Start.getTime(), Zeitraum_Ende.getTime(), true);
-    loadNewPlotBand()
+    loadNewPlotBand();
     chart.redraw();
+    loadNewAxisInfo();
+}
+
+
+function loadNewAxisInfo() {
+
+   for (var axispos = 0; axispos < DP_yAxis.length; axispos++) {
+      if (chart.yAxis[axispos].visible && chart.yAxis[axispos].hasVisibleSeries ) {
+                  
+         var axiscolor = null;
+
+         if (DP_yAxis[axispos].color == 0) {
+            axiscolor = Highcharts.defaultOptions.yAxis.lineColor;
+         } else if (DP_yAxis[axispos].color == 1 && chart.yAxis[axispos].series.length > 0) {
+           for (var s = 0; s <chart.yAxis[axispos].series.length; s++) {
+              if (chart.yAxis[axispos].series[s].visible) {
+                 axiscolor = chart.yAxis[axispos].series[s].color;
+                 break;
+              }
+           }
+         } else if (DP_yAxis[axispos].color > 1 && DP_yAxis[axispos].color < chart.options.colors.length + 2) {
+            axiscolor = chart.options.colors[DP_yAxis[axispos].color - 2];
+         }
+         if (axiscolor != null && axiscolor != chart.yAxis[axispos].options.lineColor ) {
+      
+            chart.yAxis[axispos].update({
+                                          lineColor: axiscolor,
+                                          labels:    { style: {"color": axiscolor } }, 
+                                          title:     { style: {"color": axiscolor } }, 
+                                        }, false);
+         }
+      }
+   }
+   chart.redraw();
+
+// Reset Axis Click Event
+    $('.highcharts-axis').click(function(event) {
+      if (this.classList) {
+        for (var axispos = 0; axispos<this.classList.length; axispos++) {
+           if (this.classList[axispos].substr(0,5) === 'axisy') {
+              var axisID = this.classList[axispos]; 
+              ShowDialog3(axisID);
+              break;
+           }
+        }
+      }
+    });
+    $('.highcharts-axis-labels').click(function(event) {
+      if (this.classList) {
+        for (var axispos = 0; axispos<this.classList.length; axispos++) {
+           if (this.classList[axispos].substr(0,5) === 'axisy') {
+              var axisID = this.classList[axispos]; 
+              ShowDialog3(axisID);
+              break;
+           }
+        }
+      }
+    });
+
 }
 
 //********************
@@ -1630,6 +1761,28 @@ function createUrl() {
         url += '&dp=' + url2.substring(0, url2.length - 1);
     }
 
+   var url2 = '';
+   for (var axispos = 0; axispos < DP_yAxis.length; axispos++) {
+      if (chart.yAxis[axispos].visible && chart.yAxis[axispos].hasVisibleSeries ) {
+         if ( JSON.stringify( DP_yAxis[axispos] ) != JSON.stringify( DP_yAxis_default[axispos] ) ) {
+
+            url2 += 'Y'+axispos;
+            url2 += (DP_yAxis[axispos].position == DP_yAxis_default[axispos].position )?'':'|P'+ ((DP_yAxis[axispos].position)?'1':'0');
+            url2 += (DP_yAxis[axispos].limit    == DP_yAxis_default[axispos].limit    )?'':'|A'+ DP_yAxis[axispos].limit;
+            url2 += (DP_yAxis[axispos].min      == DP_yAxis_default[axispos].min      )?'':'|L'+ DP_yAxis[axispos].min;
+            url2 += (DP_yAxis[axispos].max      == DP_yAxis_default[axispos].max      )?'':'|H'+ DP_yAxis[axispos].max;
+            url2 += (DP_yAxis[axispos].tick     == DP_yAxis_default[axispos].tick     )?'':'|G'+ DP_yAxis[axispos].tick;
+            url2 += (DP_yAxis[axispos].color    == DP_yAxis_default[axispos].color    )?'':'|F'+ DP_yAxis[axispos].color;
+            url2 += (DP_yAxis[axispos].text     == DP_yAxis_default[axispos].text     )?'':'|T'+ DP_yAxis[axispos].text;
+            url2 += ',';
+         }
+      }
+   }
+
+    if (url2.length > 0) {
+        url += '&yaxis=' + url2.substring(0, url2.length - 1);
+    }
+
     // Add Room to Link if needed
     var filter_raum = document.getElementById("Select-Raum").value;
     if (filter_raum != 'ALLES') {
@@ -1688,6 +1841,16 @@ function createUrl() {
 	 // Theme    
     if (DP_Theme != '' && DP_Theme != 'Standard') {
         url += '&theme='+DP_Theme;
+    }
+
+	 // Title    
+    if (DP_Title != '') {
+        url += '&title='+DP_Title;
+    }
+
+	 // Subtitle    
+    if (DP_Subtitle!= '') {
+        url += '&subtitle='+DP_Subtitle;
     }
 
     window.open(url, '_blank');
@@ -1800,10 +1963,8 @@ function ShowDialog(serieObj) {
         techName =  '<br/>' +DP_point[DP_pos].id.interfaceId + '.' + DP_point[DP_pos].id.address + '.' + DP_point[DP_pos].id.identifier;
      }
 
-
      // set value on Popup
      document.getElementsByClassName("modal-title")[0].innerHTML = serieObj.name + techName;
-
 
      document.getElementById("Select-Aggregation").value = DP_attribute[attr].aggr;
      document.getElementById("Select-AggrTime").value    = DP_attribute[attr].atime;
@@ -1878,6 +2039,8 @@ function ShowDialog2() {
   document.getElementById("Select-Content").value     = DP_ShowFilter.toString();
   document.getElementById("Select-Theme").value     = DP_Theme;
   document.getElementById("Line-Refresh").value     = DP_AutoRefresh;
+  document.getElementById("Line-Title").value       = DP_Title;
+  document.getElementById("Line-Subtitle").value    = DP_Subtitle;
 
   $("#SettingPopup").modal();
 }
@@ -1895,11 +2058,11 @@ $("#Dialog2BtnOK").click(function(){
    if (DP_Legend.toString() != document.getElementById("Select-Legend").value) {
       DP_Legend = parseInt(document.getElementById("Select-Legend").value);
       chart.legend.update( DefineLegend() );
-      if (DP_Legend == 3 || DP_Legend == 4 ) {
-          if (!DP_Limit) {
-              DP_Limit = true;
-              filterrefresh = true;
-          }
+      if (DP_Legend == 3 || DP_Legend == 4 || DP_Legend == 5 | DP_Legend == 6 ) {
+         if (!DP_Limit) {
+            DP_Limit = true;
+            filterrefresh = true;
+         }
       }
    }
 
@@ -1913,6 +2076,18 @@ $("#Dialog2BtnOK").click(function(){
       }
       chart.legend.update( DefineLegend() );
       chart.redraw();
+   }
+
+// Title
+   if (DP_Title != document.getElementById("Line-Title").value) {
+      DP_Title = document.getElementById("Line-Title").value;
+      chart.title.update( { text: DP_Title } );
+   }
+
+// Subtitle
+   if (DP_Subtitle!= document.getElementById("Line-Subtitle").value) {
+      DP_Subtitle= document.getElementById("Line-Subtitle").value;
+      chart.subtitle.update( { text: DP_Subtitle} );
    }
 
 // Labels
@@ -2029,6 +2204,22 @@ var ret={};
                    floating: true,
                    y: (DP_Navigator == 1)?-50:-70,
                  };
+      } else if (DP_Legend == 5) {
+          ret = { enabled: true, 
+                  layout: 'horizontal',
+                  align: 'center',
+                  verticalAlign: 'top',
+                  floating: false,
+                  y: 40,
+                };
+      } else if (DP_Legend == 6) {
+          ret =  { enabled: true, 
+                   layout: 'horizontal',
+                   align: 'center',
+                   verticalAlign: 'bottom',
+                   floating: false,
+                   y: 0,
+                 };
 // on DP_Legend = 1 and default
       } else{
          ret = { enabled: true,
@@ -2044,6 +2235,108 @@ var ret={};
       ret['navigation'] = { arrowSize: 20 };
 
       return ret;
+}
+
+
+// Show Dialog
+function ShowDialog3(id) {
+
+  document.getElementsByClassName("modal-title3")[0].innerHTML = ChhLanguage.default.historian.axissetting + ' ' + id.substr(5,2);
+
+// find axis object
+  var axispos = parseInt(id.substr(5,2));
+  if (axispos >= 0 && axispos < chart.options.yAxis.length) {
+     var DP_PopupAxisObj = chart.options.yAxis[axispos];
+     DP_PopupAxisPos = axispos;
+      
+     document.getElementById("Line-Title3").value      = DP_PopupAxisObj.title.text;
+     document.getElementById("Select-Position").value  = DP_PopupAxisObj.opposite?'1':'0';
+     if (DP_PopupAxisObj.softMax) {
+        document.getElementById("Line-Min").value      = DP_PopupAxisObj.softMin;
+        document.getElementById("Line-Max").value      = DP_PopupAxisObj.softMax;
+     } else if (DP_PopupAxisObj.max) {
+        document.getElementById("Line-Min").value      = DP_PopupAxisObj.min;
+        document.getElementById("Line-Max").value      = DP_PopupAxisObj.max;
+     } else {
+        document.getElementById("Line-Min").value      = 0;
+        document.getElementById("Line-Max").value      = 0;
+     }
+     document.getElementById("Line-TickAmount").value  = DP_PopupAxisObj.tickAmount;
+     document.getElementById("Select-AxisColor").value = DP_yAxis[DP_PopupAxisPos].color;
+     document.getElementById("Select-Limit").value     = DP_yAxis[DP_PopupAxisPos].limit;
+
+  } else {
+     return;
+  }
+
+  $("#AxisPopup").modal();
+}
+
+
+// Close Dialog Settings
+$("#Dialog3BtnOK").click(function(){
+   $("#AxisPopup").modal('hide');
+
+   // Update YAxis parameter
+   chart.yAxis[DP_PopupAxisPos].update( {
+            title: { text: document.getElementById("Line-Title3").value },
+            lineWidth: 2,
+            opposite: (document.getElementById("Select-Position").value=='1')?true:false,
+            tickAmount: parseInt(document.getElementById("Line-TickAmount").value),
+            min:     (document.getElementById("Select-Limit").value == '2')?parseFloat(document.getElementById("Line-Min").value):null,
+            max:     (document.getElementById("Select-Limit").value == '2')?parseFloat(document.getElementById("Line-Max").value):null,
+            softMin: (document.getElementById("Select-Limit").value == '1')?parseFloat(document.getElementById("Line-Min").value):null,
+            softMax: (document.getElementById("Select-Limit").value == '1')?parseFloat(document.getElementById("Line-Max").value):null,
+            startOnTick: (document.getElementById("Select-Limit").value == '2')?true:false,
+            endOnTick:   (document.getElementById("Select-Limit").value == '2')?true:false,
+            allowDecimals: true,
+           } );
+
+   DP_yAxis[DP_PopupAxisPos].text     = document.getElementById("Line-Title3").value;
+   DP_yAxis[DP_PopupAxisPos].position = (parseInt(document.getElementById("Select-Position").value)==0)?false:true;
+   DP_yAxis[DP_PopupAxisPos].limit    = parseInt(document.getElementById("Select-Limit").value);
+   DP_yAxis[DP_PopupAxisPos].min      = parseFloat(document.getElementById("Line-Min").value);
+   DP_yAxis[DP_PopupAxisPos].max      = parseFloat(document.getElementById("Line-Max").value);
+   DP_yAxis[DP_PopupAxisPos].tick     = parseInt(document.getElementById("Line-TickAmount").value);
+   DP_yAxis[DP_PopupAxisPos].color    = parseInt(document.getElementById("Select-AxisColor").value);
+
+   if (document.getElementById("Select-Limit").value == '2') {
+      chart.yAxis[DP_PopupAxisPos].setExtremes(
+           parseFloat(document.getElementById("Line-Min").value),
+           parseFloat(document.getElementById("Line-Max").value) )
+   }
+
+   loadNewAxisInfo();
+
+});
+
+
+// Close Dialog Settings
+$("#Dialog3BtnClose").click(function(){
+    $("#AxisPopup").modal('hide');
+});
+
+// define Y-Axis array
+function define_yaxis() {
+   var arr = [];
+   for ( var y = 0; y < DP_yAxis.length; y++) {
+      arr.push({ id: 'AXISY'+y,
+              className: 'axisy'+y,
+              title: { text: DP_yAxis[y].text },
+              lineWidth: 2,
+              showEmpty: false,
+              opposite: (DP_yAxis[y].position == 1)?true:false,
+              tickAmount: DP_yAxis[y].tick,
+              min:         (DP_yAxis[y].limit == 2)?DP_yAxis[y].min:null,
+              max:         (DP_yAxis[y].limit == 2)?DP_yAxis[y].max:null,
+              softMin:     (DP_yAxis[y].limit == 1)?DP_yAxis[y].min:null,
+              softMax:     (DP_yAxis[y].limit == 1)?DP_yAxis[y].max:null,
+              startOnTick: (DP_yAxis[y].limit == 2)?true:false,
+              endOnTick:   (DP_yAxis[y].limit == 2)?true:false,
+              allowDecimals: true
+            });
+   }
+   return arr;
 }
 
 // *** set function for Filter Room
@@ -2083,7 +2376,7 @@ function ChartSetOptions() {
                   x: -50,
                   y: 20,
                }, 
-               relativeTo: 'chart',
+               relativeTo: 'plot',
             },
         },
 
@@ -2124,7 +2417,7 @@ function ChartSetOptions() {
             inputEnabled: false,
             selected: 7,
 
-            floating: true,
+            floating: false,
             verticalAlign: 'top',
             buttonPosition: {
                 align: 'left',
@@ -2182,7 +2475,13 @@ function ChartSetOptions() {
           }
         },
 
-        title: {//            text : 'H2 Demo'
+        title: { 
+           text: DP_Title,
+           floating: false,
+        },
+        subtitle: { 
+           text: DP_Subtitle,
+           floating: false,
         },
 
 	     credits: {
@@ -2238,161 +2537,13 @@ function ChartSetOptions() {
            },
         },
 
-        yAxis: [{
-            id: "AXISY0",
-            title: {
-                text: ChhLanguage.default.highcharts.yaxis0,
-            },
-            lineWidth: 2,
-            opposite: false,
-            showEmpty: false,
-        }, {
-            id: "AXISY1",
-            title: {
-                text: ChhLanguage.default.highcharts.yaxis1,
-            },
-            softMin: 10,
-            softMax: 30,
-            lineWidth: 2,
-            opposite: false,
-            showEmpty: false,
-            allowDecimals: false,
-            tickAmount: 11,
-        }, {
-            id: "AXISY2",
-            title: {
-                text: ChhLanguage.default.highcharts.yaxis2,
-            },
-            softMin: -20,
-            softMax: 50,
-            lineWidth: 2,
-            opposite: true,
-            showEmpty: false,
-            allowDecimals: false,
-            tickAmount: 11,
-        }, {
-            id: "AXISY3",
-            title: {
-                text: ChhLanguage.default.highcharts.yaxis3,
-            },
-            softMin: 90,
-            softMax: 20,
-            lineWidth: 2,
-            opposite: false,
-            showEmpty: false,
-            allowDecimals: false,
-            tickAmount: 11,
-        }, {
-            id: "AXISY4",
-            title: {
-                text: ChhLanguage.default.highcharts.yaxis4,
-            },
-            softMin: 0,
-            softMax: 100,
-            lineWidth: 2,
-            opposite: true,
-            showEmpty: false,
-            allowDecimals: false,
-            tickAmount: 11,
-        }, {
-            id: "AXISY5",
-            title: {
-                text: ChhLanguage.default.highcharts.yaxis5,
-            },
-            softMin: 0,
-            softMax: 1,
-            maxPadding: 0.1,
-            lineWidth: 2,
-            opposite: true,
-            showEmpty: false,
-            tickAmount: 7,
-        }, {
-            id: "AXISY6",
-            title: {
-                text: ChhLanguage.default.highcharts.yaxis6,
-            },
-            softMin: 20,
-            softMax: 100,
-            lineWidth: 2,
-            opposite: true,
-            showEmpty: false,
-            allowDecimals: false,
-            tickAmount: 11,
-        }, {
-            id: "AXISY7",
-            title: {
-                text: ChhLanguage.default.highcharts.yaxis7,
-            },
-            softMin: 900,
-            softMax: 1000,
-            lineWidth: 2,
-            opposite: false,
-            showEmpty: false,
-            allowDecimals: false,
-            tickAmount: 11, 
-        }, {
-            id: "AXISY8",
-            title: {
-                text: ChhLanguage.default.highcharts.yaxis8,
-            },
-            softMin: 0,
-            softMax: 5000,
-            lineWidth: 2,
-            opposite: false,
-            showEmpty: false,
-            allowDecimals: false,
-            tickAmount: 11, 
-        }, {
-            id: "AXISY9",
-            title: {
-                text: ChhLanguage.default.highcharts.yaxis9,
-            },
-            softMin: 300,
-            softMax: 3000,
-            lineWidth: 2,
-            opposite: true,
-            showEmpty: false,
-            allowDecimals: false,
-            tickAmount: 11, 
-        }, {
-            id: "AXISY10",
-            title: {
-                text: ChhLanguage.default.highcharts.yaxis10,
-            },
-            softMin: 3,
-            softMax: 15,
-            lineWidth: 2,
-            opposite: true,
-            showEmpty: false,
-            allowDecimals: false,
-            tickAmount: 11, 
-        }, {
-            id: "AXISY11",
-            title: {
-                text: ChhLanguage.default.highcharts.yaxis11,
-            },
-            lineWidth: 2,
-            opposite: true,
-            showEmpty: false,
-            allowDecimals: false,
-            tickAmount: 11, 
-        }, {
-            id: "AXISY12",
-            title: {
-                text: ChhLanguage.default.highcharts.yaxis12,
-            },
-            lineWidth: 2,
-            opposite: true,
-            showEmpty: false,
-            allowDecimals: false,
-            tickAmount: 11, 
-        }],
+        yAxis: define_yaxis(),
 
         legend: DefineLegend(),
 
         plotOptions: {
             series: {
-                events: {
+               events: {
                     legendItemClick: function(event) {
                         if (event.browserEvent.shiftKey) {
                            ShowDialog(this);
@@ -2422,8 +2573,8 @@ function ChartSetOptions() {
                         }
                       },
                     click:function(){
-                         ShowDialog(this);
-                         },
+                            ShowDialog(this);
+                          },
                 }
             },
         },
@@ -2479,6 +2630,26 @@ function chartSetElements() {
         select.add(option); 
     }
 
+    $("#Select-AxisColor").empty();
+    // Color options
+    var select = document.getElementById("Select-AxisColor");
+    var option = document.createElement("option");
+    option.text = 'Theme';
+    option.value = '0';
+    option.style.color = Highcharts.defaultOptions.yAxis.lineColor;
+    select.add(option); 
+    var option = document.createElement("option");
+    option.text = '1.Serie';
+    option.value = '1';
+    option.style.color = Highcharts.defaultOptions.yAxis.lineColor;
+    select.add(option); 
+    for (i = 0; i < chart.options.colors.length; i++) {
+        var option = document.createElement("option");
+        option.text = 'Color '+(i);
+        option.value = (i+2).toString();
+        option.style.color = chart.options.colors[i];
+        select.add(option); 
+    }
 
     // *** set function for Filter_Feld
     $("#filterFeld").on("keyup", function() {
