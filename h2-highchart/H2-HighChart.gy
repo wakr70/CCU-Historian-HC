@@ -37,6 +37,7 @@ renderer.content={
       span id: "count_text", ""
       span id: "aggr_text", ""
       span id: "autorefresh", ""
+      span id: "loading", ""
    }
 
    div(id:"LinePopup", class:"modal fade", role:"dialog") {

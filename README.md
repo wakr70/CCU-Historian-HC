@@ -36,8 +36,8 @@ The whole selection will be added to this link also zoom, periode, daylight, leg
 http://<host>:<port>/custom/h2-highchart/H2-HighChart.gy?periode=??dp=131|Y5|L1|V1|A1,???&yaxis=Y0|P0|A1|L5|H70|G11|F0|TWatt,???&room=??&function=??&filterkey=??&zoom=??&legend=false&navigator=false&labels=true&daylight=false&filterline=false&theme=dark-green
 
 Parameters for dp=<CCU-Historian-ID>|A0|Y0|L0|F0|C0|M0|V2  
-   * A0 - Aggregation (0-no, 1-dyn, 2-delta, 3-min/max, 4-sum, 5-TIME_ON, 6-Time round to min.)
-   * T1 - Aggregation Time (0-dyn, 1-dyn. 15min, 2-no/hour/day, 3-fix hour, 4-fix day, 5-fix week, 6-fix month, 7-fix quarter
+   * A0 - Aggregation (0-no, 1-dyn, 2-delta, 3-min/max, 4-sum, 5-TIME_ON, 6-Time round to min., 7-delta+(only positiv changes))
+   * T1 - Aggregation Time (0-dyn, 1-dyn. 15min, 2-no/hour/day, 3-fix hour, 4-fix day, 5-fix week, 6-fix month, 7-fix quarter, 8-fix year
    * Y0 - Y-axis (0-13)
    * L0 - Linetype (0-SP-line, 1-Line, 2-Line/left, 3-Line/center, 4-Line/right, 5-Scatter, 
           6-SP-Area, 7-Area, 8-Area/left, 9-Area/center, 10-Area/right, 11-column)
