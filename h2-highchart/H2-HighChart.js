@@ -1365,10 +1365,12 @@ $(document).ready(function() {
     }
 
     // Yaxis options
+    $("#Select-Yaxis").empty();
     var select = document.getElementById("Select-Yaxis");
-    for (var i = 0; i < 13; i++) {
+    for (var i = 0; i < DP_yAxis.length; i++) {
         var option = document.createElement("option");
         option.text = ChhLanguage.default.historian['yaxis' + i];
+        //   option.text = DP_yAxis[i].text;
         option.value = 'Y' + i;
         select.add(option);
     }
@@ -2581,6 +2583,20 @@ $("#Dialog3BtnOK").click(function() {
     DP_yAxis[DP_PopupAxisPos].tick = parseInt(document.getElementById("Line-TickAmount").value);
     DP_yAxis[DP_PopupAxisPos].color = parseInt(document.getElementById("Select-AxisColor").value);
 
+    // Yaxis options
+    $("#Select-Yaxis").empty();
+    var select = document.getElementById("Select-Yaxis");
+    for (var i = 0; i < DP_yAxis.length; i++) {
+        var option = document.createElement("option");
+        if (DP_yAxis[i].text != "" && DP_yAxis[i].text != null) {
+            option.text = DP_yAxis[i].text;
+        } else {
+            option.text = ChhLanguage.default.historian['yaxis' + i];
+        }
+        option.value = 'Y' + i;
+        select.add(option);
+    }
+    
     loadNewAxisInfo();
 
 });
