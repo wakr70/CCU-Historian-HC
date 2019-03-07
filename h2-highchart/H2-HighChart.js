@@ -1,3 +1,7 @@
+/* *********************************
+ * HighChart javascripts by wak 2019
+ ************************************/
+
 // Setup H2 Database Services, default set to same server as this webpage and port 8082
 var H2_server = location.hostname;
 var H2_port = (location.port === "") ? 80 : location.port;
