@@ -9,6 +9,7 @@ var H2_refreshSec = 60;
 // Refresh Time is enabled
 
 // declare global Variables
+var H2_version = 'v2.9';
 var chart;
 var filter_feld = '';
 var DP_point = [];
@@ -552,23 +553,7 @@ function addSerie(DP, DP_type) {
             valueSuffix: ' ' + unit,
         },
         dataGrouping: grouping,
-        dataLabels: {
-            enabled: (DP_Labels == 1) ? true : false,
-            lowOverlap: true,
-            color: null,
-            style: {
-                "color": null,
-            },
-            formatter: function() {
-                var last = this.series.data[this.series.data.length - 1];
-                if (last) {
-                    if (this.point.category === last.category) {
-                        return this.series.name;
-                    }
-                }
-                return "";
-            }
-        },
+        dataLabels: defineDataLabels(),
     };
 
     // Create Chart Serie !!!
@@ -600,6 +585,46 @@ function addSerie(DP, DP_type) {
         });
     }
 
+}
+
+function defineDataLabels() {
+	
+	var objLabels;
+	
+	if (DP_Labels == 0) {
+		objLabels = { enabled: false }; 
+	} else if (DP_Labels == 1) {
+		objLabels = { enabled: true,
+	    	          allowOverlap: true,
+	    	          color: null,
+	    	          style: {
+	    	              "color": null,
+	    	          },
+	    	          formatter: function() {
+	    	              var last = this.series.data[this.series.data.length - 1];
+	    	              if (last) {
+	    	                  if (this.point.category === last.category) {
+	    	                      return this.series.name;
+	    	                  }
+	    	              }
+	    	              return "";
+	    	          }
+		            };
+	
+	} else if (DP_Labels == 2) {
+		objLabels = { enabled: true,
+  	                  allowOverlap: false,
+  	                  color: null,
+  	                  style: {
+  	                      "color": null,
+  	                  },
+  	                  formatter: function() {
+  	        	          return Highcharts.numberFormat(this.y,1);;
+  	                  }
+                    };
+	}
+    
+    return objLabels;
 }
 
 function defineMarker(iMarker, strColor, iLineW) {
@@ -1557,7 +1582,7 @@ $(document).ready(function() {
 
     // Label options
     var select = document.getElementById("Select-Label");
-    for (var i = 0; i < 2; i++) {
+    for (var i = 0; i < 3; i++) {
         var option = document.createElement("option");
         option.text = ChhLanguage.default.historian['labeltxt' + i];
         option.value = i;
@@ -1742,6 +1767,9 @@ $(document).ready(function() {
                 }
                 if (decodeURIComponent(nv[1].toLowerCase()) === '1') {
                     DP_Labels = 1;
+                }
+                if (decodeURIComponent(nv[1].toLowerCase()) === '2') {
+                    DP_Labels = 2;
                 }
             } else if (nv[0].toLowerCase() === 'daylight') {
                 if (decodeURIComponent(nv[1].toLowerCase()) === 'false') {
@@ -2185,7 +2213,7 @@ function createUrl() {
 
     // Labels show    
     if (DP_Labels != 0) {
-        url += '&labels=true';
+        url += '&labels=' + DP_Labels;
     }
 
     // DayLight show    
@@ -2929,7 +2957,9 @@ function ChartSetOptions() {
         },
 
         credits: {
-            enabled: false,
+            enabled: true,
+            text: '(c) wak - H2-HighChart version ' + H2_version + ' - verwendet Highstock http://www.highcharts.com - Kommerzielle Nutzung untersagt',
+            href: 'https://github.com/wakr70/CCU-Historian-HC'
         },
 
         xAxis: {
