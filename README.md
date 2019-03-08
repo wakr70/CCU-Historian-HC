@@ -43,7 +43,8 @@ Parameters for dp=<CCU-Historian-ID>|A0|Y0|L0|F0|C0|M0|V2
           6-SP-Area, 7-Area, 8-Area/left, 9-Area/center, 10-Area/right, 11-column)
    * F0 - Color (0-len out of Themes variable Color)
    * C0 - Comparisation (0-none, 1-day-1, 2-day-2, 3-day-3, 4-day-4, 5-week-1, 6-week-2, 7-week-3, 8-week-4, 9-12-month, 13-year
-   * M0 - Marker (0-none, 1-circle, 2-diamont, 3-squar, 4-triangle, 5-triangle-down)
+   * M0 - Marker (0-none, 1-circle, 2-diamont, 3-squar, 4-triangle, 5-triangle-down, 6-plus, 7-cross, 8-star, 9-16 rounded-black,
+          17-24-rounded-white, 25-32-filled-Black, 33-40-filled-white)
    * V2 - Visible (0-not, 1-deacitated, 2-activated)
    * D0 - Dashtype (0-solid,1-Dash,2-DashDot,3-Dot,4-LongDash,5-LongDashDot,6-LongDashDotDot,7-ShortDash,
           8-ShortDashDot,9-ShortDashDotDot,10-ShortDot
@@ -101,6 +102,8 @@ Same with aggregation time Fix to hour:
 
 The new aggregation 5-TIME_ON counts time in state ON for Ligths, Power-State, ... this gets the same output like CUxD...SUM_ON_TIME as delta for every minute. So easy charts to get Power_on / day. Also calculations over factor are possible to get same as above without CUxD...SUM_ON_TIME values. Only trigger on and off has to be in the database.
 
+Some possible markers:  
+![](docs/screen_marker1.png)
 
 
 
