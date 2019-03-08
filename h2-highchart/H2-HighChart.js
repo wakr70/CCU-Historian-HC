@@ -1393,7 +1393,20 @@ $(document).ready(function() {
 
     // Define a custom symbol PLUS
     Highcharts.SVGRenderer.prototype.symbols.plus = function (x, y, w, h) {
-        return ['M', x, y + h / 2, 'L', x + w, y + h / 2, 'M', x + w / 2, y, 'L', x + w / 2, y + h, 'z'];
+        return [ 'M', x + w*0.3, y,
+                 'L', x + w*0.7, y,
+                 'L', x + w*0.7, y + h*0.3,
+                 'L', x + w    , y + h*0.3,
+                 'L', x + w    , y + h*0.7,
+                 'L', x + w*0.7, y + h*0.7,
+                 'L', x + w*0.7, y + h,
+                 'L', x + w*0.3, y + h,
+                 'L', x + w*0.3, y + h*0.7,
+                 'L', x        , y + h*0.7,
+                 'L', x        , y + h*0.3,
+                 'L', x + w*0.3, y + h*0.3,
+                 'L', x + w*0.3, y,
+                 'Z' ];
     };
 
     if (Highcharts.VMLRenderer) {
@@ -1403,7 +1416,23 @@ $(document).ready(function() {
     
     // Define a custom symbol CROSS
     Highcharts.SVGRenderer.prototype.symbols.cross = function (x, y, w, h) {
-        return ['M', x, y, 'L', x + w, y + h, 'M', x + w, y, 'L', x, y + h, 'z'];
+        return [ 'M', x        , y + h*0.2,
+                 'L', x + w*0.3, y + h*0.5,
+                 'L', x        , y + h*0.8,
+                 'L', x + w*0.2, y + h,
+                 'L', x + w*0.5, y + h*0.7,
+                 'L', x + w*0.8, y + h,
+                 'L', x + w    , y + h*0.8,
+                 'L', x + w*0.7, y + h*0.5,
+                 'L', x + w    , y + h*0.2,
+                 'L', x + w*0.8, y,
+                 'L', x + w*0.5, y + h*0.3,
+                 'L', x + w*0.2, y,
+                 'L', x        , y + h*0.2,
+                 'Z' ];
+  	
+    	
+//    	return ['M', x, y, 'L', x + w, y + h, 'M', x + w, y, 'L', x, y + h, 'z'];
     };
     if (Highcharts.VMLRenderer) {
         Highcharts.VMLRenderer.prototype.symbols.cross = Highcharts.SVGRenderer.prototype.symbols.cross;
