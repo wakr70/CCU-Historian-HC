@@ -2549,6 +2549,8 @@ function showDialogYAxis(id) {
     } else {
         return;
     }
+    
+    showDialogYAxisUpdatColor();
 
     $("#AxisPopup").modal();
 }
@@ -2641,14 +2643,19 @@ $("#Select-Color").on("change", function() {
 
 //*** update background color on Field Select-Color
 $("#Select-AxisColor").on("change", function() {
-   var colorPos = parseInt(document.getElementById("Select-AxisColor").value); 
-   if (colorPos == 0 || colorPos == 1) {
-	   document.getElementById("Select-AxisColor").style.backgroundColor = Highcharts.defaultOptions.yAxis.lineColor;
-   } else {
-	   colorPos -= 2;   // set back -2 
-	   document.getElementById("Select-AxisColor").style.backgroundColor = chart.options.colors[colorPos];
-   } 	
+   showDialogYAxisUpdatColor();
 });
+
+
+function showDialogYAxisUpdatColor() {
+    var colorPos = parseInt(document.getElementById("Select-AxisColor").value); 
+    if (colorPos == 0 || colorPos == 1) {
+        document.getElementById("Select-AxisColor").style.backgroundColor = Highcharts.defaultOptions.yAxis.lineColor;
+    } else {
+	   colorPos -= 2;   // set back -2
+	   document.getElementById("Select-AxisColor").style.backgroundColor = chart.options.colors[colorPos];
+	} 	
+}
 
 // define Comparisation days back
 function getComparisionBackDay(str_compType) {
