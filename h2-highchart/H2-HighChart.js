@@ -175,15 +175,7 @@ function addSerie(DP, DP_type) {
     var yAxis = 0;
     var dp_vis = 0;
     var grouping = undefined;
-    var marker = {
-        enabled: false,
-        states: {
-            hover: {
-                enabled: true,
-            }
-        }
-    };
-
+    var marker = defineMarker(0);
     var type = "line";
     var step = "left";
     var color = null;
@@ -304,16 +296,7 @@ function addSerie(DP, DP_type) {
 
         linewidth = parseInt(DP_attribute[attr].width.substr(1, 2));
 
-        var markerID = parseInt(DP_attribute[attr].mark.substr(1, 2))
-        if (markerID > 0) {
-            marker = {
-                enabled: true,
-                symbol: chart.options.symbols[markerID - 1],
-                radius: 4,
-                // lineColor: '#666666',
-                lineWidth: 1,
-            };
-        }
+        marker = defineMarker( parseInt(DP_attribute[attr].mark.substr(1, 2)), color );
     }
 
     if (lineType === 0) {
@@ -617,6 +600,66 @@ function addSerie(DP, DP_type) {
         });
     }
 
+}
+
+function defineMarker(iMarker, strColor) {
+	
+    var objMarker = {
+            enabled: false,
+            states: {
+                hover: {
+                    enabled: true,
+                }
+            }
+        };
+    if (iMarker > 0 && iMarker <= chart.options.symbols.length) {
+        objMarker = {
+                enabled: true,
+                symbol: chart.options.symbols[iMarker - 1],
+                radius: 4,
+                lineColor: strColor,
+                lineWidth: 0,
+                fillColor: strColor,
+            };
+    } else if (iMarker > chart.options.symbols.length && iMarker <= chart.options.symbols.length*2) {
+        objMarker = {
+                enabled: true,
+                symbol: chart.options.symbols[iMarker - 1 - chart.options.symbols.length],
+                radius: 4,
+                lineColor: 'black',
+                lineWidth: 1,
+                fillColor: strColor,
+            };
+    } else if (iMarker > chart.options.symbols.length*2 && iMarker <= chart.options.symbols.length*3) {
+        objMarker = {
+                enabled: true,
+                symbol: chart.options.symbols[iMarker - 1 - chart.options.symbols.length*2],
+                radius: 4,
+                lineColor: 'white',
+                lineWidth: 1,
+                fillColor: strColor,
+            };
+    } else if (iMarker > chart.options.symbols.length*3 && iMarker <= chart.options.symbols.length*4) {
+        objMarker = {
+                enabled: true,
+                symbol: chart.options.symbols[iMarker - 1 - chart.options.symbols.length*3],
+                radius: 4,
+                lineColor: strColor,
+                lineWidth: 2,
+                fillColor: 'black',
+            };
+    } else if (iMarker > chart.options.symbols.length*4 && iMarker <= chart.options.symbols.length*5) {
+        objMarker = {
+                enabled: true,
+                symbol: chart.options.symbols[iMarker - 1 - chart.options.symbols.length*4],
+                radius: 4,
+                lineColor: strColor,
+                lineWidth: 2,
+                fillColor: 'white',
+            };
+    }
+	
+	return objMarker;
 }
 
 function SetData(objSerie) {
@@ -1348,6 +1391,49 @@ $(document).ready(function() {
     document.getElementById('filterFeld').placeholder = ChhLanguage.default.historian.filterPlaceHolder;
     document.title = ChhLanguage.default.interface.pageTitle;
 
+    // Define a custom symbol PLUS
+    Highcharts.SVGRenderer.prototype.symbols.plus = function (x, y, w, h) {
+        return ['M', x, y + h / 2, 'L', x + w, y + h / 2, 'M', x + w / 2, y, 'L', x + w / 2, y + h, 'z'];
+    };
+
+    if (Highcharts.VMLRenderer) {
+        Highcharts.VMLRenderer.prototype.symbols.plus = Highcharts.SVGRenderer.prototype.symbols.plus;
+    }
+    Highcharts.defaultOptions.symbols.push('plus');
+    
+    // Define a custom symbol CROSS
+    Highcharts.SVGRenderer.prototype.symbols.cross = function (x, y, w, h) {
+        return ['M', x, y, 'L', x + w, y + h, 'M', x + w, y, 'L', x, y + h, 'z'];
+    };
+    if (Highcharts.VMLRenderer) {
+        Highcharts.VMLRenderer.prototype.symbols.cross = Highcharts.SVGRenderer.prototype.symbols.cross;
+    }
+    Highcharts.defaultOptions.symbols.push('cross');
+
+    // Define a custom symbol STAR
+    Highcharts.SVGRenderer.prototype.symbols.star = function(x, y, w, h) {
+        return [
+          'M', x, y + 0.4 * h,
+          'L', x + 0.35 * w, y + 0.35 * h,
+          'L', x + 0.5 * w, y,
+          'L', x + 0.65 * w, y + 0.35 * h,
+          'L', x + w, y + 0.4 * h,
+          'L', x + 0.75 * w, y + 0.65 * h,
+          'L', x + 0.85 * w, y + h,
+          'L', x + 0.5 * w, y + 0.8 * h,
+          'L', x + w * 0.15, y + h,
+          'L', x + 0.25 * w, y + 0.65 * h,
+          'Z'
+        ];
+      };
+      if (Highcharts.VMLRenderer) {
+        Highcharts.VMLRenderer.prototype.symbols.star = Highcharts.SVGRenderer.prototype.symbols.star;
+      }   
+      Highcharts.defaultOptions.symbols.push('star');
+    
+    
+    
+    
     // aggregation options
     var select = document.getElementById("Select-Aggregation");
     for (var i = 0; i < 8; i++) {
@@ -1507,7 +1593,7 @@ $(document).ready(function() {
     option.text = ChhLanguage.default.historian.yaxislimit2;
     option.value = '2';
     select.add(option);
-
+    
     // Add mouse wheel for legend
     (function(H) {
         H.wrap(H.Legend.prototype, 'render', function(proceed) {
@@ -2957,8 +3043,32 @@ function chartSetElements() {
 
     for (i = 0; i < chart.options.symbols.length; i++) {
         var option = document.createElement("option");
-        option.text = chart.options.symbols[i]
+        option.text = chart.options.symbols[i];
         option.value = 'M' + (i + 1);
+        select.add(option);
+    }
+    for (i = 0; i < chart.options.symbols.length; i++) {
+        var option = document.createElement("option");
+        option.text = chart.options.symbols[i] + '-RS';
+        option.value = 'M' + (i + 1 + chart.options.symbols.length);
+        select.add(option);
+    }
+    for (i = 0; i < chart.options.symbols.length; i++) {
+        var option = document.createElement("option");
+        option.text = chart.options.symbols[i] + '-RW';
+        option.value = 'M' + (i + 1 + chart.options.symbols.length*2);
+        select.add(option);
+    }
+    for (i = 0; i < chart.options.symbols.length; i++) {
+        var option = document.createElement("option");
+        option.text = chart.options.symbols[i] + '-FS';
+        option.value = 'M' + (i + 1 + chart.options.symbols.length*3);
+        select.add(option);
+    }
+    for (i = 0; i < chart.options.symbols.length; i++) {
+        var option = document.createElement("option");
+        option.text = chart.options.symbols[i] + '-FW';
+        option.value = 'M' + (i + 1 + chart.options.symbols.length*4);
         select.add(option);
     }
 
@@ -2969,20 +3079,17 @@ function chartSetElements() {
     option.text = 'Theme';
     option.value = '0';
     option.style.backgroundColor = Highcharts.defaultOptions.yAxis.lineColor;
-    option.style["font-weight"] = 'bold';
     select.add(option);
     var option = document.createElement("option");
     option.text = '1.Serie';
     option.value = '1';
     option.style.backgroundColor = Highcharts.defaultOptions.yAxis.lineColor;
-    option.style["font-weight"] = 'bold';
     select.add(option);
     for (i = 0; i < chart.options.colors.length; i++) {
         var option = document.createElement("option");
         option.text = 'Color ' + (i);
         option.value = (i + 2).toString();
         option.style.backgroundColor = chart.options.colors[i];
-        option.style["font-weight"] = 'bold';
         select.add(option);
     }
 
