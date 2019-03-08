@@ -951,6 +951,8 @@ function SetSerienData(p_attr, serieObj) {
 
         // update colors on txt
         loadNewAxisInfo();
+        // Update Aggregation Text
+        showAggrText();
     }
 
     // read data for comp series
@@ -2809,47 +2811,7 @@ function ChartSetOptions() {
             dataMax: Date.now(),
             events: {
                 afterSetExtremes: function() {
-                    var attr;
-                    var aggrType;
-                    for (var serie = 0; serie < this.series.length; serie++) {
-                        if (this.series[serie].visible && this.series[serie].options.group != "nav") {
-                            var grouping = this.series[serie].currentDataGrouping;
-                            if (grouping) {
-                                var text = grouping.unitName;
-                                if (ChhLanguage.default.highcharts['aggr' + text]) {
-                                    text = ChhLanguage.default.highcharts['aggr' + text];
-                                }
-                                if (this.series[serie].options.id) {
-                                    attr = DP_attribute.findIndex(obj=>obj.id === this.series[serie].options.id.toString());
-                                    aggrType = 0;
-                                    if (attr != -1) {
-                                        aggrType = parseInt(DP_attribute[attr].aggr.substr(1, 2))
-                                    }
-                                }
-
-                                if (aggrType === 1) {
-                                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt1 + ': ' + grouping.count + '/' + text;
-                                } else if (aggrType === 2) {
-                                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt2 + ': ' + grouping.count + '/' + text;
-                                } else if (aggrType === 3) {
-                                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt3 + ': ' + grouping.count + '/' + text;
-                                } else if (aggrType === 4) {
-                                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt4 + ': ' + grouping.count + '/' + text;
-                                } else if (aggrType === 5) {
-                                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt5 + ': ' + grouping.count + '/' + text;
-                                } else if (aggrType === 6) {
-                                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt6;
-                                } else if (aggrType === 7) {
-                                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt7 + ': ' + grouping.count + '/' + text;
-                                } else {
-                                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt1 + ': ' + grouping.count + '/' + text;
-                                }
-                            } else {
-                                document.getElementById('aggr_text').innerHTML = ' -  ' + ChhLanguage.default.highcharts.aggrtxt0;
-                            }
-                            break;
-                        }
-                    }
+                	showAggrText();
                 },
             },
         },
@@ -2906,6 +2868,51 @@ function ChartSetOptions() {
         }]
     });
 
+}
+
+function showAggrText() {
+	var attr;
+    var aggrType;
+    for (var serie = 0; serie < chart.series.length; serie++) {
+        if (chart.series[serie].visible && chart.series[serie].options.group != "nav") {
+            var grouping = chart.series[serie].currentDataGrouping;
+            if (grouping) {
+                var text = grouping.unitName;
+                if (ChhLanguage.default.highcharts['aggr' + text]) {
+                    text = ChhLanguage.default.highcharts['aggr' + text];
+                }
+                if (chart.series[serie].options.id) {
+                    attr = DP_attribute.findIndex(obj=>obj.id === chart.series[serie].options.id.toString());
+                    aggrType = 0;
+                    if (attr != -1) {
+                        aggrType = parseInt(DP_attribute[attr].aggr.substr(1, 2))
+                    }
+                }
+
+                if (aggrType === 1) {
+                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt1 + ': ' + grouping.count + '/' + text;
+                } else if (aggrType === 2) {
+                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt2 + ': ' + grouping.count + '/' + text;
+                } else if (aggrType === 3) {
+                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt3 + ': ' + grouping.count + '/' + text;
+                } else if (aggrType === 4) {
+                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt4 + ': ' + grouping.count + '/' + text;
+                } else if (aggrType === 5) {
+                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt5 + ': ' + grouping.count + '/' + text;
+                } else if (aggrType === 6) {
+                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt6;
+                } else if (aggrType === 7) {
+                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt7 + ': ' + grouping.count + '/' + text;
+                } else {
+                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt1 + ': ' + grouping.count + '/' + text;
+                }
+            } else {
+                document.getElementById('aggr_text').innerHTML = ' -  ' + ChhLanguage.default.historian.aggrtxt0;
+            }
+            break;
+        }
+    }
+	
 }
 
 function chartSetElements() {
