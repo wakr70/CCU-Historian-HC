@@ -1815,7 +1815,6 @@ function loadNewAxisInfo() {
         if (chart.yAxis[axispos].visible && chart.yAxis[axispos].hasVisibleSeries) {
 
             var axiscolor = null;
-
             if (DP_yAxis[axispos].color == 0) {
                 axiscolor = Highcharts.defaultOptions.yAxis.lineColor;
             } else if (DP_yAxis[axispos].color == 1 && chart.yAxis[axispos].series.length > 0) {
@@ -2247,7 +2246,7 @@ function showDialogLine(serieObj) {
         document.getElementById("Line-OffSet").value = DP_attribute[attr].offset;
         document.getElementById("Line-Unit").value = DP_attribute[attr].unit;
 
-        document.getElementById("Select-Color").style.color = chart.options.colors[parseInt(document.getElementById("Select-Color").value.substr(1, 1))];
+        document.getElementById("Select-Color").style.backgroundColor = chart.options.colors[parseInt(document.getElementById("Select-Color").value.substr(1, 2))];
 
         $("#LinePopup").modal();
     }
@@ -2633,9 +2632,20 @@ function defineYAxis() {
     return arr;
 }
 
-// *** set function for Filter Room
+// *** update background color on Field Select-Color
 $("#Select-Color").on("change", function() {
-    document.getElementById("Select-Color").style.color = chart.options.colors[parseInt(document.getElementById("Select-Color").value.substr(1, 1))];
+    document.getElementById("Select-Color").style.backgroundColor = chart.options.colors[parseInt(document.getElementById("Select-Color").value.substr(1, 2))];
+});
+
+//*** update background color on Field Select-Color
+$("#Select-AxisColor").on("change", function() {
+   var colorPos = parseInt(document.getElementById("Select-AxisColor").value); 
+   if (colorPos == 0 || colorPos == 1) {
+	   document.getElementById("Select-AxisColor").style.backgroundColor = Highcharts.defaultOptions.yAxis.lineColor;
+   } else {
+	   colorPos -= 2;   // set back -2 
+	   document.getElementById("Select-AxisColor").style.backgroundColor = chart.options.colors[colorPos];
+   } 	
 });
 
 // define Comparisation days back
@@ -2919,7 +2929,7 @@ function chartSetElements() {
         var option = document.createElement("option");
         option.text = 'Color ' + i;
         option.value = 'F' + i;
-        option.style.color = chart.options.colors[i];
+        option.style.backgroundColor = chart.options.colors[i];
         select.add(option);
     }
 
@@ -2944,18 +2954,21 @@ function chartSetElements() {
     var option = document.createElement("option");
     option.text = 'Theme';
     option.value = '0';
-    option.style.color = Highcharts.defaultOptions.yAxis.lineColor;
+    option.style.backgroundColor = Highcharts.defaultOptions.yAxis.lineColor;
+    option.style["font-weight"] = 'bold';
     select.add(option);
     var option = document.createElement("option");
     option.text = '1.Serie';
     option.value = '1';
-    option.style.color = Highcharts.defaultOptions.yAxis.lineColor;
+    option.style.backgroundColor = Highcharts.defaultOptions.yAxis.lineColor;
+    option.style["font-weight"] = 'bold';
     select.add(option);
     for (i = 0; i < chart.options.colors.length; i++) {
         var option = document.createElement("option");
         option.text = 'Color ' + (i);
         option.value = (i + 2).toString();
-        option.style.color = chart.options.colors[i];
+        option.style.backgroundColor = chart.options.colors[i];
+        option.style["font-weight"] = 'bold';
         select.add(option);
     }
 
