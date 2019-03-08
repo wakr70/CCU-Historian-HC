@@ -175,7 +175,6 @@ function addSerie(DP, DP_type) {
     var yAxis = 0;
     var dp_vis = 0;
     var grouping = undefined;
-    var marker = defineMarker(0);
     var type = "line";
     var step = "left";
     var color = null;
@@ -185,6 +184,7 @@ function addSerie(DP, DP_type) {
     var dptype = DP.id.identifier;
     var dashtype = DP_DashType[0];
     var linewidth = 2;
+    var marker = defineMarker(0);
 
     var attrIDX = (DP_type === '') ? DP.idx.toString() : (DP_type + '_' + DP.idx.toString());
 
@@ -296,7 +296,7 @@ function addSerie(DP, DP_type) {
 
         linewidth = parseInt(DP_attribute[attr].width.substr(1, 2));
 
-        marker = defineMarker( parseInt(DP_attribute[attr].mark.substr(1, 2)), color );
+        marker = defineMarker( parseInt(DP_attribute[attr].mark.substr(1, 2)), color, linewidth );
     }
 
     if (lineType === 0) {
@@ -602,7 +602,7 @@ function addSerie(DP, DP_type) {
 
 }
 
-function defineMarker(iMarker, strColor) {
+function defineMarker(iMarker, strColor, iLineW) {
 	
     var objMarker = {
             enabled: false,
@@ -612,11 +612,16 @@ function defineMarker(iMarker, strColor) {
                 }
             }
         };
+    if (iLineW<3) {
+        var iRadius = 4;
+    } else {
+        var iRadius = (4 + iLineW - 2 );
+    }
     if (iMarker > 0 && iMarker <= chart.options.symbols.length) {
         objMarker = {
                 enabled: true,
                 symbol: chart.options.symbols[iMarker - 1],
-                radius: 4,
+                radius: iRadius,
                 lineColor: strColor,
                 lineWidth: 0,
                 fillColor: strColor,
@@ -625,7 +630,7 @@ function defineMarker(iMarker, strColor) {
         objMarker = {
                 enabled: true,
                 symbol: chart.options.symbols[iMarker - 1 - chart.options.symbols.length],
-                radius: 4,
+                radius: iRadius,
                 lineColor: 'black',
                 lineWidth: 1,
                 fillColor: strColor,
@@ -634,7 +639,7 @@ function defineMarker(iMarker, strColor) {
         objMarker = {
                 enabled: true,
                 symbol: chart.options.symbols[iMarker - 1 - chart.options.symbols.length*2],
-                radius: 4,
+                radius: iRadius,
                 lineColor: 'white',
                 lineWidth: 1,
                 fillColor: strColor,
@@ -643,7 +648,7 @@ function defineMarker(iMarker, strColor) {
         objMarker = {
                 enabled: true,
                 symbol: chart.options.symbols[iMarker - 1 - chart.options.symbols.length*3],
-                radius: 4,
+                radius: iRadius,
                 lineColor: strColor,
                 lineWidth: 2,
                 fillColor: 'black',
@@ -652,7 +657,7 @@ function defineMarker(iMarker, strColor) {
         objMarker = {
                 enabled: true,
                 symbol: chart.options.symbols[iMarker - 1 - chart.options.symbols.length*4],
-                radius: 4,
+                radius: iRadius,
                 lineColor: strColor,
                 lineWidth: 2,
                 fillColor: 'white',
