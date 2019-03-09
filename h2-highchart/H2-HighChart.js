@@ -602,10 +602,8 @@ function defineDataLabels() {
 	    	          },
 	    	          formatter: function() {
 	    	              var last = this.series.data[this.series.data.length - 1];
-	    	              if (last) {
-	    	                  if (this.point.category === last.category) {
-	    	                      return this.series.name;
-	    	                  }
+                          if (this.point.category === last.category) {
+                              return this.series.name;
 	    	              }
 	    	              return "";
 	    	          }
