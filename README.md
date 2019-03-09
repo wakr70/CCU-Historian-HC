@@ -106,4 +106,7 @@ Some possible markers:
 ![](docs/screen_marker1.png)
 
 
+Datalabels are now also possible, could enalbed with 2 under Popup->Settings:  
+![](docs/screen_datalabels.png)
+
 
