@@ -16,7 +16,8 @@ renderer.content={
 			button id:'button1', class:'btn btn-default', 'Tag'
 			button id:'button2', class:'btn btn-default', 'Woche'
 			button id:'button3', class:'btn btn-default', 'Monat'
-			button id:'button4', class:'btn btn-default', 'Alles'
+			button id:'button4', class:'btn btn-default', 'Jahr'
+			button id:'button5', class:'btn btn-default', 'Alles'
       }    
 					
       select(id: "Select-Raum", class:"form-select-h2")  { }

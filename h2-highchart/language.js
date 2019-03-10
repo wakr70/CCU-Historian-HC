@@ -58,6 +58,7 @@ var ChhLanguage = {
             buttonDay: 'Tag',
             buttonWeek: 'Woche',
             buttonMonth: 'Monat',
+            buttonYear: 'Jahr',
             buttonALL: 'Alles',
             buttonRefresh: 'Refresh',
             buttonLink: 'Link erzeugen',

@@ -1487,7 +1487,8 @@ $(document).ready(function() {
     document.getElementById('button1').innerHTML = ChhLanguage.default.historian.buttonDay;
     document.getElementById('button2').innerHTML = ChhLanguage.default.historian.buttonWeek;
     document.getElementById('button3').innerHTML = ChhLanguage.default.historian.buttonMonth;
-    document.getElementById('button4').innerHTML = ChhLanguage.default.historian.buttonALL;
+    document.getElementById('button4').innerHTML = ChhLanguage.default.historian.buttonYear;
+    document.getElementById('button5').innerHTML = ChhLanguage.default.historian.buttonALL;
     document.getElementById('refresh').innerHTML = ChhLanguage.default.historian.buttonRefresh;
     document.getElementById('createLink').innerHTML = ChhLanguage.default.historian.buttonLink;
     document.getElementById('count_text').innerHTML = ChhLanguage.default.historian.labelValues;
@@ -3267,6 +3268,12 @@ function chartSetElements() {
 
     // **********************
     $('#button4').click(function() {
+        Zeitraum_Start = new Date(Zeitraum_Ende - (new Date(86400000 * 1 * 365)));
+        loadNewSerienData();
+    });
+
+    // **********************
+    $('#button5').click(function() {
         Zeitraum_Start = new Date(Zeitraum_Ende - (new Date(86400000 * 5 * 365)));
         loadNewSerienData();
     });
