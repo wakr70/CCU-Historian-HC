@@ -9,7 +9,7 @@ var H2_refreshSec = 60;
 // Refresh Time is enabled
 
 // declare global Variables
-var H2_version = 'v2.9';
+var H2_version = 'v2.10';
 var chart;
 var filter_feld = '';
 var DP_point = [];
@@ -151,6 +151,69 @@ var DP_yAxis = [{
     text: ChhLanguage.default.highcharts.yaxis12,
     color: 1,
     type: 1
+}, {
+    position: false,
+    limit: 0,
+    min: 0,
+    max: 0,
+    tick: 11,
+    text: ChhLanguage.default.highcharts.yaxis13,
+    color: 1,
+    type: 0
+}, {
+    position: false,
+    limit: 0,
+    min: 0,
+    max: 0,
+    tick: 11,
+    text: ChhLanguage.default.highcharts.yaxis14,
+    color: 1,
+    type: 0
+}, {
+    position: false,
+    limit: 0,
+    min: 0,
+    max: 0,
+    tick: 11,
+    text: ChhLanguage.default.highcharts.yaxis15,
+    color: 1,
+    type: 0
+}, {
+    position: false,
+    limit: 0,
+    min: 0,
+    max: 0,
+    tick: 11,
+    text: ChhLanguage.default.highcharts.yaxis16,
+    color: 1,
+    type: 0
+}, {
+    position: false,
+    limit: 0,
+    min: 0,
+    max: 0,
+    tick: 11,
+    text: ChhLanguage.default.highcharts.yaxis17,
+    color: 1,
+    type: 0
+}, {
+    position: false,
+    limit: 0,
+    min: 0,
+    max: 0,
+    tick: 11,
+    text: ChhLanguage.default.highcharts.yaxis18,
+    color: 1,
+    type: 0
+}, {
+    position: false,
+    limit: 0,
+    min: 0,
+    max: 0,
+    tick: 11,
+    text: ChhLanguage.default.highcharts.yaxis19,
+    color: 1,
+    type: 0
 }];
 var DP_yAxis_default = JSON.parse(JSON.stringify(DP_yAxis));
 

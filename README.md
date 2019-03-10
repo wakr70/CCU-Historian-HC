@@ -37,8 +37,8 @@ http://<host>:<port>/custom/h2-highchart/H2-HighChart.gy?periode=??dp=131|Y5|L1|
 
 Parameters for dp=<CCU-Historian-ID>|A0|Y0|L0|F0|C0|M0|V2  
    * A0 - Aggregation (0-no, 1-dyn, 2-delta, 3-min/max, 4-sum, 5-TIME_ON, 6-Time round to min., 7-delta+(only positiv changes))
-   * T1 - Aggregation Time (0-dyn, 1-dyn. 15min, 2-no/hour/day, 3-fix hour, 4-fix day, 5-fix week, 6-fix month, 7-fix quarter, 8-fix year
-   * Y0 - Y-axis (0-13)
+   * T1 - Aggregation Time (0-dyn, 1-dyn. 15min, 2-no/hour/day, 3-fix hour, 4-fix day, 5-fix week, 6-fix month, 7-fix quarter, 8-fix year, 9-fix 3 hours, 10-fix 6 hours, 11-fix 8 hours, 12-fix 12 hours   
+   * Y0 - Y-axis (0-19)
    * L0 - Linetype (0-SP-line, 1-Line, 2-Line/left, 3-Line/center, 4-Line/right, 5-Scatter, 
           6-SP-Area, 7-Area, 8-Area/left, 9-Area/center, 10-Area/right, 11-column)
    * F0 - Color (0-len out of Themes variable Color)
@@ -57,7 +57,7 @@ This options can be set on click to a line/point on the chart or <b>SHIFT-key+(l
 ![](docs/line-menu.png) 
 
 Parmeters for yaxis=Y0|P0|A1|L5|H70|G11|F0|TWatt
-   * Y0  - Y-Axis number 0-12
+   * Y0  - Y-Axis number 0-19
    * P0  - Position 0-left, 1-right
    * A1  - Type of limits 0-dynamic, 1-soft, 2-hard
    * L5  - Min. Limit
