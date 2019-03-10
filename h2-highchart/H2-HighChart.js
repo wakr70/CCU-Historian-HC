@@ -2915,6 +2915,8 @@ function ChartSetOptions() {
             events: {
                 load: requestData,
             },
+            panning: true,
+            panKey: 'shift',
             zoomType: 'xy',
             resetZoomButton: {
                 position: {
