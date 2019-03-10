@@ -1875,8 +1875,6 @@ $(document).ready(function() {
         }
     }
 
-    //    if (DP_attribute.length >0) DP_Limit = true;
-
     createChart();
 
 });
@@ -2549,6 +2547,7 @@ $("#Dialog2BtnOK").click(function() {
             if (!DP_Limit) {
                 DP_Limit = true;
                 filterrefresh = true;
+                $('.highcharts-contextmenu')[0].children[0].children[1].innerHTML = ChhLanguage.default.highcharts.limitactive;
             }
         }
     }
@@ -2996,10 +2995,10 @@ function ChartSetOptions() {
                         text: (DP_Limit) ? ChhLanguage.default.highcharts.limitactive : ChhLanguage.default.highcharts.limitdeactive,
                         onclick: function() {
                             if (DP_Limit) {
-                                $('.highcharts-contextmenu')[0].children[0].children[4].innerHTML = ChhLanguage.default.highcharts.limitdeactive;
+                                $('.highcharts-contextmenu')[0].children[0].children[1].innerHTML = ChhLanguage.default.highcharts.limitdeactive;
                                 DP_Limit = false;
                             } else {
-                                $('.highcharts-contextmenu')[0].children[0].children[4].innerHTML = ChhLanguage.default.highcharts.limitactive;
+                                $('.highcharts-contextmenu')[0].children[0].children[1].innerHTML = ChhLanguage.default.highcharts.limitactive;
                                 DP_Limit = true;
                             }
                             ChangeEventRaumFilter();
