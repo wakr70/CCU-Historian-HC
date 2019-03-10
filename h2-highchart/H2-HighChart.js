@@ -377,6 +377,18 @@ function addSerie(DP, DP_type) {
     } else if (aggrTime === 8) {
         groupUnits = [['year', [1]], ];
         groupforced = true;
+    } else if (aggrTime === 9) {
+        groupUnits = [['hour', [3]], ];
+        groupforced = true;
+    } else if (aggrTime === 10) {
+        groupUnits = [['hour', [6]], ];
+        groupforced = true;
+    } else if (aggrTime === 11) {
+        groupUnits = [['hour', [8]], ];
+        groupforced = true;
+    } else if (aggrTime === 12) {
+        groupUnits = [['hour', [12]], ];
+        groupforced = true;
     }
 
     if (aggrType === 1) {
@@ -1502,7 +1514,7 @@ $(document).ready(function() {
 
     // aggrtime options
     var select = document.getElementById("Select-AggrTime");
-    for (var i = 0; i < 9; i++) {
+    for (var i = 0; i < 13; i++) {
         var option = document.createElement("option");
         option.text = ChhLanguage.default.historian['atimetxt' + i];
         option.value = 'T' + i;
