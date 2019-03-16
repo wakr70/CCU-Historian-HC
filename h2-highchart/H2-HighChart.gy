@@ -65,6 +65,10 @@ renderer.content={
                   span id: "Text-Compare", class:"LinePopup-text", "Compare" 
                   select(id: "Select-Compare", class:"form-select-h2")  { }
                }
+               div(id:"stacking") {
+                  span id: "Text-Stacking", class:"LinePopup-text", "Stacking" 
+                  select(id: "Select-Stacking", class:"form-select-h2")  { }
+               }
                div(id:"color") {
                   span id: "Text-Color", class:"LinePopup-text", "Color" 
                   select(id: "Select-Color", class:"form-select-h2")  { }
@@ -152,6 +156,7 @@ renderer.content={
                }
             }
             div(class:"modal-footer") {
+               button type:"button", class:"btn btn-default", id:"SettingDefault", "Default"
                button type:"button", class:"btn btn-default", id:"Dialog2BtnOK", "Ok"
             }
          }      
