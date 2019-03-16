@@ -99,6 +99,7 @@ renderer.content={
                }
             }
             div(class:"modal-footer") {
+               button type:"button", class:"btn btn-default", id:"LineDefault", "Default"
                button type:"button", class:"btn btn-default", id:"DialogBtnOK", "Ok"
             }
          }      
@@ -198,6 +199,7 @@ renderer.content={
                }
             }
             div(class:"modal-footer") {
+               button type:"button", class:"btn btn-default", id:"AxisDefault", "Default"
                button type:"button", class:"btn btn-default", id:"Dialog3BtnOK", "Ok"
             }
          }      

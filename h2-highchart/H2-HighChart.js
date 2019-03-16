@@ -1277,7 +1277,112 @@ function requestData2(TXT_JSON) {
                     }
                 }
             }
+            
+            
+            // take default values from database
+            if (DP_point[i].attributes.custom && DP_point[i].attributes.custom.HighChart) {
+                var text2 = DP_point[i].attributes.custom.HighChart.split('|');
+                if (text2.length > 0) {
+                    var attr = {
+                                id: DP_point[i].idx.toString(),
+                                aggr: 'A0',
+                                atime: 'T1',
+                                yaxis: 'Y0',
+                                comp: 'C0',
+                                line: 'L0',
+                                mark: 'M0',
+                                color: 'F0',
+                                visible: 0,
+                                dash: 'D0',
+                                width: 'W2',
+                                factor: 1,
+                                offset: 0,
+                                unit: DP_point[i].attributes.unit,
+                                buffer_data: {
+                                    timestamps: [],
+                                    values: [],
+                                    buffer_start: 0,
+                                    buffer_end: 0
+                                },
+                    };
+                    for (var k = 0; k < text2.length; k++) {
+                        if (text2[k].substr(0, 1) === 'A') {
+                        	attr.aggr = text2[k];
+                        } else if (text2[k].substr(0, 1) === 'Y') {
+                        	attr.yaxis = text2[k];
+                        } else if (text2[k].substr(0, 1) === 'T') {
+                        	attr.atime = text2[k];
+                        } else if (text2[k].substr(0, 1) === 'F') {
+                        	attr.color = text2[k];
+                        } else if (text2[k].substr(0, 1) === 'C') {
+                        	attr.comp = text2[k];
+                        } else if (text2[k].substr(0, 1) === 'L') {
+                        	attr.line = text2[k];
+                        } else if (text2[k].substr(0, 1) === 'M') {
+                        	attr.mark = text2[k];
+                        } else if (text2[k].substr(0, 1) === 'D') {
+                        	attr.dash = text2[k];
+                        } else if (text2[k].substr(0, 1) === 'W') {
+                        	attr.width = text2[k];
+                        } else if (text2[k].substr(0, 1) === 'V') {
+                        	attr.visible = parseInt(text2[k].substr(1, 1));
+                        } else if (text2[k].substr(0, 1) === 'U') {
+                        	attr.unit = text2[k].substr(1, 20);
+                        } else if (text2[k].substr(0, 1) === 'X') {
+                        	attr.factor = parseFloat(text2[k].substr(1, 10));
+                        } else if (text2[k].substr(0, 1) === 'O') {
+                        	attr.offset = parseFloat(text2[k].substr(1, 10));
+                        }
+                    }
+                    DP_attribute.push(attr);
+                }
+            }
+
         }
+    }
+    
+    // read default from YAXIS
+    // take default values from database
+    if (DP_point[0].attributes.custom) {
+        for (var x = 0; x < DP_yAxis.length; x++) {
+        	if (DP_point[0].attributes.custom['HighChart_YAXIS'+x]) {
+                var text2 = DP_point[0].attributes.custom['HighChart_YAXIS'+x].split('|');
+                var axis_id = x;
+                for (var k = 0; k < text2.length; k++) {
+                    if (text2[k].substr(0, 1) === 'P') {
+                        if (text2[k].substr(1, 1) === '0')
+                            DP_yAxis[axis_id].position = false;
+                        if (text2[k].substr(1, 1) === '1')
+                            DP_yAxis[axis_id].position = true;
+                    } else if (text2[k].substr(0, 1) === 'C') {
+                        if (text2[k].substr(1, 1) === '0')
+                            DP_yAxis[axis_id].type = 0;
+                        if (text2[k].substr(1, 1) === '1')
+                            DP_yAxis[axis_id].type = 1;
+                    } else if (text2[k].substr(0, 1) === 'A') {
+                        if (text2[k].substr(1, 1) === '0')
+                            DP_yAxis[axis_id].limit = 0;
+                        if (text2[k].substr(1, 1) === '1')
+                            DP_yAxis[axis_id].limit = 1;
+                        if (text2[k].substr(1, 1) === '2')
+                            DP_yAxis[axis_id].limit = 2;
+                    } else if (text2[k].substr(0, 1) === 'L') {
+                        DP_yAxis[axis_id].min = parseFloat(text2[k].substr(1, 15));
+                    } else if (text2[k].substr(0, 1) === 'H') {
+                        DP_yAxis[axis_id].max = parseFloat(text2[k].substr(1, 15));
+                    } else if (text2[k].substr(0, 1) === 'G') {
+                        DP_yAxis[axis_id].tick = parseInt(text2[k].substr(1, 15));
+                    } else if (text2[k].substr(0, 1) === 'F') {
+                        DP_yAxis[axis_id].color = parseInt(text2[k].substr(1, 2));
+                    } else if (text2[k].substr(0, 1) === 'T') {
+                        DP_yAxis[axis_id].text = text2[k].substr(1, 50);
+                    }
+                }
+                
+        	}
+        }
+        // Update Chart
+        // chart.update({ yAxis: defineYAxis() },false,false);
     }
 
     // Sort on Rooms
@@ -1383,6 +1488,7 @@ function requestData2(TXT_JSON) {
                             DP_attribute.push(attr);
                             attrpos = DP_attribute.findIndex(obj=>obj.id === dp_id);
                         }
+                        DP_attribute[attrpos].visible = 2;
                         for (var k = 1; k < text2.length; k++) {
                             if (text2[k].substr(0, 1) === 'A') {
                                 DP_attribute[attrpos].aggr = text2[k];
@@ -1415,7 +1521,48 @@ function requestData2(TXT_JSON) {
                     }
                 }
 
-                // parameter Raum
+            // parameter YAXIS
+            } else if (nv[0].toLowerCase() === 'yaxis') {
+                var text = decodeURIComponent(nv[1]).toLowerCase().split(',');
+                for (var j = 0; j < text.length; j++) {
+                    var text2 = text[j].toUpperCase().split('|');
+                    var axis_id = parseInt(text2[0].substr(1, 2));
+                    if (axis_id >= 0 && axis_id < DP_yAxis.length) {
+                        if (text2.length > 0) {
+                            for (var k = 1; k < text2.length; k++) {
+                                if (text2[k].substr(0, 1) === 'P') {
+                                    if (text2[k].substr(1, 1) === '0')
+                                        DP_yAxis[axis_id].position = false;
+                                    if (text2[k].substr(1, 1) === '1')
+                                        DP_yAxis[axis_id].position = true;
+                                } else if (text2[k].substr(0, 1) === 'C') {
+                                    if (text2[k].substr(1, 1) === '0')
+                                        DP_yAxis[axis_id].type = 0;
+                                    if (text2[k].substr(1, 1) === '1')
+                                        DP_yAxis[axis_id].type = 1;
+                                } else if (text2[k].substr(0, 1) === 'A') {
+                                    if (text2[k].substr(1, 1) === '0')
+                                        DP_yAxis[axis_id].limit = 0;
+                                    if (text2[k].substr(1, 1) === '1')
+                                        DP_yAxis[axis_id].limit = 1;
+                                    if (text2[k].substr(1, 1) === '2')
+                                        DP_yAxis[axis_id].limit = 2;
+                                } else if (text2[k].substr(0, 1) === 'L') {
+                                    DP_yAxis[axis_id].min = parseFloat(text2[k].substr(1, 15));
+                                } else if (text2[k].substr(0, 1) === 'H') {
+                                    DP_yAxis[axis_id].max = parseFloat(text2[k].substr(1, 15));
+                                } else if (text2[k].substr(0, 1) === 'G') {
+                                    DP_yAxis[axis_id].tick = parseInt(text2[k].substr(1, 15));
+                                } else if (text2[k].substr(0, 1) === 'F') {
+                                    DP_yAxis[axis_id].color = parseInt(text2[k].substr(1, 2));
+                                } else if (text2[k].substr(0, 1) === 'T') {
+                                    DP_yAxis[axis_id].text = decodeURIComponent(nv[1]).split(',')[j].split('|')[k].substr(1, 50);
+                                }
+                            }
+                        }
+                    }
+                }
+            // parameter Raum
             } else if (nv[0].toLowerCase() === 'room') {
                 var DP_start_room = decodeURIComponent(nv[1].toLowerCase());
                 var select = document.getElementById("Select-Raum");
@@ -1425,7 +1572,7 @@ function requestData2(TXT_JSON) {
                         break;
                     }
                 }
-                // parameter Gewerk
+            // parameter Gewerk
             } else if (nv[0].toLowerCase() === 'function') {
                 var DP_start_func = decodeURIComponent(nv[1].toLowerCase());
                 var select = document.getElementById("Select-Gewerk");
@@ -1436,25 +1583,42 @@ function requestData2(TXT_JSON) {
                     }
                 }
 
-                // FilterLine
+            // FilterLine
             } else if (nv[0].toLowerCase() === 'filterline') {
                 if (decodeURIComponent(nv[1].toLowerCase()) === 'false' || decodeURIComponent(nv[1].toLowerCase()) === '0') {
                     DP_ShowFilter = 0;
-                    showFilterLine();
                 }
                 // only filterline without menue
                 if (decodeURIComponent(nv[1].toLowerCase()) === '2') {
                     DP_ShowFilter = 2;
-                    showFilterLine();
                 }
                 // only menue without filterline
                 if (decodeURIComponent(nv[1].toLowerCase()) === '3') {
                     DP_ShowFilter = 3;
-                    showFilterLine();
                 }
             }
         }
     }
+    
+    // Update Chart
+    chart.update({ yAxis: defineYAxis() },false,false);
+
+    // Yaxis options
+    $("#Select-Yaxis").empty();
+    var select = document.getElementById("Select-Yaxis");
+    for (var i = 0; i < DP_yAxis.length; i++) {
+        var option = document.createElement("option");
+        if (DP_yAxis[i].text != "" && DP_yAxis[i].text != null) {
+            option.text = DP_yAxis[i].text;
+        } else {
+            option.text = ChhLanguage.default.historian['yaxis' + i];
+        }
+        option.value = 'Y' + i;
+        select.add(option);
+    }
+    
+    // show menü & filter if wanted
+    showFilterLine();
 
     // Display data
     ChangeEventRaumFilter();
@@ -1582,17 +1746,6 @@ $(document).ready(function() {
         var option = document.createElement("option");
         option.text = ChhLanguage.default.historian['atimetxt' + i];
         option.value = 'T' + i;
-        select.add(option);
-    }
-
-    // Yaxis options
-    $("#Select-Yaxis").empty();
-    var select = document.getElementById("Select-Yaxis");
-    for (var i = 0; i < DP_yAxis.length; i++) {
-        var option = document.createElement("option");
-        option.text = ChhLanguage.default.historian['yaxis' + i];
-        //   option.text = DP_yAxis[i].text;
-        option.value = 'Y' + i;
         select.add(option);
     }
 
@@ -1763,46 +1916,6 @@ $(document).ready(function() {
 
             if (nv[0].toLowerCase() === 'dp') {
                 DP_Limit = true;
-            } else if (nv[0].toLowerCase() === 'yaxis') {
-                var text = decodeURIComponent(nv[1]).toLowerCase().split(',');
-                for (var j = 0; j < text.length; j++) {
-                    var text2 = text[j].toUpperCase().split('|');
-                    var axis_id = parseInt(text2[0].substr(1, 2));
-                    if (axis_id >= 0 && axis_id < DP_yAxis.length) {
-                        if (text2.length > 0) {
-                            for (var k = 1; k < text2.length; k++) {
-                                if (text2[k].substr(0, 1) === 'P') {
-                                    if (text2[k].substr(1, 1) === '0')
-                                        DP_yAxis[axis_id].position = false;
-                                    if (text2[k].substr(1, 1) === '1')
-                                        DP_yAxis[axis_id].position = true;
-                                } else if (text2[k].substr(0, 1) === 'C') {
-                                    if (text2[k].substr(1, 1) === '0')
-                                        DP_yAxis[axis_id].type = 0;
-                                    if (text2[k].substr(1, 1) === '1')
-                                        DP_yAxis[axis_id].type = 1;
-                                } else if (text2[k].substr(0, 1) === 'A') {
-                                    if (text2[k].substr(1, 1) === '0')
-                                        DP_yAxis[axis_id].limit = 0;
-                                    if (text2[k].substr(1, 1) === '1')
-                                        DP_yAxis[axis_id].limit = 1;
-                                    if (text2[k].substr(1, 1) === '2')
-                                        DP_yAxis[axis_id].limit = 2;
-                                } else if (text2[k].substr(0, 1) === 'L') {
-                                    DP_yAxis[axis_id].min = parseFloat(text2[k].substr(1, 15));
-                                } else if (text2[k].substr(0, 1) === 'H') {
-                                    DP_yAxis[axis_id].max = parseFloat(text2[k].substr(1, 15));
-                                } else if (text2[k].substr(0, 1) === 'G') {
-                                    DP_yAxis[axis_id].tick = parseInt(text2[k].substr(1, 15));
-                                } else if (text2[k].substr(0, 1) === 'F') {
-                                    DP_yAxis[axis_id].color = parseInt(text2[k].substr(1, 2));
-                                } else if (text2[k].substr(0, 1) === 'T') {
-                                    DP_yAxis[axis_id].text = decodeURIComponent(nv[1]).split(',')[j].split('|')[k].substr(1, 50);
-                                }
-                            }
-                        }
-                    }
-                }
                 // parameter Periode (Stunden)
             } else if (nv[0].toLowerCase() === 'periode') {
                 Zeitraum_Start = new Date(Zeitraum_Ende - (new Date(3600 * 1000 * parseInt(nv[1]))));
@@ -2476,7 +2589,77 @@ function showDialogLine(serieObj) {
 
 // Close Dialog
 $("#DialogBtnOK").click(function() {
+	getDialogLine();
+});
 
+//Close Dialog and save as default
+$("#LineDefault").click(function() {
+	getDialogLine();
+
+    var attr = DP_attribute.findIndex(obj=>obj.id === DP_PopupID);
+    if (attr == -1) {
+    	return
+    }
+    var strCustom = '';
+    strCustom +=       DP_attribute[attr].aggr;
+    strCustom += '|' + DP_attribute[attr].atime;
+    strCustom += '|' + DP_attribute[attr].yaxis;
+    strCustom += '|' + DP_attribute[attr].line;
+    strCustom += '|' + DP_attribute[attr].color;
+    strCustom += '|' + DP_attribute[attr].comp;
+    strCustom += '|' + DP_attribute[attr].mark;
+    strCustom += '|' + DP_attribute[attr].dash;
+    strCustom += '|' + DP_attribute[attr].width;
+    strCustom += '|X' + DP_attribute[attr].factor;
+    strCustom += '|O' + DP_attribute[attr].offset;
+    strCustom += '|U' + DP_attribute[attr].unit;
+
+    var DP_pos = DP_point.findIndex(obj=>obj.idx.toString() === DP_PopupID);
+    var key = 'YAXIS';
+    
+    if (!DP_point[DP_pos].attributes.custom.HighChart || DP_point[DP_pos].attributes.custom.HighChart != strCustom ) {
+    	
+    	DP_point[DP_pos].attributes.custom.HighChart = strCustom;
+
+	    var url = 'http://' + H2_server + ':' + H2_port;
+	    url += '/query/jsonrpc.gy?j={%22method%22:%22updateDataPoint%22';
+	    url += ',%22id%22:%22' + key + '%22';
+	    url += ',%22params%22:[{%22id%22:{%22interfaceId%22:%22' + DP_point[DP_pos].id.interfaceId ; 
+	    url += '%22,%22address%22:%22' + DP_point[DP_pos].id.address; 
+	    url += '%22,%22identifier%22:%22' + DP_point[DP_pos].id.identifier+ '%22}'; 
+	    url += ',%22attributes%22:{%22custom%22:{%22HighChart%22:%22' + strCustom + '%22}}}]}'; 
+	    
+	    // get serien data from H2 database
+	    $.ajax({
+	        type: "GET",
+	        url: url,
+	        dataType: "json",
+	        async: true,
+	        cache: false,
+	        error: function(xhr, status, error) {
+	            console.log('AXAJ-error:');
+	            console.log(xhr);
+	            console.log(status);
+	            console.log(error);
+	        },
+	        success: function(result) {
+	            console.log(result);
+	        }
+	    });
+	    
+    }
+    return;	
+	
+});
+
+// Close Dialog Line
+$("#DialogBtnClose").click(function() {
+    $("#LinePopup").modal('hide');
+});
+
+
+//Show Dialog
+function getDialogLine() {
     var attr = DP_attribute.findIndex(obj=>obj.id === DP_PopupID);
 
     if (DP_attribute[attr].comp != document.getElementById("Select-Compare").value && document.getElementById("Select-Compare").value != 'C0' && DP_attribute[attr].comp != 'C0') {
@@ -2507,13 +2690,8 @@ $("#DialogBtnOK").click(function() {
 
     $("#LinePopup").modal('hide');
 
-    ChangeEventRaumFilter();
-});
-
-// Close Dialog Line
-$("#DialogBtnClose").click(function() {
-    $("#LinePopup").modal('hide');
-});
+    ChangeEventRaumFilter();	
+}
 
 // Show Dialog
 function showDialogSettings() {
@@ -2652,16 +2830,16 @@ function showFilterLine() {
         $('nav.navbar.navbar-default')[0].style.display = "none";
     } else if (DP_ShowFilter === 1) {
         document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - 160) + "px");
-        document.getElementById("filter").style.display = "";
-        $('nav.navbar.navbar-default')[0].style.display = "";
+        document.getElementById("filter").style.display = "block";
+        $('nav.navbar.navbar-default')[0].style.display = "block";
     } else if (DP_ShowFilter === 2) {
         document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - 90) + "px");
-        document.getElementById("filter").style.display = "";
+        document.getElementById("filter").style.display = "block";
         $('nav.navbar.navbar-default')[0].style.display = "none";
     } else if (DP_ShowFilter === 3) {
         document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - 125) + "px");
         document.getElementById("filter").style.display = "none";
-        $('nav.navbar.navbar-default')[0].style.display = "";
+        $('nav.navbar.navbar-default')[0].style.display = "block";
     }
     if (chart) {
         chart.setSize(null, null, false);
@@ -2778,6 +2956,63 @@ function showDialogYAxis(id) {
 
 // Close Dialog Settings
 $("#Dialog3BtnOK").click(function() {
+	getDialogAxis();
+});
+
+//Close Dialog and save as default
+$("#AxisDefault").click(function() {
+	getDialogAxis();
+
+    var strCustom = '';
+    strCustom += 'P' + ((DP_yAxis[DP_PopupAxisPos].position) ? '1' : '0');
+    strCustom += '|C' + DP_yAxis[DP_PopupAxisPos].type;
+    strCustom += '|A' + DP_yAxis[DP_PopupAxisPos].limit;
+    strCustom += '|L' + DP_yAxis[DP_PopupAxisPos].min;
+    strCustom += '|H' + DP_yAxis[DP_PopupAxisPos].max;
+    strCustom += '|G' + DP_yAxis[DP_PopupAxisPos].tick;
+    strCustom += '|F' + DP_yAxis[DP_PopupAxisPos].color;
+    strCustom += '|T' + DP_yAxis[DP_PopupAxisPos].text;
+    	
+    var DP_pos = 0;
+    var key = 'YAXIS';
+    
+    if (!DP_point[DP_pos].attributes.custom.HighChart || DP_point[DP_pos].attributes.custom.HighChart != strCustom ) {
+    	
+//    	DP_point[DP_pos].attributes.custom.HighChart = strCustom;
+
+	    var url = 'http://' + H2_server + ':' + H2_port;
+	    url += '/query/jsonrpc.gy?j={%22method%22:%22updateDataPoint%22';
+	    url += ',%22id%22:%22' + key + '%22';
+	    url += ',%22params%22:[{%22id%22:{%22interfaceId%22:%22' + DP_point[DP_pos].id.interfaceId ; 
+	    url += '%22,%22address%22:%22' + DP_point[DP_pos].id.address; 
+	    url += '%22,%22identifier%22:%22' + DP_point[DP_pos].id.identifier+ '%22}'; 
+	    url += ',%22attributes%22:{%22custom%22:{%22HighChart_YAXIS' + DP_PopupAxisPos + '%22:%22' + strCustom + '%22}}}]}'; 
+	    
+	    // get serien data from H2 database
+	    $.ajax({
+	        type: "GET",
+	        url: url,
+	        dataType: "json",
+	        async: true,
+	        cache: false,
+	        error: function(xhr, status, error) {
+	            console.log('AXAJ-error:');
+	            console.log(xhr);
+	            console.log(status);
+	            console.log(error);
+	        },
+	        success: function(result) {
+	            console.log(result);
+	        }
+	    });
+	    
+    }
+    return;	
+	
+});
+
+function getDialogAxis() {
+	
     $("#AxisPopup").modal('hide');
 
     // Update YAxis parameter
@@ -2823,7 +3058,8 @@ $("#Dialog3BtnOK").click(function() {
     
     loadNewAxisInfo();
 
-});
+};
+
 
 // Close Dialog Settings
 $("#Dialog3BtnClose").click(function() {
