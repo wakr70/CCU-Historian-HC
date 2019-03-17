@@ -138,6 +138,10 @@ renderer.content={
                   span id: "Text-Content", class:"LinePopup-text", "Content"
                   select(id: "Select-Content", class:"form-select-h2")  { }
                }
+               div(id:"datapoint") {
+                  span id: "Text-DataPoint", class:"LinePopup-text", "DataPoint"
+                  select(id: "Select-DataPoint", class:"form-select-h2")  { }
+               }
                div(id:"theme") {
                   span id: "Text-Theme", class:"LinePopup-text", "Theme"
                   select(id: "Select-Theme", class:"form-select-h2")  { }

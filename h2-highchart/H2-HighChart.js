@@ -14,6 +14,7 @@ var chart;
 var filter_feld = '';
 var DP_point = [];
 var DP_settings = {};
+var DP_DataPointFilter = 0; 
 var Zeitraum_Ende = new Date(Date.now());
 var Zeitraum_Start = new Date(Zeitraum_Ende - (new Date(86400000 * 1)));
 var Scroll_Legend = true;
@@ -1301,6 +1302,8 @@ function requestSettings() {
                         	DP_DayLight = parseInt(text2[k].substr(1, 2));
                         } else if (text2[k].substr(0, 1) === 'F') {
                         	DP_ShowFilter = parseInt(text2[k].substr(1, 2));
+                        } else if (text2[k].substr(0, 1) === 'I') {
+                        	DP_DataPointFilter = parseInt(text2[k].substr(1, 2));
                         } else if (text2[k].substr(0, 1) === 'B') {
                         	DP_Theme = text2[k].substr(1,30);
                         } else if (text2[k].substr(0, 1) === 'R') {
@@ -1360,6 +1363,8 @@ function readLinkData() {
                 }
             } else if (nv[0].toLowerCase() === 'theme') {
                 DP_Theme = decodeURIComponent(nv[1].toLowerCase());
+            } else if (nv[0].toLowerCase() === 'dpfilter') {
+            	DP_DataPointFilter = parseInt(decodeURIComponent(nv[1]));
             } else if (nv[0].toLowerCase() === 'labels') {
                 if (decodeURIComponent(nv[1].toLowerCase()) === 'true') {
                     DP_Labels = 1;
@@ -1426,9 +1431,7 @@ function requestData2(TXT_JSON) {
     // DP_point = TXT_JSON.result;
     DP_point = [];
     for (i = 0; i < TXT_JSON.result.length; i++) {
-        if (!TXT_JSON.result[i].historyDisabled && !TXT_JSON.result[i].historyHidden) {
-            DP_point.push(TXT_JSON.result[i]);
-        }
+        DP_point.push(TXT_JSON.result[i]);
     }
 
     // Sort data points on DisplayName
@@ -1448,94 +1451,91 @@ function requestData2(TXT_JSON) {
 
     // Alle Serien aufbauen und Räume & Gewerke sammeln nur für anzeigbare
     for (i = 0; i < DP_point.length; i++) {
-        if (!DP_point[i].historyDisabled && !DP_point[i].historyHidden) {
 
-            // Räme sammeln
-            if (DP_point[i].attributes.room != null) {
-                var t = DP_point[i].attributes.room.split(',');
-                for (c = 0; c < t.length; c++) {
-                    if (t[c] != '') {
-                        if (DP_rooms.indexOf(t[c].trim()) === -1) {
-                            DP_rooms.push(t[c].trim());
-                        }
+        // Räme sammeln
+        if (DP_point[i].attributes.room != null) {
+            var t = DP_point[i].attributes.room.split(',');
+            for (c = 0; c < t.length; c++) {
+                if (t[c] != '') {
+                    if (DP_rooms.indexOf(t[c].trim()) === -1) {
+                        DP_rooms.push(t[c].trim());
                     }
                 }
             }
-            // Gewerke sammeln
-            if (DP_point[i].attributes.function != null) {
-                var t = DP_point[i].attributes.function.split(',');
-                for (c = 0; c < t.length; c++) {
-                    if (t[c] != '') {
-                        if (DP_gewerk.indexOf(t[c].trim()) === -1) {
-                            DP_gewerk.push(t[c].trim());
-                        }
+        }
+        // Gewerke sammeln
+        if (DP_point[i].attributes.function != null) {
+            var t = DP_point[i].attributes.function.split(',');
+            for (c = 0; c < t.length; c++) {
+                if (t[c] != '') {
+                    if (DP_gewerk.indexOf(t[c].trim()) === -1) {
+                        DP_gewerk.push(t[c].trim());
                     }
                 }
             }
-            
-            
-            // take default values from database
-            if (DP_point[i].attributes.custom && DP_point[i].attributes.custom.HighChart) {
-                var text2 = DP_point[i].attributes.custom.HighChart.split('|');
-                if (text2.length > 0) {
-                    var attr = {
-                                id: DP_point[i].idx.toString(),
-                                aggr: 'A0',
-                                atime: 'T1',
-                                yaxis: 'Y0',
-                                comp: 'C0',
-                                line: 'L0',
-                                mark: 'M0',
-                                color: 'F0',
-                                visible: 0,
-                                dash: 'D0',
-                                width: 'W2',
-                                stack: 0,
-                                factor: 1,            
-                                offset: 0,
-                                unit: DP_point[i].attributes.unit,
-                                buffer_data: {
-                                    timestamps: [],
-                                    values: [],
-                                    buffer_start: 0,
-                                    buffer_end: 0
-                                },
-                    };
-                    for (var k = 0; k < text2.length; k++) {
-                        if (text2[k].substr(0, 1) === 'A') {
-                        	attr.aggr = text2[k];
-                        } else if (text2[k].substr(0, 1) === 'Y') {
-                        	attr.yaxis = text2[k];
-                        } else if (text2[k].substr(0, 1) === 'T') {
-                        	attr.atime = text2[k];
-                        } else if (text2[k].substr(0, 1) === 'F') {
-                        	attr.color = text2[k];
-                        } else if (text2[k].substr(0, 1) === 'C') {
-                        	attr.comp = text2[k];
-                        } else if (text2[k].substr(0, 1) === 'L') {
-                        	attr.line = text2[k];
-                        } else if (text2[k].substr(0, 1) === 'M') {
-                        	attr.mark = text2[k];
-                        } else if (text2[k].substr(0, 1) === 'D') {
-                        	attr.dash = text2[k];
-                        } else if (text2[k].substr(0, 1) === 'W') {
-                        	attr.width = text2[k];
-                        } else if (text2[k].substr(0, 1) === 'V') {
-                        	attr.visible = parseInt(text2[k].substr(1, 1));
-                        } else if (text2[k].substr(0, 1) === 'S') {
-                        	attr.stack = parseInt(text2[k].substr(1, 2));
-                        } else if (text2[k].substr(0, 1) === 'U') {
-                        	attr.unit = text2[k].substr(1, 20);
-                        } else if (text2[k].substr(0, 1) === 'X') {
-                        	attr.factor = parseFloat(text2[k].substr(1, 10));
-                        } else if (text2[k].substr(0, 1) === 'O') {
-                        	attr.offset = parseFloat(text2[k].substr(1, 10));
-                        }
+        }
+        
+        
+        // take default values from database
+        if (DP_point[i].attributes.custom && DP_point[i].attributes.custom.HighChart) {
+            var text2 = DP_point[i].attributes.custom.HighChart.split('|');
+            if (text2.length > 0) {
+                var attr = {
+                            id: DP_point[i].idx.toString(),
+                            aggr: 'A0',
+                            atime: 'T1',
+                            yaxis: 'Y0',
+                            comp: 'C0',
+                            line: 'L0',
+                            mark: 'M0',
+                            color: 'F0',
+                            visible: 0,
+                            dash: 'D0',
+                            width: 'W2',
+                            stack: 0,
+                            factor: 1,            
+                            offset: 0,
+                            unit: DP_point[i].attributes.unit,
+                            buffer_data: {
+                                timestamps: [],
+                                values: [],
+                                buffer_start: 0,
+                                buffer_end: 0
+                            },
+                };
+                for (var k = 0; k < text2.length; k++) {
+                    if (text2[k].substr(0, 1) === 'A') {
+                    	attr.aggr = text2[k];
+                    } else if (text2[k].substr(0, 1) === 'Y') {
+                    	attr.yaxis = text2[k];
+                    } else if (text2[k].substr(0, 1) === 'T') {
+                    	attr.atime = text2[k];
+                    } else if (text2[k].substr(0, 1) === 'F') {
+                    	attr.color = text2[k];
+                    } else if (text2[k].substr(0, 1) === 'C') {
+                    	attr.comp = text2[k];
+                    } else if (text2[k].substr(0, 1) === 'L') {
+                    	attr.line = text2[k];
+                    } else if (text2[k].substr(0, 1) === 'M') {
+                    	attr.mark = text2[k];
+                    } else if (text2[k].substr(0, 1) === 'D') {
+                    	attr.dash = text2[k];
+                    } else if (text2[k].substr(0, 1) === 'W') {
+                    	attr.width = text2[k];
+                    } else if (text2[k].substr(0, 1) === 'V') {
+                    	attr.visible = parseInt(text2[k].substr(1, 1));
+                    } else if (text2[k].substr(0, 1) === 'S') {
+                    	attr.stack = parseInt(text2[k].substr(1, 2));
+                    } else if (text2[k].substr(0, 1) === 'U') {
+                    	attr.unit = text2[k].substr(1, 20);
+                    } else if (text2[k].substr(0, 1) === 'X') {
+                    	attr.factor = parseFloat(text2[k].substr(1, 10));
+                    } else if (text2[k].substr(0, 1) === 'O') {
+                    	attr.offset = parseFloat(text2[k].substr(1, 10));
                     }
-                    DP_attribute.push(attr);
                 }
+                DP_attribute.push(attr);
             }
-
         }
     }
     
@@ -1993,6 +1993,15 @@ $(document).ready(function() {
         select.add(option);
     }
 
+    // DataPoint options
+    var select = document.getElementById("Select-DataPoint");
+    for (var i = 0; i < 4; i++) {
+        var option = document.createElement("option");
+        option.text = ChhLanguage.default.historian['datapoint' + i];
+        option.value = i;
+        select.add(option);
+    }
+    
     // themes
     var select = document.getElementById("Select-Theme");
     for (var key in DP_Themes) {
@@ -2001,7 +2010,7 @@ $(document).ready(function() {
         option.value = key;
         select.add(option);
     }
-
+    
     // Axis Type
     var select = document.getElementById("Select-AxisType");
     var option = document.createElement("option");
@@ -2163,8 +2172,10 @@ function ChangeEventRaumFilter() {
 
     if (save_active_found) {
         loadNewSerienData();
+        loadNewAxisInfo();
     } else {
         loadNewPlotBand();
+        loadNewAxisInfo();
         chart.redraw();
     }
 }
@@ -2173,7 +2184,11 @@ function ChangeEventRaumFilter() {
 function check_filter(p_raum, p_gewerk, p_dp) {
 
     // Generell Filter
-    if (p_dp.historyDisabled || p_dp.historyHidden)
+    if (p_dp.historyDisabled && ( DP_DataPointFilter == 0 || DP_DataPointFilter == 2 ) )
+        return false;
+
+    // Generell Filter
+    if (p_dp.historyHidden && ( DP_DataPointFilter == 0 || DP_DataPointFilter == 1 ) )
         return false;
 
     // Room Filter
@@ -2231,7 +2246,7 @@ function loadNewSerienData() {
 function loadNewAxisInfo() {
 
     for (var axispos = 0; axispos < DP_yAxis.length; axispos++) {
-        if (chart.yAxis[axispos].visible && chart.yAxis[axispos].hasVisibleSeries) {
+        if (chart.yAxis[axispos].hasVisibleSeries) {
 
             var axiscolor = null;
             if (DP_yAxis[axispos].color == 0) {
@@ -2260,13 +2275,23 @@ function loadNewAxisInfo() {
                             "color": axiscolor
                         }
                     },
+                    visible: true
                 }, false);
+            } else {
+                chart.yAxis[axispos].update({
+                    visible: true
+                }, false);
+
             }
 
             // set extrem if config HARD
             if (DP_yAxis[axispos].limit == '2') {
                 chart.yAxis[axispos].setExtremes(parseFloat(DP_yAxis[axispos].min), parseFloat(DP_yAxis[axispos].max));
             }
+        } else if (!chart.yAxis[axispos].hasVisibleSeries) {
+            chart.yAxis[axispos].update({
+                visible: false
+            }, false);
         }
     }
     chart.redraw();
@@ -2501,6 +2526,11 @@ function createUrl() {
         url += '&filterline=false';
     } else if (DP_ShowFilter != 1) {
         url += '&filterline=' + DP_ShowFilter;
+    }
+
+    // showFilterLine()    
+    if (DP_DataPointFilter != 0) {
+        url += '&dpfilter='+DP_DataPointFilter;
     }
 
     // Theme    
@@ -2791,6 +2821,7 @@ function showDialogSettings() {
     document.getElementById("Select-Label").value = DP_Labels.toString();
     document.getElementById("Select-Layout").value = DP_DayLight.toString();
     document.getElementById("Select-Content").value = DP_ShowFilter.toString();
+    document.getElementById("Select-DataPoint").value = DP_DataPointFilter.toString();
     document.getElementById("Select-Theme").value = DP_Theme;
     document.getElementById("Line-Refresh").value = DP_AutoRefresh;
     document.getElementById("Line-Title").value = DP_Title;
@@ -2816,6 +2847,7 @@ $("#SettingDefault").click(function() {
     strCustom += '|P' + DP_Labels.toString();
     strCustom += '|D' + DP_DayLight.toString();
     strCustom += '|F' + DP_ShowFilter.toString();
+    strCustom += '|I' + DP_DataPointFilter.toString();
     strCustom += '|B' + DP_Theme;
     strCustom += '|R' + DP_AutoRefresh;
     strCustom += '|T' + DP_Title;
@@ -2925,6 +2957,13 @@ function getDialogSetting() {
         showFilterLine();
         filterrefresh = true;
     }
+    
+    // DataPointFilter
+    if (DP_DataPointFilter.toString() != document.getElementById("Select-DataPoint").value) {
+    	DP_DataPointFilter = parseInt(document.getElementById("Select-DataPoint").value);
+        filterrefresh = true;
+    }
+
 
     // Theme
     if (DP_Theme != document.getElementById("Select-Theme").value) {
@@ -3222,7 +3261,7 @@ function defineYAxis() {
                 text: DP_yAxis[y].text
             },
             lineWidth: 2,
-            showEmpty: false,
+            // showEmpty: false,
             opposite: (DP_yAxis[y].position == 1) ? true : false,
             tickAmount: DP_yAxis[y].tick,
             min: (DP_yAxis[y].limit == 2) ? DP_yAxis[y].min : null,
@@ -3231,7 +3270,8 @@ function defineYAxis() {
             softMax: (DP_yAxis[y].limit == 1) ? DP_yAxis[y].max : null,
             startOnTick: (DP_yAxis[y].limit == 2) ? true : false,
             endOnTick: (DP_yAxis[y].limit == 2) ? true : false,
-            allowDecimals: true
+            allowDecimals: true,
+            visible: false,
         });
     }
     return arr;
@@ -3463,6 +3503,12 @@ function ChartSetOptions() {
                             }
                             return true;
                         }
+                    },
+                    show: function() {
+                        loadNewAxisInfo();
+                    },
+                    hide: function() {
+                    	loadNewAxisInfo();
                     },
                     click: function() {
                         showDialogLine(this);
