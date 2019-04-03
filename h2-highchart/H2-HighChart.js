@@ -2246,7 +2246,16 @@ function loadNewSerienData() {
 function loadNewAxisInfo() {
 
     for (var axispos = 0; axispos < DP_yAxis.length; axispos++) {
-        if (chart.yAxis[axispos].hasVisibleSeries) {
+    	var axVisible = false;
+        for (var serie = 0; serie < chart.yAxis[axispos].series.length; serie++) {
+            if (chart.yAxis[axispos].series[serie].visible) {
+            	axVisible = true;
+            	break;
+            }
+        }   	
+        
+//         if (chart.yAxis[axispos].hasVisibleSeries) {
+        if (axVisible) {
 
             var axiscolor = null;
             if (DP_yAxis[axispos].color == 0) {
@@ -2288,7 +2297,7 @@ function loadNewAxisInfo() {
             if (DP_yAxis[axispos].limit == '2') {
                 chart.yAxis[axispos].setExtremes(parseFloat(DP_yAxis[axispos].min), parseFloat(DP_yAxis[axispos].max));
             }
-        } else if (!chart.yAxis[axispos].hasVisibleSeries) {
+        } else {
             chart.yAxis[axispos].update({
                 visible: false
             }, false);
