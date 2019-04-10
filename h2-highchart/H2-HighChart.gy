@@ -1,11 +1,23 @@
 //import mdz.ccuhistorian.webapp.TrendParameters
 import mdz.ccuhistorian.webapp.WebUtilities
 
+// get api key
+def apiKey
+if (webServer.config.apiKeys) {
+	apiKey="?k="+webServer.config.apiKeys[0]
+} else {
+	apiKey=""
+}
+
 // setup page
 def renderer=new mdz.ccuhistorian.webapp.PageRenderer(servlet: this)
 
+// ApiKey
+def js=$/ var apiKey="$apiKey"/$
+
 renderer.head={
 	title 'CCU-historian: HighChart'
+	script { mkp.yieldUnescaped js }
 }
 
 renderer.content={

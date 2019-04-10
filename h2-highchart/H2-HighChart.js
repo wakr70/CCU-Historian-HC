@@ -9,12 +9,13 @@ var H2_refreshSec = 60;
 // Refresh Time is enabled
 
 // declare global Variables
-var H2_version = 'v3.3';
+var H2_version = 'v3.4';
 var chart;
 var filter_feld = '';
 var DP_point = [];
 var DP_settings = {};
 var DP_settings_old = {};
+var DP_ApiKey = "";
 var DP_DataPointFilter = 0; 
 var Zeitraum_Ende = new Date(Date.now());
 var Zeitraum_Start = new Date(Zeitraum_Ende - (new Date(86400000 * 1)));
@@ -1166,6 +1167,7 @@ function getDataH2(p_series, p_attrID, p_attr, datStart, datEnd) {
     url += '/query/jsonrpc.gy?j={%22id%22:%22' + key + '%22';
     url += ',%22method%22:%22getTimeSeriesRaw%22';
     url += ',%22params%22:[' + p_id + ',' + datStart + ',' + datEnd + ']}';
+    url += DP_ApiKey 
 
     // get serien data from H2 database
     $.ajax({
@@ -1204,6 +1206,7 @@ function requestData() {
 
     var url = 'http://' + H2_server + ':' + H2_port
     url += '/query/jsonrpc.gy?j={%22method%22:%22getDataPoint%22,%22params%22:%20[]}'
+    url += DP_ApiKey 
 
     $.ajax({
         type: "GET",
@@ -1231,6 +1234,7 @@ function requestSettings() {
 
     var url = 'http://' + H2_server + ':' + H2_port
     url += '/query/jsonrpc.gy?j={%22method%22:%22getConfig%22,%22params%22:[%22HighChart%22],%22id%22:%22Einstellung%22}'
+    url += DP_ApiKey 
 
     $.ajax({
         type: "GET",
@@ -1816,7 +1820,12 @@ function requestData2(TXT_JSON) {
 * Create HighChart Object on loading
 */
 $(document).ready(function() {
-	
+
+	DP_ApiKey = "";
+	if (apiKey != "") {
+		DP_ApiKey = "&" + apiKey.substring(1,apiKey.length);	
+	}
+
 	requestSettings();
 
     document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - 160) + "px");
@@ -2775,6 +2784,7 @@ function saveLine() {
 	    url += '%22,%22address%22:%22' + DP_point[DP_pos].id.address; 
 	    url += '%22,%22identifier%22:%22' + DP_point[DP_pos].id.identifier+ '%22}'; 
 	    url += ',%22attributes%22:{%22custom%22:{%22HighChart%22:%22' + strCustom + '%22}}}]}'; 
+	    url += DP_ApiKey 
 	    
 	    // get serien data from H2 database
 	    $.ajax({
@@ -2913,7 +2923,8 @@ function saveSettingsH2() {
 	    url += '/query/jsonrpc.gy?j={%22method%22:%22setConfig%22';
 	    url += ',%22params%22:[%22HighChart%22,%22' + strSetNew +'%22]' ; 
 	    url += ',%22id%22:%22' + key + '%22}';
-	    
+	    url += DP_ApiKey 
+
 	    // update setting data to H2 database
 	    $.ajax({
 	        type: "GET",
