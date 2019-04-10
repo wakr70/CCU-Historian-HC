@@ -9,11 +9,12 @@ var H2_refreshSec = 60;
 // Refresh Time is enabled
 
 // declare global Variables
-var H2_version = 'v3.1';
+var H2_version = 'v3.3';
 var chart;
 var filter_feld = '';
 var DP_point = [];
 var DP_settings = {};
+var DP_settings_old = {};
 var DP_DataPointFilter = 0; 
 var Zeitraum_Ende = new Date(Date.now());
 var Zeitraum_Start = new Date(Zeitraum_Ende - (new Date(86400000 * 1)));
@@ -1229,7 +1230,7 @@ function requestData() {
 function requestSettings() {
 
     var url = 'http://' + H2_server + ':' + H2_port
-    url += '/query/jsonrpc.gy?j={%22method%22:%22getDataPoint%22,%22params%22:[1],%22id%22:%22Einstellung%22}'
+    url += '/query/jsonrpc.gy?j={%22method%22:%22getConfig%22,%22params%22:[%22HighChart%22],%22id%22:%22Einstellung%22}'
 
     $.ajax({
         type: "GET",
@@ -1245,15 +1246,27 @@ function requestSettings() {
             readLinkData();
         },
         success: function(result) {
-        	DP_settings = result.result;
-            console.log(DP_settings);
+        	
+        	// Get Settings from H2 database as String
+        	if (result.result) {
+        	    try {
+        	    	var strSetNew = result.result.replace(new RegExp("'", 'g'),'"' );
+
+	        	    DP_settings = JSON.parse(strSetNew);
+	        	    DP_settings_old = JSON.parse(strSetNew);
+	                console.log(DP_settings);
+        	    }
+        	    catch (e) {
+        	        console.log(e);
+        	    }
+            }           
             
             // read default from YAXIS
             // take default values from database
-            if (DP_settings.attributes.custom) {
+            if (DP_settings) {
                 for (var x = 0; x < DP_yAxis.length; x++) {
-                	if (DP_settings.attributes.custom['HighChart_YAXIS'+x]) {
-                        var text2 = DP_settings.attributes.custom['HighChart_YAXIS'+x].split('|');
+                	if (DP_settings['YAXIS'+x]) {
+                        var text2 = DP_settings['YAXIS'+x].split('|');
                         var axis_id = x;
                         for (var k = 0; k < text2.length; k++) {
                             if (text2[k].substr(0, 1) === 'P') {
@@ -1289,8 +1302,8 @@ function requestSettings() {
                 	}
                 }
                 // Read default Settings
-            	if (DP_settings.attributes.custom['HighChart_Setting']) {
-                    var text2 = DP_settings.attributes.custom['HighChart_Setting'].split('|');
+            	if (DP_settings['Setting']) {
+                    var text2 = DP_settings['Setting'].split('|');
                     for (var k = 0; k < text2.length; k++) {
                         if (text2[k].substr(0, 1) === 'L') {
                         	DP_Legend = parseInt(text2[k].substr(1, 2));
@@ -1315,6 +1328,8 @@ function requestSettings() {
                         }
                     }
             	}
+            } else {
+            	DP_settings = {};
             }
             readLinkData();
 
@@ -2720,9 +2735,14 @@ $("#DialogBtnOK").click(function() {
 
 //Close Dialog and save as default
 $("#LineDefault").click(function() {
+	saveLine();
+});
+
+function saveLine() {	
+
 	getDialogLine();
 
-    var attr = DP_attribute.findIndex(obj=>obj.id === DP_PopupID);
+	var attr = DP_attribute.findIndex(obj=>obj.id === DP_PopupID);
     if (attr == -1) {
     	return
     }
@@ -2777,7 +2797,7 @@ $("#LineDefault").click(function() {
     }
     return;	
 	
-});
+}
 
 // Close Dialog Line
 $("#DialogBtnClose").click(function() {
@@ -2846,9 +2866,18 @@ $("#Dialog2BtnOK").click(function() {
 
 	
 //Close Dialog and save as default
-$("#SettingDefault").click(function() {	
+$("#SettingDefault").click(function() {
+	saveSetting();
+});
+	
+function saveSetting() {
 	
 	getDialogSetting();
+	
+	
+//  var text2 = DP_settings['HighChart_YAXIS'+x].split('|');
+//  var text2 = DP_settings['HighChart_Setting'].split('|');	
+	
 	
     var strCustom = '';
     strCustom += 'L' + DP_Legend.toString();
@@ -2861,18 +2890,29 @@ $("#SettingDefault").click(function() {
     strCustom += '|R' + DP_AutoRefresh;
     strCustom += '|T' + DP_Title;
     strCustom += '|S' + DP_Subtitle;
+
+// Save to Global Settings    
+    DP_settings.Setting = strCustom;
+    
+    saveSettingsH2();
+}
+
+function saveSettingsH2() {
     	
     var key = 'SETTING';
-    
-    if (DP_settings.attributes.custom && DP_settings.attributes.custom.HighChart_Setting != strCustom ) {
+	var strSetNew = JSON.stringify(DP_settings);
+    var strSetOld = JSON.stringify(DP_settings_old);
+	
+    if (strSetNew != strSetOld) {
+    	
+    	DP_settings_old = JSON.parse(strSetNew);
+    	
+    	strSetNew = strSetNew.replace(new RegExp('"', 'g'), "'");
     	
 	    var url = 'http://' + H2_server + ':' + H2_port;
-	    url += '/query/jsonrpc.gy?j={%22method%22:%22updateDataPoint%22';
-	    url += ',%22id%22:%22' + key + '%22';
-	    url += ',%22params%22:[{%22id%22:{%22interfaceId%22:%22' + DP_settings.id.interfaceId ; 
-	    url += '%22,%22address%22:%22' + DP_settings.id.address; 
-	    url += '%22,%22identifier%22:%22' + DP_settings.id.identifier+ '%22}'; 
-	    url += ',%22attributes%22:{%22custom%22:{%22HighChart_Setting%22:%22' + strCustom + '%22}}}]}'; 
+	    url += '/query/jsonrpc.gy?j={%22method%22:%22setConfig%22';
+	    url += ',%22params%22:[%22HighChart%22,%22' + strSetNew +'%22]' ; 
+	    url += ',%22id%22:%22' + key + '%22}';
 	    
 	    // update setting data to H2 database
 	    $.ajax({
@@ -2895,7 +2935,7 @@ $("#SettingDefault").click(function() {
     }
     return;	
 	
-});
+}
 
 function getDialogSetting() {
 
@@ -3164,41 +3204,12 @@ $("#AxisDefault").click(function() {
     strCustom += '|G' + DP_yAxis[DP_PopupAxisPos].tick;
     strCustom += '|F' + DP_yAxis[DP_PopupAxisPos].color;
     strCustom += '|T' + DP_yAxis[DP_PopupAxisPos].text;
-    	
-    var DP_pos = 0;
-    var key = 'YAXIS';
     
-    if (!DP_point[DP_pos].attributes.custom.HighChart || DP_point[DP_pos].attributes.custom.HighChart != strCustom ) {
-    	
-//    	DP_point[DP_pos].attributes.custom.HighChart = strCustom;
-
-	    var url = 'http://' + H2_server + ':' + H2_port;
-	    url += '/query/jsonrpc.gy?j={%22method%22:%22updateDataPoint%22';
-	    url += ',%22id%22:%22' + key + '%22';
-	    url += ',%22params%22:[{%22id%22:{%22interfaceId%22:%22' + DP_settings.id.interfaceId ; 
-	    url += '%22,%22address%22:%22' + DP_settings.id.address; 
-	    url += '%22,%22identifier%22:%22' + DP_settings.id.identifier+ '%22}'; 
-	    url += ',%22attributes%22:{%22custom%22:{%22HighChart_YAXIS' + DP_PopupAxisPos + '%22:%22' + strCustom + '%22}}}]}'; 
-	    
-	    // update yaxis data to H2 database
-	    $.ajax({
-	        type: "GET",
-	        url: url,
-	        dataType: "json",
-	        async: true,
-	        cache: false,
-	        error: function(xhr, status, error) {
-	            console.log('AXAJ-error:');
-	            console.log(xhr);
-	            console.log(status);
-	            console.log(error);
-	        },
-	        success: function(result) {
-	            console.log(result);
-	        }
-	    });
-	    
-    }
+// Save to global Settings    
+    DP_settings['YAXIS'+DP_PopupAxisPos] = strCustom; 
+    
+    saveSettingsH2();
+    
     return;	
 	
 });
