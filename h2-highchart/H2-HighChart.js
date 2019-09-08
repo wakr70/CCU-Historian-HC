@@ -2749,9 +2749,14 @@ function saveLine() {
     strCustom += '|U' + DP_attribute[attr].unit;
 
     var DP_pos = DP_point.findIndex(obj=>obj.idx.toString() === DP_PopupID);
-    var key = 'YAXIS';
-    
-    if (!DP_point[DP_pos].attributes.custom.HighChart || DP_point[DP_pos].attributes.custom.HighChart != strCustom ) {
+    var key = 'POINT'+DP_PopupID;
+
+    // define customer if still NULL
+    if (!DP_point[DP_pos].attributes.custom) {
+       DP_point[DP_pos].attributes.custom = {};
+    }
+
+    if (DP_point[DP_pos].attributes.custom.HighChart != strCustom ) {
     	
     	DP_point[DP_pos].attributes.custom.HighChart = strCustom;
 
