@@ -3074,11 +3074,10 @@ $("#Dialog2BtnClose").click(function() {
 
 function showFilterLine() {
 	// check height of navigator+messages+range selector
-	var nav_height = 55;
-	if (DP_Navigator == 4) {
-		nav_height = 10;
-	} else if (DP_Navigator == 3) {
-		nav_height = 10;
+	if (DP_Navigator == 4 || DP_Navigator == 3) {
+		var nav_height = 10;
+	} else {
+		var nav_height = 55;
 	}		
 	
     // ajust height of content to screen height
