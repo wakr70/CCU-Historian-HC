@@ -3073,21 +3073,29 @@ $("#Dialog2BtnClose").click(function() {
 });
 
 function showFilterLine() {
+	// check height of navigator+messages+range selector
+	var nav_height = 55;
+	if (DP_Navigator == 4) {
+		nav_height = 10;
+	} else if (DP_Navigator == 3) {
+		nav_height = 10;
+	}		
+	
     // ajust height of content to screen height
     if (DP_ShowFilter === 0) {
-        document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - 55) + "px");
+        document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - nav_height - 0) + "px");
         document.getElementById("filter").style.display = "none";
         $('nav.navbar.navbar-default')[0].style.display = "none";
     } else if (DP_ShowFilter === 1) {
-        document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - 160) + "px");
+        document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - nav_height - 105) + "px");
         document.getElementById("filter").style.display = "block";
         $('nav.navbar.navbar-default')[0].style.display = "block";
     } else if (DP_ShowFilter === 2) {
-        document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - 90) + "px");
+        document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - nav_height - 35) + "px");
         document.getElementById("filter").style.display = "block";
         $('nav.navbar.navbar-default')[0].style.display = "none";
     } else if (DP_ShowFilter === 3) {
-        document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - 125) + "px");
+        document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - nav_height - 70) + "px");
         document.getElementById("filter").style.display = "none";
         $('nav.navbar.navbar-default')[0].style.display = "block";
     }
