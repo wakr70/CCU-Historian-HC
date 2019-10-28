@@ -9,7 +9,7 @@ var H2_refreshSec = 60;
 // Refresh Time is enabled
 
 // declare global Variables
-var H2_version = 'v3.5';
+var H2_version = 'v3.6';
 var chart;
 var filter_feld = '';
 var DP_point = [];
@@ -21,7 +21,7 @@ var Zeitraum_Ende = new Date(Date.now());
 var Zeitraum_Start = new Date(Zeitraum_Ende - (new Date(86400000 * 1)));
 var Scroll_Legend = true;
 var DP_Legend = 1;
-var DP_Navigator = 1;
+var DP_Navigator = 0;
 var DP_Labels = 0;
 var DP_DayLight = 1;
 var DP_Limit = false;
@@ -931,8 +931,11 @@ function BufferSerienData(id, data) {
         }
 
         // update counter
-        document.getElementById("count_val").innerHTML = (Number(document.getElementById("count_val").innerHTML) + data.values.length).toString();
-
+        if (DP_Navigator < 3) {
+        	document.getElementById("count_val").innerHTML = (Number(document.getElementById("count_val").innerHTML) + data.values.length).toString();
+        } else {
+        	document.getElementById("count_val").innerHTML = "";
+        }
     }
 
     // get which serie has to be updated
@@ -1257,7 +1260,13 @@ function getDataH2(p_series, p_attrID, p_attr, datStart, datEnd) {
 */
 function requestData() {
 
-    document.getElementById("count_val").innerHTML = "0";
+    if (DP_Navigator < 3) {
+    	document.getElementById("count_val").innerHTML = "0";
+        document.getElementById('count_text').innerHTML = ChhLanguage.default.historian.labelValues;
+    } else {
+      	document.getElementById("count_val").innerHTML = "";
+        document.getElementById('count_text').innerHTML = "";
+    }
 
     // display loading info
     setTimeout(loadingInfo, 500);
@@ -1430,13 +1439,22 @@ function readLinkData() {
                 }
             } else if (nv[0].toLowerCase() === 'navigator') {
                 if (decodeURIComponent(nv[1].toLowerCase()) === 'false') {
-                    DP_Navigator = 0;
+                    DP_Navigator = 4;
                 }
                 if (decodeURIComponent(nv[1].toLowerCase()) === '0') {
                     DP_Navigator = 0;
                 }
                 if (decodeURIComponent(nv[1].toLowerCase()) === '1') {
                     DP_Navigator = 1;
+                }
+                if (decodeURIComponent(nv[1].toLowerCase()) === '2') {
+                    DP_Navigator = 2;
+                }
+                if (decodeURIComponent(nv[1].toLowerCase()) === '3') {
+                    DP_Navigator = 3;
+                }
+                if (decodeURIComponent(nv[1].toLowerCase()) === '4') {
+                    DP_Navigator = 4;
                 }
             } else if (nv[0].toLowerCase() === 'theme') {
                 DP_Theme = decodeURIComponent(nv[1].toLowerCase());
@@ -1825,10 +1843,9 @@ $(document).ready(function() {
     document.getElementById('button5').innerHTML = ChhLanguage.default.historian.buttonALL;
     document.getElementById('refresh').innerHTML = ChhLanguage.default.historian.buttonRefresh;
     document.getElementById('createLink').innerHTML = ChhLanguage.default.historian.buttonLink;
-    document.getElementById('count_text').innerHTML = ChhLanguage.default.historian.labelValues;
     document.getElementById('filterFeld').placeholder = ChhLanguage.default.historian.filterPlaceHolder;
     document.title = ChhLanguage.default.interface.pageTitle;
-
+  
     // Define a custom symbol PLUS
     Highcharts.SVGRenderer.prototype.symbols.plus = function (x, y, w, h) {
         return [ 'M', x + w*0.3, y,
@@ -1970,7 +1987,7 @@ $(document).ready(function() {
 
     // Navigator options
     var select = document.getElementById("Select-Navigator");
-    for (var i = 0; i < 2; i++) {
+    for (var i = 0; i < 5; i++) {
         var option = document.createElement("option");
         option.text = ChhLanguage.default.historian['navitxt' + i];
         option.value = i;
@@ -2421,7 +2438,6 @@ function loadNewPlotBand() {
 
 //********************
 function createUrl() {
-
     var url = location.pathname + "?";
     var attr;
 
@@ -2522,8 +2538,8 @@ function createUrl() {
     }
 
     // Navigator not show    
-    if (!chart.navigator.navigatorEnabled) {
-        url += '&navigator=false';
+    if (DP_Navigator != 0) {
+        url += '&navigator=' + DP_Navigator.toString();
     }
 
     // Labels show    
@@ -2576,7 +2592,9 @@ function createUrl() {
 function AutoRefresh() {
     if (DP_AutoRefresh > 0) {
         setTimeout(AutoRefresh, 1000);
-        document.getElementById('autorefresh').innerHTML = ' - ' + ChhLanguage.default.highcharts.autorefreshText + ':' + AutoRefreshCount + ' Sek.';
+        if (DP_Navigator < 3) {
+        	document.getElementById('autorefresh').innerHTML = ' - ' + ChhLanguage.default.highcharts.autorefreshText + ':' + AutoRefreshCount + ' Sek.';
+        }
         AutoRefreshCount--;
         if (AutoRefreshCount <= 0) {
             AutoRefreshCount = DP_AutoRefresh;
@@ -2593,7 +2611,7 @@ function AutoRefresh() {
 
 //********************
 function loadingInfo() {
-    if (DP_Queue.length > 0) {
+    if (DP_Queue.length > 0 && DP_Navigator < 3) {
         if (DP_Loading != DP_Queue.length) {
            document.getElementById('loading').innerHTML = ' (Loading - '+DP_Queue.length+') <img src="loading.gif" alt="loading" height="20" width="20">';
            DP_Loading = DP_Queue.length;
@@ -2953,17 +2971,23 @@ function getDialogSetting() {
     // Navigator
     if (DP_Navigator.toString() != document.getElementById("Select-Navigator").value) {
         DP_Navigator = parseInt(document.getElementById("Select-Navigator").value);
-        if (DP_Navigator == 1) {
-            chart.navigator.update({
-                enabled: true,
-            });
-        } else {
-            chart.navigator.update({
-                enabled: false,
-            });
-        }
-        chart.legend.update(defineLegend());
-        chart.redraw();
+        
+        /* chart.navigator.update({
+            enabled: (DP_Navigator == 0 || DP_Navigator == 1 ) ? true : false,
+        });
+        chart.scrollbar.update({
+            enabled: (DP_Navigator == 0 || DP_Navigator == 2) ? true : false,
+        });
+        chart.credits.update({
+            enabled: (DP_Navigator != 3) ? true : false,
+        });
+
+        // chart.legend.update(defineLegend());
+        // chart.redraw();
+        */
+        ChartSetOptions();
+        chartSetElements();
+        filterrefresh = false;
     }
 
     // Title
@@ -3363,6 +3387,7 @@ function ChartSetOptions() {
         },
 
         rangeSelector: {
+        	enabled: (DP_Navigator < 4) ? true : false,
             buttons: [{
                 count: 30,
                 type: 'minute',
@@ -3411,18 +3436,26 @@ function ChartSetOptions() {
 
         navigation: {
             buttonOptions: {
-                enabled: true,
+                enabled: (DP_Navigator < 4) ? true : false,
             }
         },
         navigator: {
-            enabled: (DP_Navigator == 1) ? true : false,
+            enabled: (DP_Navigator == 0 || DP_Navigator == 1 ) ? true : false,
+        },
+        scrollbar: {
+            enabled: (DP_Navigator == 0 || DP_Navigator == 2) ? true : false,
+        },
+        credits: {
+            enabled: (DP_Navigator < 3) ? true : false,
+            text: '(c) wak - H2-HighChart version ' + H2_version + ' - verwendet Highstock http://www.highcharts.com - Kommerzielle Nutzung untersagt',
+            href: 'https://github.com/wakr70/CCU-Historian-HC'
         },
 
         exporting: {
             buttons: {
                 contextButton: {
                     symbol: "menu",
-                    enabled: true,
+                    enabled: (DP_Navigator < 4) ? true : false,
                     menuItems: [{
                         text: ChhLanguage.default.historian.settings,
                         onclick: function() {
@@ -3463,12 +3496,6 @@ function ChartSetOptions() {
         subtitle: {
             text: DP_Subtitle,
             floating: false,
-        },
-
-        credits: {
-            enabled: true,
-            text: '(c) wak - H2-HighChart version ' + H2_version + ' - verwendet Highstock http://www.highcharts.com - Kommerzielle Nutzung untersagt',
-            href: 'https://github.com/wakr70/CCU-Historian-HC'
         },
 
         xAxis: {
@@ -3545,46 +3572,49 @@ function ChartSetOptions() {
 function showAggrText() {
 	var attr;
     var aggrType;
-    for (var serie = 0; serie < chart.series.length; serie++) {
-        if (chart.series[serie].visible && chart.series[serie].options.group != "nav") {
-            var grouping = chart.series[serie].currentDataGrouping;
-            if (grouping) {
-                var text = grouping.unitName;
-                if (ChhLanguage.default.highcharts['aggr' + text]) {
-                    text = ChhLanguage.default.highcharts['aggr' + text];
-                }
-                if (chart.series[serie].options.id) {
-                    attr = DP_attribute.findIndex(obj=>obj.id === chart.series[serie].options.id.toString());
-                    aggrType = 0;
-                    if (attr != -1) {
-                        aggrType = parseInt(DP_attribute[attr].aggr.substr(1, 2))
-                    }
-                }
-
-                if (aggrType === 1) {
-                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt1 + ': ' + grouping.count + '/' + text;
-                } else if (aggrType === 2) {
-                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt2 + ': ' + grouping.count + '/' + text;
-                } else if (aggrType === 3) {
-                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt3 + ': ' + grouping.count + '/' + text;
-                } else if (aggrType === 4) {
-                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt4 + ': ' + grouping.count + '/' + text;
-                } else if (aggrType === 5) {
-                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt5 + ': ' + grouping.count + '/' + text;
-                } else if (aggrType === 6) {
-                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt6;
-                } else if (aggrType === 7) {
-                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt7 + ': ' + grouping.count + '/' + text;
-                } else {
-                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt1 + ': ' + grouping.count + '/' + text;
-                }
-            } else {
-                document.getElementById('aggr_text').innerHTML = ' -  ' + ChhLanguage.default.historian.aggrtxt0;
-            }
-            break;
-        }
-    }
+    if (DP_Navigator < 3) {
+	    for (var serie = 0; serie < chart.series.length; serie++) {
+	        if (chart.series[serie].visible && chart.series[serie].options.group != "nav") {
+	            var grouping = chart.series[serie].currentDataGrouping;
+	            if (grouping) {
+	                var text = grouping.unitName;
+	                if (ChhLanguage.default.highcharts['aggr' + text]) {
+	                    text = ChhLanguage.default.highcharts['aggr' + text];
+	                }
+	                if (chart.series[serie].options.id) {
+	                    attr = DP_attribute.findIndex(obj=>obj.id === chart.series[serie].options.id.toString());
+	                    aggrType = 0;
+	                    if (attr != -1) {
+	                        aggrType = parseInt(DP_attribute[attr].aggr.substr(1, 2))
+	                    }
+	                }
 	
+	                if (aggrType === 1) {
+	                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt1 + ': ' + grouping.count + '/' + text;
+	                } else if (aggrType === 2) {
+	                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt2 + ': ' + grouping.count + '/' + text;
+	                } else if (aggrType === 3) {
+	                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt3 + ': ' + grouping.count + '/' + text;
+	                } else if (aggrType === 4) {
+	                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt4 + ': ' + grouping.count + '/' + text;
+	                } else if (aggrType === 5) {
+	                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt5 + ': ' + grouping.count + '/' + text;
+	                } else if (aggrType === 6) {
+	                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt6;
+	                } else if (aggrType === 7) {
+	                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt7 + ': ' + grouping.count + '/' + text;
+	                } else {
+	                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt1 + ': ' + grouping.count + '/' + text;
+	                }
+	            } else {
+	                document.getElementById('aggr_text').innerHTML = ' -  ' + ChhLanguage.default.historian.aggrtxt0;
+	            }
+	            break;
+	        }
+	    }
+    } else {
+        document.getElementById('aggr_text').innerHTML = '';
+    }
 }
 
 function chartSetElements() {
@@ -3723,9 +3753,11 @@ function chartSetElements() {
         Zeitraum_Ende = new Date(Date.now());
         loadNewSerienData();
     });
+
     // **********************
     $('#createLink').click(function() {
         createUrl();
     });
 
 }
+
