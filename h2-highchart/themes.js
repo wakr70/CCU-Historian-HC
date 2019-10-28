@@ -365,13 +365,14 @@ var DP_Themes = {
     legend: {
         itemStyle: {
             font: '9pt Trebuchet MS, Verdana, sans-serif',
-            color: '#A0A0A0'
+            color: '#606060'
         },
         itemHoverStyle: {
-            color: '#FFF'
+            color: '#000000',
+            fontWeight: 'bold'
         },
         itemHiddenStyle: {
-            color: '#444'
+            color: '#A0A0A0'
         }
     },
     credits: {
@@ -635,13 +636,14 @@ var DP_Themes = {
     legend: {
         itemStyle: {
             font: '9pt Trebuchet MS, Verdana, sans-serif',
-            color: '#A0A0A0'
+            color: '#808080'
         },
         itemHoverStyle: {
-            color: '#FFF'
+            color: '#000000',
+            fontWeight: 'bold'
         },
         itemHiddenStyle: {
-            color: '#444'
+            color: '#A0A0A0'
         }
     },
     credits: {
@@ -862,7 +864,7 @@ var DP_Themes = {
             color: '#E0E0E3'
         },
         itemHoverStyle: {
-            color: '#FFF'
+            color: '#A0A0A0'
         },
         itemHiddenStyle: {
             color: '#606063'
@@ -1043,13 +1045,13 @@ var DP_Themes = {
     },
     legend: {
         itemStyle: {
-            color: '#CCC'
+            color: '#808080'
         },
         itemHoverStyle: {
-            color: '#FFF'
+            color: '#000000',
         },
         itemHiddenStyle: {
-            color: '#333'
+            color: '#A0A0A0'
         }
     },
     labels: {
@@ -1491,4 +1493,17 @@ var DP_Themes = {
     }
 },
 
- };
+'transparent': {
+	chart: {
+	    backgroundColor: 'rgba(255,255,255, .5)',
+        plotShadow: false,
+	    style: {
+	        fontFamily: 'Dosis, sans-serif'
+	    }
+	},
+
+    // General
+    background2: 'rgba(255,255,255, .5)'
+    	
+   }
+};
