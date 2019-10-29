@@ -1412,7 +1412,7 @@ function requestSettings() {
 function readLinkData() {
     // check parameter from get-link
     if (location.search) {
-        var parts = location.search.substring(1).split('&');
+        var parts = decodeURIComponent(location.search.substring(1)).split('&');
         for (var i = 0; i < parts.length; i++) {
             var nv = parts[i].split('=');
             if (!nv[0])
@@ -1636,7 +1636,7 @@ function requestData2(TXT_JSON) {
 
     // check parameter from get-link
     if (location.search) {
-        var parts = location.search.substring(1).split('&');
+        var parts = decodeURIComponent(location.search.substring(1)).split('&');
         for (var i = 0; i < parts.length; i++) {
             var nv = parts[i].split('=');
             if (!nv[0])
@@ -1806,7 +1806,7 @@ function requestData2(TXT_JSON) {
 
     // check parameter Zoom from get-link
     if (location.search) {
-        var parts = location.search.substring(1).split('&');
+        var parts = decodeURIComponent(location.search.substring(1)).split('&');
         for (var i = 0; i < parts.length; i++) {
             var nv = parts[i].split('=');
             if (!nv[0])
