@@ -39,6 +39,7 @@ var DP_Themes = {
         margin: 15,
         text: "",
         widthAdjust: -44,
+        y: 25,
         style: {"color": "#666666"},
     },
     subtitle: {
@@ -46,6 +47,7 @@ var DP_Themes = {
         margin: null,
         text: "",
         widthAdjust: -44,
+        y: 50,
         style: {"color": "#666666"},
     },
     xAxis: {
