@@ -1439,7 +1439,7 @@ function readLinkData() {
                 }
             } else if (nv[0].toLowerCase() === 'navigator') {
                 if (decodeURIComponent(nv[1].toLowerCase()) === 'false') {
-                    DP_Navigator = 4;
+                    DP_Navigator = 3;
                 }
                 if (decodeURIComponent(nv[1].toLowerCase()) === '0') {
                     DP_Navigator = 0;
