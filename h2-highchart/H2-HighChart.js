@@ -23,7 +23,7 @@ var Scroll_Legend = true;
 var DP_Legend = 1;
 var DP_Navigator = 0;
 var DP_Labels = 0;
-var DP_Grid = 1;
+var DP_Grid = 2;
 var DP_DayLight = 1;
 var DP_Limit = false;
 var DP_AutoRefresh = 0;
@@ -2583,7 +2583,7 @@ function createUrl() {
     }
 
     // Grid show    
-    if (DP_Grid != 1) {
+    if (DP_Grid != 2) {
         url += '&grid=' + DP_Grid;
     }
     // AutoRefresh    
