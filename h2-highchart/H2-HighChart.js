@@ -33,6 +33,7 @@ var DP_PopupID;
 var DP_PopupAxisObj;
 var DP_PopupAxisPos;
 var DP_Theme = 'Standard';
+var DP_Theme_Setting;
 var DP_DashType = ['Solid', 'Dash', 'DashDot', 'Dot', 'LongDash', 'LongDashDot', 'LongDashDotDot', 'ShortDash', 'ShortDashDot', 'ShortDashDotDot', 'ShortDot'];
 var DP_Queue = [];
 var DP_ColorNext = 0;
@@ -224,11 +225,11 @@ var DP_yAxis_default = JSON.parse(JSON.stringify(DP_yAxis));
 
 function createChart() {
     if (DP_Theme != 'Standard' && DP_Themes[DP_Theme]) {
-        var chartingOptions = Highcharts.merge(DP_Themes.Standard, DP_Themes[DP_Theme]);
-        Highcharts.setOptions(chartingOptions);
+    	DP_Theme_Setting = Highcharts.merge(DP_Themes.Standard, DP_Themes[DP_Theme]);
     } else {
-        Highcharts.setOptions(DP_Themes.Standard);
+    	DP_Theme_Setting = Highcharts.merge(DP_Themes.Standard, {});
     }
+    Highcharts.setOptions(DP_Theme_Setting);
     ChartSetOptions();
     chartSetElements();
 }
@@ -2272,6 +2273,7 @@ function loadNewSerienData() {
 }
 
 function loadNewAxisInfo() {
+	var yaxis_count = 0;
 
     for (var axispos = 0; axispos < DP_yAxis.length; axispos++) {
     	var axVisible = false;
@@ -2284,6 +2286,7 @@ function loadNewAxisInfo() {
         
 //         if (chart.yAxis[axispos].hasVisibleSeries) {
         if (axVisible) {
+        	yaxis_count++;
 
             var axiscolor = null;
             if (DP_yAxis[axispos].color == 0) {
@@ -2312,10 +2315,17 @@ function loadNewAxisInfo() {
                             "color": axiscolor
                         }
                     },
+
+                    // set gridlines only on 1 
+                	gridLineWidth: (yaxis_count == 1) ? DP_Theme_Setting.yAxis.gridLineWidth : 0,
+                   	minorGridLineWidth: (yaxis_count == 1) ? DP_Theme_Setting.yAxis.minorGridLineWidth : 0,
                     visible: true
                 }, false);
             } else {
                 chart.yAxis[axispos].update({
+                    // set gridlines only on 1 
+                	gridLineWidth: (yaxis_count == 1) ? DP_Theme_Setting.yAxis.gridLineWidth : 0,
+                   	minorGridLineWidth: (yaxis_count == 1) ? DP_Theme_Setting.yAxis.minorGridLineWidth : 0,
                     visible: true
                 }, false);
 
@@ -2325,6 +2335,7 @@ function loadNewAxisInfo() {
             if (DP_yAxis[axispos].limit == '2') {
                 chart.yAxis[axispos].setExtremes(parseFloat(DP_yAxis[axispos].min), parseFloat(DP_yAxis[axispos].max));
             }
+           
         } else {
             chart.yAxis[axispos].update({
                 visible: false

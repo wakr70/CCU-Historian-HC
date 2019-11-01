@@ -53,6 +53,9 @@ var DP_Themes = {
     xAxis: {
        lineColor: "#ccd6eb",
        gridLineColor: "#e6e6e6",
+       gridLineWidth: 0,
+       minorGridLineWidth: 1, 
+       alternateGridColor: null,
        minorGridLineColor: "#f2f2f2",
        minorTickColor: "#999999",
        tickColor: "#ccd6eb",
@@ -62,6 +65,9 @@ var DP_Themes = {
     yAxis: {
        lineColor: "#ccd6eb",
        gridLineColor: "#e6e6e6",
+       gridLineWidth: 1,
+       minorGridLineWidth: 0, 
+       alternateGridColor: null,
        minorGridLineColor: "#f2f2f2",
        minorTickColor: "#999999",
        tickColor: "#ccd6eb",
@@ -1025,7 +1031,6 @@ var DP_Themes = {
         }
     },
     yAxis: {
-        alternateGridColor: null,
         minorTickInterval: null,
         gridLineColor: 'rgba(255, 255, 255, .1)',
         minorGridLineColor: 'rgba(255,255,255,0.07)',
@@ -1396,15 +1401,8 @@ var DP_Themes = {
     chart: {
         className: 'skies',
         borderWidth: 0,
-        plotShadow: true,
+        plotShadow: false,
         plotBackgroundImage: 'https://www.highcharts.com/demo/gfx/skies.jpg',
-        plotBackgroundColor: {
-            linearGradient: [0, 0, 250, 500],
-            stops: [
-                [0, 'rgba(255, 255, 255, 1)'],
-                [1, 'rgba(255, 255, 255, 0)']
-            ]
-        },
         plotBorderWidth: 1
     },
     title: {
@@ -1422,7 +1420,6 @@ var DP_Themes = {
         }
     },
     xAxis: {
-        gridLineWidth: 0,
         lineColor: '#C0D0E0',
         tickColor: '#C0D0E0',
         labels: {
@@ -1440,7 +1437,6 @@ var DP_Themes = {
         }
     },
     yAxis: {
-        alternateGridColor: 'rgba(255, 255, 255, .5)',
         lineColor: '#C0D0E0',
         tickColor: '#C0D0E0',
         tickWidth: 1,
