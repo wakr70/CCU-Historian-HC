@@ -53,8 +53,6 @@ var DP_Themes = {
     xAxis: {
        lineColor: "#ccd6eb",
        gridLineColor: "#e6e6e6",
-       gridLineWidth: 0,
-       minorGridLineWidth: 1, 
        alternateGridColor: null,
        minorGridLineColor: "#f2f2f2",
        minorTickColor: "#999999",
@@ -65,8 +63,6 @@ var DP_Themes = {
     yAxis: {
        lineColor: "#ccd6eb",
        gridLineColor: "#e6e6e6",
-       gridLineWidth: 1,
-       minorGridLineWidth: 0, 
        alternateGridColor: null,
        minorGridLineColor: "#f2f2f2",
        minorTickColor: "#999999",
@@ -298,7 +294,6 @@ var DP_Themes = {
     },
     xAxis: {
         gridLineColor: '#333333',
-        gridLineWidth: 1,
         labels: {
             style: {
                 color: '#A0A0A0'
@@ -324,7 +319,6 @@ var DP_Themes = {
             }
         },
         lineColor: '#A0A0A0',
-        minorTickInterval: null,
         tickColor: '#A0A0A0',
         tickWidth: 1,
         title: {
@@ -569,7 +563,6 @@ var DP_Themes = {
     },
     xAxis: {
         gridLineColor: '#333333',
-        gridLineWidth: 1,
         labels: {
             style: {
                 color: '#A0A0A0'
@@ -595,7 +588,6 @@ var DP_Themes = {
             }
         },
         lineColor: '#A0A0A0',
-        minorTickInterval: null,
         tickColor: '#A0A0A0',
         tickWidth: 1,
         title: {
@@ -1013,7 +1005,6 @@ var DP_Themes = {
         }
     },
     xAxis: {
-        gridLineWidth: 0,
         lineColor: '#999',
         tickColor: '#999',
         labels: {
@@ -1031,7 +1022,6 @@ var DP_Themes = {
         }
     },
     yAxis: {
-        minorTickInterval: null,
         gridLineColor: 'rgba(255, 255, 255, .1)',
         minorGridLineColor: 'rgba(255,255,255,0.07)',
         lineWidth: 0,
@@ -1266,7 +1256,6 @@ var DP_Themes = {
         }
     },
     xAxis: {
-        gridLineWidth: 1,
         labels: {
             style: {
                 fontSize: '12px'
@@ -1274,7 +1263,6 @@ var DP_Themes = {
         }
     },
     yAxis: {
-        minorTickInterval: 'auto',
         title: {
             style: {
                 textTransform: 'uppercase'
@@ -1324,7 +1312,6 @@ var DP_Themes = {
         }
     },
     xAxis: {
-        gridLineWidth: 1,
         lineColor: '#000',
         tickColor: '#000',
         labels: {
@@ -1344,7 +1331,6 @@ var DP_Themes = {
         }
     },
     yAxis: {
-        minorTickInterval: 'auto',
         lineColor: '#000',
         lineWidth: 1,
         tickWidth: 1,
@@ -1533,7 +1519,6 @@ var DP_Themes = {
     },
 	  xAxis: {
 	      gridLineColor: '#333333',
-	      gridLineWidth: 1,
 	      labels: {
 	          style: {
 	              color: '#A0A0A0'
@@ -1559,7 +1544,6 @@ var DP_Themes = {
 	          }
 	      },
 	      lineColor: '#A0A0A0',
-	      minorTickInterval: null,
 	      tickColor: '#A0A0A0',
 	      tickWidth: 1,
 	      title: {

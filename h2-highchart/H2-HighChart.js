@@ -23,6 +23,7 @@ var Scroll_Legend = true;
 var DP_Legend = 1;
 var DP_Navigator = 0;
 var DP_Labels = 0;
+var DP_Grid = 1;
 var DP_DayLight = 1;
 var DP_Limit = false;
 var DP_AutoRefresh = 0;
@@ -1385,6 +1386,8 @@ function requestSettings() {
                         	DP_Labels = parseInt(text2[k].substr(1, 2));
                         } else if (text2[k].substr(0, 1) === 'D') {
                         	DP_DayLight = parseInt(text2[k].substr(1, 2));
+                        } else if (text2[k].substr(0, 1) === 'G') {
+                        	DP_Grid = parseInt(text2[k].substr(1, 2));
                         } else if (text2[k].substr(0, 1) === 'F') {
                         	DP_ShowFilter = parseInt(text2[k].substr(1, 2));
                         } else if (text2[k].substr(0, 1) === 'I') {
@@ -1490,6 +1493,8 @@ function readLinkData() {
                 if (decodeURIComponent(nv[1].toLowerCase()) === '3') {
                     DP_DayLight = 3;
                 }
+            } else if (nv[0].toLowerCase() === 'grid') {
+            	DP_Grid = parseInt(decodeURIComponent(nv[1]));
             } else if (nv[0].toLowerCase() === 'refresh') {
                 if (parseInt(decodeURIComponent(nv[1])) > 0) {
                     H2_refreshSec = parseInt(decodeURIComponent(nv[1]));
@@ -2012,6 +2017,15 @@ $(document).ready(function() {
         option.value = i;
         select.add(option);
     }
+    
+    // Grid options
+    var select = document.getElementById("Select-Grid");
+    for (var i = 0; i < 7; i++) {
+        var option = document.createElement("option");
+        option.text = ChhLanguage.default.historian['gridtxt' + i];
+        option.value = i;
+        select.add(option);
+    }
 
     // Content options
     var select = document.getElementById("Select-Content");
@@ -2274,6 +2288,9 @@ function loadNewSerienData() {
 
 function loadNewAxisInfo() {
 	var yaxis_count = 0;
+	
+	var yaxis_grid = (DP_Grid === 2 || DP_Grid === 3 || DP_Grid === 5 || DP_Grid === 6) ? 1 : 0;
+	var yaxis_mgrid = (DP_Grid === 5 || DP_Grid === 6) ? 1 : 0;
 
     for (var axispos = 0; axispos < DP_yAxis.length; axispos++) {
     	var axVisible = false;
@@ -2317,15 +2334,17 @@ function loadNewAxisInfo() {
                     },
 
                     // set gridlines only on 1 
-                	gridLineWidth: (yaxis_count == 1) ? DP_Theme_Setting.yAxis.gridLineWidth : 0,
-                   	minorGridLineWidth: (yaxis_count == 1) ? DP_Theme_Setting.yAxis.minorGridLineWidth : 0,
+                	gridLineWidth: (yaxis_count === 1) ? yaxis_grid : 0,
+                   	minorGridLineWidth: (yaxis_count === 1) ? yaxis_mgrid : 0,
+                    minorTickInterval: (DP_Grid == 5 || DP_Grid == 6) ? 'auto' : null,
                     visible: true
                 }, false);
             } else {
                 chart.yAxis[axispos].update({
                     // set gridlines only on 1 
-                	gridLineWidth: (yaxis_count == 1) ? DP_Theme_Setting.yAxis.gridLineWidth : 0,
-                   	minorGridLineWidth: (yaxis_count == 1) ? DP_Theme_Setting.yAxis.minorGridLineWidth : 0,
+                	gridLineWidth: (yaxis_count === 1) ? yaxis_grid : 0,
+                   	minorGridLineWidth: (yaxis_count === 1) ? yaxis_mgrid : 0,
+                    minorTickInterval: (DP_Grid == 5 || DP_Grid == 6) ? 'auto' : null,
                     visible: true
                 }, false);
 
@@ -2563,6 +2582,10 @@ function createUrl() {
         url += '&daylight=' + DP_DayLight;
     }
 
+    // Grid show    
+    if (DP_Grid != 1) {
+        url += '&grid=' + DP_Grid;
+    }
     // AutoRefresh    
     if (DP_AutoRefresh != 0) {
         url += '&refresh=' + (DP_AutoRefresh === 60 ? true : DP_AutoRefresh);
@@ -2871,6 +2894,7 @@ function showDialogSettings() {
     document.getElementById("Select-Navigator").value = DP_Navigator.toString();
     document.getElementById("Select-Label").value = DP_Labels.toString();
     document.getElementById("Select-Layout").value = DP_DayLight.toString();
+    document.getElementById("Select-Grid").value = DP_Grid.toString();
     document.getElementById("Select-Content").value = DP_ShowFilter.toString();
     document.getElementById("Select-DataPoint").value = DP_DataPointFilter.toString();
     document.getElementById("Select-Theme").value = DP_Theme;
@@ -2906,6 +2930,7 @@ function saveSetting() {
     strCustom += '|N' + DP_Navigator.toString();
     strCustom += '|P' + DP_Labels.toString();
     strCustom += '|D' + DP_DayLight.toString();
+    strCustom += '|G' + DP_Grid.toString();
     strCustom += '|F' + DP_ShowFilter.toString();
     strCustom += '|I' + DP_DataPointFilter.toString();
     strCustom += '|B' + DP_Theme;
@@ -3026,6 +3051,13 @@ function getDialogSetting() {
     // Layout
     if (DP_DayLight.toString() != document.getElementById("Select-Layout").value) {
         DP_DayLight = parseInt(document.getElementById("Select-Layout").value);
+        filterrefresh = true;
+    }
+
+    // Grid
+    if (DP_Grid.toString() != document.getElementById("Select-Grid").value) {
+        DP_Grid = parseInt(document.getElementById("Select-Grid").value);
+        ChartSetOptions();
         filterrefresh = true;
     }
 
@@ -3519,6 +3551,9 @@ function ChartSetOptions() {
         xAxis: {
             type: 'datetime',
             ordinal: false,
+        	gridLineWidth: (DP_Grid == 1 || DP_Grid == 3 || DP_Grid == 4 || DP_Grid == 6) ? 1 : 0,
+        	minorGridLineWidth: (DP_Grid == 4 || DP_Grid == 6) ? 1 : 0,
+        	minorTickInterval: (DP_Grid == 4 || DP_Grid == 6) ? 'auto' : null,
             dataMax: Date.now(),
             events: {
                 afterSetExtremes: function() {
