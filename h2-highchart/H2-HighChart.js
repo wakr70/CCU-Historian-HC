@@ -236,8 +236,8 @@ function createChart() {
 }
 
 /**
-* define default display attributes
-*/
+ * define default display attributes
+ */
 function defaultAttrib(DP, colorNr, idx) {
 
     // add default from fix settings
@@ -383,14 +383,14 @@ function defaultAttrib(DP, colorNr, idx) {
       }
     }
    }
-   // give back default values 
+   // give back default values
    return attr;
 }
 
 
 /**
-* create serien option and add it to HighStock Chart
-*/
+ * create serien option and add it to HighStock Chart
+ */
 function addSerie(DP, DP_type) {
 
     var unit;
@@ -894,7 +894,7 @@ function SetData(objSerie) {
     }
 }
 
-// save received data 
+// save received data
 function BufferSerienData(id, data) {
 
     if (!id) {
@@ -963,14 +963,14 @@ function SetSerienData(p_attr, serieObj) {
     var arr = [];
     var backSec = 0;
 
-    // Min/Max not needed         
+    // Min/Max not needed
     if (serieObj.options.name === 'MinMax') {
         return;
     }
 
     if (serieObj.options.id.toString().substr(0, 1) === 'C') {
 
-        // Set backtime        
+        // Set backtime
         backSec = getComparisionBackDay(compType);
 
         datStart += backSec;
@@ -990,17 +990,27 @@ function SetSerienData(p_attr, serieObj) {
 
         // get start and end position over binary search
         var arrStart = sortedIndex(buffer.timestamps, datStart);
+        if (arrStart>0 && datStart != buffer.timestamps[arrStart]) {
+            arr.push([datStart - backSec, (buffer.values[arrStart-1] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
+        }
+
         var arrEnd = sortedIndex(buffer.timestamps, datEnd);
-        for (var i = arrStart; i < arrEnd; i++) {
+        if (buffer.timestamps.length>0 && datEnd != buffer.timestamps[arrEnd]) {
+            arr.push([datEnd - backSec, (buffer.values[arrEnd] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
+        }
+
+
+        for (var i = arrStart; i <= arrEnd; i++) {
             arr.push([buffer.timestamps[i] - backSec, (buffer.values[i] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
         }
-        // no aggregation but rounded to min, better for mouse over sync to other lines
+        // no aggregation but rounded to min, better for mouse over sync to
+		// other lines
     } else if (aggrType === 6) {
 
         // get start and end position over binary search
         var arrStart = sortedIndex(buffer.timestamps, datStart);
         var arrEnd = sortedIndex(buffer.timestamps, datEnd);
-        for (var i = arrStart; i < arrEnd; i++) {
+        for (var i = arrStart; i <= arrEnd; i++) {
 
             var timestamprounded = Math.round((buffer.timestamps[i] - backSec) / 60000) * 60000;
             arr.push([timestamprounded, (buffer.values[i] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
@@ -1018,7 +1028,7 @@ function SetSerienData(p_attr, serieObj) {
             var last_value = buffer.values[arrStart];
             var last_time = buffer.timestamps[arrStart];
 
-            for (var i = arrStart + 1; i < arrEnd; i++) {
+            for (var i = arrStart + 1; i <= arrEnd; i++) {
 
                 if (buffer.timestamps[i] >= datStart && buffer.timestamps[i] <= datEnd) {
                     // fill missing times with delta 0 every 10 min.
@@ -1049,7 +1059,7 @@ function SetSerienData(p_attr, serieObj) {
             var last_value = buffer.values[arrStart];
             var last_time = buffer.timestamps[arrStart];
 
-            for (var i = arrStart + 1; i < arrEnd; i++) {
+            for (var i = arrStart + 1; i <= arrEnd; i++) {
 
                 if (buffer.timestamps[i] >= datStart && buffer.timestamps[i] <= datEnd) {
                     // fill missing times with delta 0 every 10 min.
@@ -1085,7 +1095,7 @@ function SetSerienData(p_attr, serieObj) {
             var last_value = (buffer.values[arrStart] > 0) ? 1 : 0;
             var last_time = buffer.timestamps[arrStart];
 
-            for (var i = arrStart + 1; i < arrEnd; i++) {
+            for (var i = arrStart + 1; i <= arrEnd; i++) {
                 if (last_value > 0 && buffer.values[i] === 0) {
 
                     last_value = buffer.timestamps[i] - last_time;
@@ -1119,7 +1129,7 @@ function SetSerienData(p_attr, serieObj) {
             }
             // fill also last minutes if still on
             if (last_value > 0) {
-                last_value = arrEnd - last_time;
+                last_value = datEnd - last_time;
                 if (last_value > 60000) {
                     for (var t = last_time; t < arrEnd - 60000; t = t + 60000) {
                         arr.push([t - backSec, (1 * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
@@ -1141,7 +1151,7 @@ function SetSerienData(p_attr, serieObj) {
         var last_value = buffer.values[arrStart];
         var last_time = buffer.timestamps[arrStart];
 
-        for (var i = arrStart; i < arrEnd; i++) {
+        for (var i = arrStart; i <= arrEnd; i++) {
 
             // fill long empty periods with last_value, that aggregation works
             if ((buffer.timestamps[i] - last_time) > 600000) {
@@ -1187,10 +1197,10 @@ function SetSerienData(p_attr, serieObj) {
 
 // Find next timestamp in array by binary search
 function sortedIndex(array, value) {
-    var low = 0, high = array.length, mid;
-    if (array[low] > value)
+    var low = 0, high = array.length-1, mid;
+    if (array[low] >= value)
         return 0;
-    if (array[high] < value)
+    if (array[high] <= value)
         return high;
     while (low < high) {
         mid = Math.floor((low + high) / 2);
@@ -1199,12 +1209,15 @@ function sortedIndex(array, value) {
         else
             high = mid;
     }
+    if (low > array.length-1) {
+        low = array.length-1
+    }
     return low;
 }
 
 /**
-*  read timeSerien data for H2 database
-*/
+ * read timeSerien data for H2 database
+ */
 function getDataH2(p_series, p_attrID, p_attr, datStart, datEnd) {
     var text;
 
@@ -1228,7 +1241,8 @@ function getDataH2(p_series, p_attrID, p_attr, datStart, datEnd) {
 
     var url = 'http://' + H2_server + ':' + H2_port;
     url += '/query/jsonrpc.gy?j={%22id%22:%22' + key + '%22';
-    url += ',%22method%22:%22getTimeSeriesRaw%22';
+    // url += ',%22method%22:%22getTimeSeriesRaw%22';
+    url += ',%22method%22:%22getTimeSeries%22';
     url += ',%22params%22:[' + p_id + ',' + datStart + ',' + datEnd + ']}';
     url += DP_ApiKey 
 
@@ -1257,9 +1271,9 @@ function getDataH2(p_series, p_attrID, p_attr, datStart, datEnd) {
 }
 
 /**
-* Request data from the server, add it to the graph and set a timeout 
-* to request again
-*/
+ * Request data from the server, add it to the graph and set a timeout to
+ * request again
+ */
 function requestData() {
 
     if (DP_Navigator < 3) {
@@ -1296,9 +1310,9 @@ function requestData() {
 }
 
 /**
-* Request data from the server, add it to the graph and set a timeout 
-* to request again
-*/
+ * Request data from the server, add it to the graph and set a timeout to
+ * request again
+ */
 function requestSettings() {
 
     var url = 'http://' + H2_server + ':' + H2_port
@@ -1516,9 +1530,9 @@ function readLinkData() {
 
 
 /**
-* Request data from the server, add it to the graph and set a timeout 
-* to request again
-*/
+ * Request data from the server, add it to the graph and set a timeout to
+ * request again
+ */
 function requestData2(TXT_JSON) {
 
     var DP_rooms = [];
@@ -1637,7 +1651,7 @@ function requestData2(TXT_JSON) {
         select.options[select.options.length] = new Option(text,DP_gewerk[i]);
     }
 
-    // Set start parameter 
+    // Set start parameter
     document.getElementById("filterFeld").value = filter_feld;
 
     // check parameter from get-link
@@ -1828,8 +1842,8 @@ function requestData2(TXT_JSON) {
 }
 
 /**
-* Create HighChart Object on loading
-*/
+ * Create HighChart Object on loading
+ */
 $(document).ready(function() {
 
 	DP_ApiKey = "";
@@ -1893,7 +1907,7 @@ $(document).ready(function() {
                  'Z' ];
   	
     	
-//    	return ['M', x, y, 'L', x + w, y + h, 'M', x + w, y, 'L', x, y + h, 'z'];
+// return ['M', x, y, 'L', x + w, y + h, 'M', x + w, y, 'L', x, y + h, 'z'];
     };
     if (Highcharts.VMLRenderer) {
         Highcharts.VMLRenderer.prototype.symbols.cross = Highcharts.SVGRenderer.prototype.symbols.cross;
@@ -2165,7 +2179,8 @@ function ChangeEventRaumFilter() {
                 // load comparisation series
                 var compType = DP_attribute[attr].comp;
                 if (compType != 'C0') {
-                    // check if options exist, if not create it with default and C0
+                    // check if options exist, if not create it with default and
+					// C0
                     attr2 = DP_attribute.findIndex(obj=>obj.id === compType + '_' + DP_point[i].idx.toString());
                     if (attr2 === -1) {
                         DP_attribute.push({
@@ -2223,7 +2238,7 @@ function ChangeEventRaumFilter() {
     }
 }
 
-//*******
+// *******
 function check_filter(p_raum, p_gewerk, p_dp) {
 
     // Generell Filter
@@ -2273,7 +2288,7 @@ function check_filter(p_raum, p_gewerk, p_dp) {
     return true;
 }
 
-//********************
+// ********************
 function loadNewSerienData() {
     for (var serie = 0; serie < chart.series.length; serie++) {
         if (chart.series[serie].visible && chart.series[serie].options.group != "nav") {
@@ -2301,7 +2316,7 @@ function loadNewAxisInfo() {
             }
         }   	
         
-//         if (chart.yAxis[axispos].hasVisibleSeries) {
+// if (chart.yAxis[axispos].hasVisibleSeries) {
         if (axVisible) {
         	yaxis_count++;
 
@@ -2333,7 +2348,7 @@ function loadNewAxisInfo() {
                         }
                     },
 
-                    // set gridlines only on 1 
+                    // set gridlines only on 1
                 	gridLineWidth: (yaxis_count === 1) ? yaxis_grid : 0,
                    	minorGridLineWidth: (yaxis_count === 1) ? yaxis_mgrid : 0,
                     minorTickInterval: (DP_Grid == 5 || DP_Grid == 6) ? 'auto' : null,
@@ -2341,7 +2356,7 @@ function loadNewAxisInfo() {
                 }, false);
             } else {
                 chart.yAxis[axispos].update({
-                    // set gridlines only on 1 
+                    // set gridlines only on 1
                 	gridLineWidth: (yaxis_count === 1) ? yaxis_grid : 0,
                    	minorGridLineWidth: (yaxis_count === 1) ? yaxis_mgrid : 0,
                     minorTickInterval: (DP_Grid == 5 || DP_Grid == 6) ? 'auto' : null,
@@ -2389,7 +2404,7 @@ function loadNewAxisInfo() {
 
 }
 
-//********************
+// ********************
 function loadNewPlotBand() {
     // add plotband for every day 00-06 and 20-24 gray, 06-20 yellow mean day
 
@@ -2410,21 +2425,21 @@ function loadNewPlotBand() {
             var start = new Date(loopDate);
             chart.xAxis[0].addPlotBand({
                 color: 'rgba(239,232,231,0.5)',
-                //            color: '#EFE8E7',
+                // color: '#EFE8E7',
                 from: start.setHours(0, 0, 0, 0),
                 to: start.setHours(6, 0, 0, 0),
                 id: ('DayLight1' + id.toString()),
             });
             chart.xAxis[0].addPlotBand({
                 color: 'rgba(251,252,227,0.5)',
-                //            color: '#fbfce3',
+                // color: '#fbfce3',
                 from: start.setHours(6, 0, 0, 0),
                 to: start.setHours(20, 0, 0, 0),
                 id: ('DayLight2' + id.toString()),
             });
             chart.xAxis[0].addPlotBand({
                 color: 'rgba(239,232,231,0.5)',
-                //            color: '#EFE8E7',
+                // color: '#EFE8E7',
                 from: start.setHours(20, 0, 0, 0),
                 to: start.setHours(23, 59, 59, 999),
                 id: ('DayLight3' + id.toString()),
@@ -2466,7 +2481,7 @@ function loadNewPlotBand() {
     }
 }
 
-//********************
+// ********************
 function createUrl() {
     var url = location.pathname + "?";
     var attr;
@@ -2562,58 +2577,58 @@ function createUrl() {
         url += '&zoom=' + (Math.round(((extremes.max - extremes.min) / (60 * 60 * 1000)) * 100) / 100).toString();
     }
 
-    // Legend not show    
+    // Legend not show
     if (DP_Legend != 1) {
         url += '&legend=' + DP_Legend;
     }
 
-    // Navigator not show    
+    // Navigator not show
     if (DP_Navigator != 0) {
         url += '&navigator=' + DP_Navigator.toString();
     }
 
-    // Labels show    
+    // Labels show
     if (DP_Labels != 0) {
         url += '&labels=' + DP_Labels;
     }
 
-    // DayLight show    
+    // DayLight show
     if (DP_DayLight != 1) {
         url += '&daylight=' + DP_DayLight;
     }
 
-    // Grid show    
+    // Grid show
     if (DP_Grid != 2) {
         url += '&grid=' + DP_Grid;
     }
-    // AutoRefresh    
+    // AutoRefresh
     if (DP_AutoRefresh != 0) {
         url += '&refresh=' + (DP_AutoRefresh === 60 ? true : DP_AutoRefresh);
     }
 
-    // showFilterLine()    
+    // showFilterLine()
     if (DP_ShowFilter === 0) {
         url += '&filterline=false';
     } else if (DP_ShowFilter != 1) {
         url += '&filterline=' + DP_ShowFilter;
     }
 
-    // showFilterLine()    
+    // showFilterLine()
     if (DP_DataPointFilter != 0) {
         url += '&dpfilter='+DP_DataPointFilter;
     }
 
-    // Theme    
+    // Theme
     if (DP_Theme != '' && DP_Theme != 'Standard') {
         url += '&theme=' + DP_Theme;
     }
 
-    // Title    
+    // Title
     if (DP_Title != '') {
         url += '&title=' + DP_Title;
     }
 
-    // Subtitle    
+    // Subtitle
     if (DP_Subtitle != '') {
         url += '&subtitle=' + DP_Subtitle;
     }
@@ -2622,7 +2637,7 @@ function createUrl() {
     window.focus();
 }
 
-//********************
+// ********************
 function AutoRefresh() {
     if (DP_AutoRefresh > 0) {
         setTimeout(AutoRefresh, 1000);
@@ -2643,7 +2658,7 @@ function AutoRefresh() {
 }
 
 
-//********************
+// ********************
 function loadingInfo() {
     if (DP_Queue.length > 0 && DP_Navigator < 3) {
         if (DP_Loading != DP_Queue.length) {
@@ -2658,7 +2673,7 @@ function loadingInfo() {
 }
 
 
-//********************
+// ********************
 function AddAggregationMinMax(serieObj) {
 
     var arr_dp = [];
@@ -2685,7 +2700,7 @@ function AddAggregationMinMax(serieObj) {
         dataGrouping: {
             enabled: true,
             forced: true,
-            //               approximation: 'averages',
+            // approximation: 'averages',
             groupPixelWidth: 10,
             units: serieObj.userOptions.dataGrouping.units
         },
@@ -2772,7 +2787,7 @@ $("#DialogBtnOK").click(function() {
 	getDialogLine();
 });
 
-//Close Dialog and save as default
+// Close Dialog and save as default
 $("#LineDefault").click(function() {
 	saveLine();
 });
@@ -2849,7 +2864,7 @@ $("#DialogBtnClose").click(function() {
     $("#LinePopup").modal('hide');
 });
 
-//Show Dialog
+// Show Dialog
 function getDialogLine() {
     var attr = DP_attribute.findIndex(obj=>obj.id === DP_PopupID);
 
@@ -2911,7 +2926,7 @@ $("#Dialog2BtnOK").click(function() {
 });
 
 	
-//Close Dialog and save as default
+// Close Dialog and save as default
 $("#SettingDefault").click(function() {
 	saveSetting();
 });
@@ -2921,8 +2936,8 @@ function saveSetting() {
 	getDialogSetting();
 	
 	
-//  var text2 = DP_settings['HighChart_YAXIS'+x].split('|');
-//  var text2 = DP_settings['HighChart_Setting'].split('|');	
+// var text2 = DP_settings['HighChart_YAXIS'+x].split('|');
+// var text2 = DP_settings['HighChart_Setting'].split('|');
 	
 	
     var strCustom = '';
@@ -2938,7 +2953,7 @@ function saveSetting() {
     strCustom += '|T' + DP_Title;
     strCustom += '|S' + DP_Subtitle;
 
-// Save to Global Settings    
+// Save to Global Settings
     DP_settings.Setting = strCustom;
     
     saveSettingsH2();
@@ -3008,19 +3023,14 @@ function getDialogSetting() {
     if (DP_Navigator.toString() != document.getElementById("Select-Navigator").value) {
         DP_Navigator = parseInt(document.getElementById("Select-Navigator").value);
         
-        /* chart.navigator.update({
-            enabled: (DP_Navigator == 0 || DP_Navigator == 1 ) ? true : false,
-        });
-        chart.scrollbar.update({
-            enabled: (DP_Navigator == 0 || DP_Navigator == 2) ? true : false,
-        });
-        chart.credits.update({
-            enabled: (DP_Navigator != 3) ? true : false,
-        });
-
-        // chart.legend.update(defineLegend());
-        // chart.redraw();
-        */
+        /*
+		 * chart.navigator.update({ enabled: (DP_Navigator == 0 || DP_Navigator ==
+		 * 1 ) ? true : false, }); chart.scrollbar.update({ enabled:
+		 * (DP_Navigator == 0 || DP_Navigator == 2) ? true : false, });
+		 * chart.credits.update({ enabled: (DP_Navigator != 3) ? true : false,
+		 * });
+		 *  // chart.legend.update(defineLegend()); // chart.redraw();
+		 */
         ChartSetOptions();
         chartSetElements();
         filterrefresh = false;
@@ -3259,7 +3269,7 @@ $("#Dialog3BtnOK").click(function() {
 	getDialogAxis();
 });
 
-//Close Dialog and save as default
+// Close Dialog and save as default
 $("#AxisDefault").click(function() {
 	getDialogAxis();
 
@@ -3273,7 +3283,7 @@ $("#AxisDefault").click(function() {
     strCustom += '|F' + DP_yAxis[DP_PopupAxisPos].color;
     strCustom += '|T' + DP_yAxis[DP_PopupAxisPos].text;
     
-// Save to global Settings    
+// Save to global Settings
     DP_settings['YAXIS'+DP_PopupAxisPos] = strCustom; 
     
     saveSettingsH2();
@@ -3370,7 +3380,7 @@ $("#Select-Color").on("change", function() {
     document.getElementById("Select-Color").style.backgroundColor = chart.options.colors[parseInt(document.getElementById("Select-Color").value.substr(1, 2))];
 });
 
-//*** update background color on Field Select-Color
+// *** update background color on Field Select-Color
 $("#Select-AxisColor").on("change", function() {
    showDialogYAxisUpdatColor();
 });
