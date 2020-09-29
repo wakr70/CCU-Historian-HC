@@ -1289,29 +1289,7 @@ function requestData() {
 
     // display loading info
     setTimeout(loadingInfo, 500);
-/*
-    var url = 'http://' + H2_server + ':' + H2_port
-    url += '/query/jsonrpc.gy?j={%22method%22:%22getDataPoint%22,%22params%22:%20[]}'
-    url += (DP_ApiKey=="")?"":"&"+DP_ApiKey;
-
-    $.ajax({
-        type: "GET",
-        url: url,
-        dataType: "json",
-        async: true,
-        cache: false,
-        error: function(xhr, status, error) {
-            console.log('AXAJ-error:');
-            console.log(xhr);
-            console.log(status);
-            console.log(error);
-        },
-        success: function(result) {
-            requestData2(result);
-        },
-    });
-    
-*/    
+   
        var url = 'http://' + H2_server + ':' + H2_port;
        url += '/query/jsonrpc.gy';
        url += (DP_ApiKey=="")?"":"?"+DP_ApiKey;
@@ -1351,17 +1329,17 @@ function requestSettings() {
 
 
 
-       var url = 'http://' + H2_server + ':' + H2_port;
-       url += '/query/jsonrpc.gy';
-       url += (DP_ApiKey=="")?"":"?"+DP_ApiKey;
+    var url = 'http://' + H2_server + ':' + H2_port;
+    url += '/query/jsonrpc.gy';
+    url += (DP_ApiKey=="")?"":"?"+DP_ApiKey;
 
-       var postData = {id: 'Setup',
-                       method: 'getConfig',
-                       params: ['HighChart']};
+    var postData = {id: 'Setup',
+                    method: 'getConfig',
+                    params: ['HighChart']};
 
-       postData = JSON.stringify(postData);
+    postData = JSON.stringify(postData);
 
-	    $.ajax({
+    $.ajax({
 	        url: url,
 	        dataType: "json",
 	        contentType: "application/json",
@@ -1376,27 +1354,6 @@ function requestSettings() {
 	            console.log(error);
 	        },
 	        success: function(result) {
-
-/*
-    var url = 'http://' + H2_server + ':' + H2_port
-    url += '/query/jsonrpc.gy?j={%22method%22:%22getConfig%22,%22params%22:[%22HighChart%22],%22id%22:%22Einstellung%22}'
-    url += (DP_ApiKey=="")?"":"&"+DP_ApiKey;
-
-    $.ajax({
-        type: "GET",
-        url: url,
-        dataType: "json",
-        async: true,
-        cache: false,
-        error: function(xhr, status, error) {
-            console.log('AXAJ-error:');
-            console.log(xhr);
-            console.log(status);
-            console.log(error);
-            readLinkData();
-        }, 
-        success: function(result) {
-        	*/
         	// Get Settings from H2 database as String
         	if (result.result) {
         	    try {
