@@ -1,5 +1,5 @@
 /* *********************************
- * HighChart javascripts by wak 2019
+ * HighChart javascripts by wak 2019-2021
  ************************************/
 
 // Setup H2 Database Services, default set to same server as this webpage and port 8082
@@ -381,8 +381,6 @@ function defaultAttrib(DP, colorNr, idx) {
               } catch(err) {
              	attr.unit = text2[k].substr(1, 20);
               }
-             //  	attr.unit = atob(text2[k].substr(1, 20));
-             // 	attr.unit = text2[k].substr(1, 20).replace('*','%');
             } else if (text2[k].substr(0, 1) === 'X') {
               	attr.factor = parseFloat(text2[k].substr(1, 10));
             } else if (text2[k].substr(0, 1) === 'O') {
@@ -3035,11 +3033,6 @@ function saveSetting() {
 	
 	getDialogSetting();
 	
-	
-//  var text2 = DP_settings['HighChart_YAXIS'+x].split('|');
-//  var text2 = DP_settings['HighChart_Setting'].split('|');	
-	
-	
     var strCustom = '';
     strCustom += 'L' + DP_Legend.toString();
     strCustom += '|N' + DP_Navigator.toString();
@@ -3062,14 +3055,14 @@ function saveSetting() {
 function saveSettingsH2() {
     	
     var key = 'SETTING';
-	 var strSetNew = JSON.stringify(DP_settings);
+	var strSetNew = JSON.stringify(DP_settings);
     var strSetOld = JSON.stringify(DP_settings_old);
 	
     if (strSetNew != strSetOld) {
     
       setLocalData('setting', strSetNew);	
 
-    	DP_settings_old = JSON.parse(strSetNew);
+      DP_settings_old = JSON.parse(strSetNew);
 
        var url = 'http://' + H2_server + ':' + H2_port;
        url += '/query/jsonrpc.gy';
@@ -3129,19 +3122,6 @@ function getDialogSetting() {
     if (DP_Navigator.toString() != document.getElementById("Select-Navigator").value) {
         DP_Navigator = parseInt(document.getElementById("Select-Navigator").value);
         
-        /* chart.navigator.update({
-            enabled: (DP_Navigator == 0 || DP_Navigator == 1 ) ? true : false,
-        });
-        chart.scrollbar.update({
-            enabled: (DP_Navigator == 0 || DP_Navigator == 2) ? true : false,
-        });
-        chart.credits.update({
-            enabled: (DP_Navigator != 3) ? true : false,
-        });
-
-        // chart.legend.update(defineLegend());
-        // chart.redraw();
-        */
         ChartSetOptions();
         chartSetElements();
         filterrefresh = false;
@@ -3209,9 +3189,7 @@ function getDialogSetting() {
         }
 
         ChartSetOptions();
-
         chartSetElements();
-
         filterrefresh = false;
     }
     // AutoRefresh
@@ -3935,17 +3913,20 @@ function chartSetElements() {
 
 }
 
+// save to Local Browser Storage
 function setLocalData(cname, cvalue) {
 
-  if (typeof(Storage) !== "undefined") {
-    localStorage.setItem(cname , cvalue );
-  }
+  try {
+    localStorage.setItem(cname , cvalue);
+  } catch { }
 }
 
+// read Local Browser Storage to speed up 1 display 
 function getLocalData(cname) {
 
-  if (typeof(Storage) !== "undefined") {
-    return localStorage.getItem(cname );
+  try {
+    return localStorage.getItem(cname);
+  } catch {
+	return "";
   }
-  return "";
 }
