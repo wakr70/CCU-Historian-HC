@@ -9,7 +9,7 @@ var H2_refreshSec = 60;
 // Refresh Time is enabled
 
 // declare global Variables
-var H2_version = 'v3.13';
+var H2_version = 'v4.0';
 var chart;
 var filter_feld = '';
 var DP_point = [];
@@ -231,7 +231,9 @@ function createChart() {
     	DP_Theme_Setting = Highcharts.merge(DP_Themes.Standard, {});
     }
     Highcharts.setOptions(DP_Theme_Setting);
+
     ChartSetOptions();
+
     chartSetElements();
 }
 
@@ -374,7 +376,13 @@ function defaultAttrib(DP, colorNr, idx) {
             } else if (text2[k].substr(0, 1) === 'S') {
               	attr.stack = parseInt(text2[k].substr(1, 2));
             } else if (text2[k].substr(0, 1) === 'U') {
-              	attr.unit = text2[k].substr(1, 20).replace('*','%');
+              try {
+             	attr.unit = decodeURIComponent( text2[k].substr(1, 20));
+              } catch(err) {
+             	attr.unit = text2[k].substr(1, 20);
+              }
+             //  	attr.unit = atob(text2[k].substr(1, 20));
+             // 	attr.unit = text2[k].substr(1, 20).replace('*','%');
             } else if (text2[k].substr(0, 1) === 'X') {
               	attr.factor = parseFloat(text2[k].substr(1, 10));
             } else if (text2[k].substr(0, 1) === 'O') {
@@ -1274,11 +1282,8 @@ function getDataH2(p_series, p_attrID, p_attr, datStart, datEnd) {
     return;
 }
 
-/**
-* Request data from the server, add it to the graph and set a timeout 
-* to request again
-*/
-function requestData() {
+
+function requestInitData() {
 
     if (DP_Navigator < 3) {
     	document.getElementById("count_val").innerHTML = "0";
@@ -1288,38 +1293,62 @@ function requestData() {
         document.getElementById('count_text').innerHTML = "";
     }
 
-    // display loading info
-    setTimeout(loadingInfo, 500);
+    // get LocalData DataPoints
+    var loc_dataPoints = getLocalData('DataPoints');
+	if (loc_dataPoints) {
+     
+	// speed up with local data and read actual one later
+       chart = $('#container').highcharts();
+
+       parse_dataPoints(JSON.parse(loc_dataPoints));
+
+    // actual data will be read in 2 sec.
+       setTimeout(requestData, 2000);
+
+    } else {
+	   requestData()
+    }
+
+}
+
+/**
+* Request data from the server, add it to the graph and set a timeout 
+* to request again
+*/
+function requestData() {
+
+   // display loading info
+   setTimeout(loadingInfo, 500);
    
-       var url = 'http://' + H2_server + ':' + H2_port;
-       url += '/query/jsonrpc.gy';
-       url += (DP_ApiKey=="")?"":"?"+DP_ApiKey;
+   var url = 'http://' + H2_server + ':' + H2_port;
+   url += '/query/jsonrpc.gy';
+   url += (DP_ApiKey=="")?"":"?"+DP_ApiKey;
 
-       var postData = {id: 'DP',
-                       method: 'getDataPoint',
-                       params: []};
+   var postData = {id: 'DP',
+   method: 'getDataPoint',
+                   params: []};
 
-       postData = JSON.stringify(postData);
+   postData = JSON.stringify(postData);
 
-	    $.ajax({
-	        url: url,
-	        dataType: "json",
-	        contentType: "application/json",
-	        type: "post",
-            data: postData,
-	        cache: false,
-	        async: true,
-	        error: function(xhr, status, error) {
-	            console.log('AXAJ-error:');
-	            console.log(xhr);
-	            console.log(status);
-	            console.log(error);
-	        },
-	        success: function(result) {
-               requestData2(result);
-            }
-	    });
-    
+   $.ajax({
+        url: url,
+        dataType: "json",
+		contentType: "application/json",
+		type: "post",
+		data: postData,
+		cache: false,
+		async: true,
+		error: function(xhr, status, error) {
+			console.log('AXAJ-error:');
+	        console.log(xhr);
+	        console.log(status);
+	        console.log(error);
+	    },
+	    success: function(result) {
+	        requestData2(result);
+	    }
+	});
+
 }
 
 /**
@@ -1327,8 +1356,6 @@ function requestData() {
 * to request again
 */
 function requestSettings() {
-
-
 
     var url = 'http://' + H2_server + ':' + H2_port;
     url += '/query/jsonrpc.gy';
@@ -1355,98 +1382,118 @@ function requestSettings() {
 	            console.log(error);
 	        },
 	        success: function(result) {
-        	// Get Settings from H2 database as String
-        	if (result.result) {
-        	    try {
-        	    	var strSetNew = result.result.replace(new RegExp("'", 'g'),'"' );
-
-	        	    DP_settings = JSON.parse(strSetNew);
-	        	    DP_settings_old = JSON.parse(strSetNew);
-	             // console.log(DP_settings);
-        	    }
-        	    catch (e) {
-        	        console.log(e);
-        	    }
-            }           
-            
-            // read default from YAXIS
-            // take default values from database
-            if (DP_settings) {
-                for (var x = 0; x < DP_yAxis.length; x++) {
-                	if (DP_settings['YAXIS'+x]) {
-                        var text2 = DP_settings['YAXIS'+x].split('|');
-                        var axis_id = x;
-                        for (var k = 0; k < text2.length; k++) {
-                            if (text2[k].substr(0, 1) === 'P') {
-                                if (text2[k].substr(1, 1) === '0')
-                                    DP_yAxis[axis_id].position = false;
-                                if (text2[k].substr(1, 1) === '1')
-                                    DP_yAxis[axis_id].position = true;
-                            } else if (text2[k].substr(0, 1) === 'C') {
-                                if (text2[k].substr(1, 1) === '0')
-                                    DP_yAxis[axis_id].type = 0;
-                                if (text2[k].substr(1, 1) === '1')
-                                    DP_yAxis[axis_id].type = 1;
-                            } else if (text2[k].substr(0, 1) === 'A') {
-                                if (text2[k].substr(1, 1) === '0')
-                                    DP_yAxis[axis_id].limit = 0;
-                                if (text2[k].substr(1, 1) === '1')
-                                    DP_yAxis[axis_id].limit = 1;
-                                if (text2[k].substr(1, 1) === '2')
-                                    DP_yAxis[axis_id].limit = 2;
-                            } else if (text2[k].substr(0, 1) === 'L') {
-                                DP_yAxis[axis_id].min = parseFloat(text2[k].substr(1, 15));
-                            } else if (text2[k].substr(0, 1) === 'H') {
-                                DP_yAxis[axis_id].max = parseFloat(text2[k].substr(1, 15));
-                            } else if (text2[k].substr(0, 1) === 'G') {
-                                DP_yAxis[axis_id].tick = parseInt(text2[k].substr(1, 15));
-                            } else if (text2[k].substr(0, 1) === 'F') {
-                                DP_yAxis[axis_id].color = parseInt(text2[k].substr(1, 2));
-                            } else if (text2[k].substr(0, 1) === 'T') {
-                                DP_yAxis[axis_id].text = text2[k].substr(1, 50);
-                            }
-                        }
-                        
-                	}
-                }
-                // Read default Settings
-            	if (DP_settings['Setting']) {
-                    var text2 = DP_settings['Setting'].split('|');
-                    for (var k = 0; k < text2.length; k++) {
-                        if (text2[k].substr(0, 1) === 'L') {
-                        	DP_Legend = parseInt(text2[k].substr(1, 2));
-                        } else if (text2[k].substr(0, 1) === 'N') {
-                        	DP_Navigator = parseInt(text2[k].substr(1, 2));
-                        } else if (text2[k].substr(0, 1) === 'P') {
-                        	DP_Labels = parseInt(text2[k].substr(1, 2));
-                        } else if (text2[k].substr(0, 1) === 'D') {
-                        	DP_DayLight = parseInt(text2[k].substr(1, 2));
-                        } else if (text2[k].substr(0, 1) === 'G') {
-                        	DP_Grid = parseInt(text2[k].substr(1, 2));
-                        } else if (text2[k].substr(0, 1) === 'F') {
-                        	DP_ShowFilter = parseInt(text2[k].substr(1, 2));
-                        } else if (text2[k].substr(0, 1) === 'I') {
-                        	DP_DataPointFilter = parseInt(text2[k].substr(1, 2));
-                        } else if (text2[k].substr(0, 1) === 'B') {
-                        	DP_Theme = text2[k].substr(1,30);
-                        } else if (text2[k].substr(0, 1) === 'R') {
-                        	H2_refreshSec = parseInt(text2[k].substr(1, 2));
-                        } else if (text2[k].substr(0, 1) === 'T') {
-                        	DP_Title = text2[k].substr(1,50);
-                        } else if (text2[k].substr(0, 1) === 'S') {
-                        	DP_Subtitle = text2[k].substr(1,60);
-                        }
-                    }
-            	}
-            } else {
-            	DP_settings = {};
-            }
-            readLinkData();
-
-        },
-    });
+        	    // Get Settings from H2 database as String
+	        	if (result.result) { 
+	        	    try {
+	        	    	var strSetNew = result.result.replace(new RegExp("'", 'g'),'"' );
+	
+		        	    DP_settings = JSON.parse(strSetNew);
+		        	    DP_settings_old = JSON.parse(strSetNew);
+		             // console.log(DP_settings);
+	        	    }
+	        	    catch (e) {
+	        	        console.log(e);
+	        	    }
+	             }  
+		         if ( strSetNew != getLocalData('setting') ) {
+		            // save LocalData Settings
+		            setLocalData('setting', strSetNew);
+		
+		            parse_setting(DP_settings);
+		            
+		            readLinkData();
+		         }
+	
+	        },
+	    });
 }
 
+function parse_setting(DP_settings) {
+
+    // read default from YAXIS
+    // take default values from database
+    if (DP_settings) {
+        for (var x = 0; x < DP_yAxis.length; x++) {
+        	if (DP_settings['YAXIS'+x]) {
+                var text2 = DP_settings['YAXIS'+x].split('|');
+                var axis_id = x;
+                for (var k = 0; k < text2.length; k++) {
+                    if (text2[k].substr(0, 1) === 'P') {
+                        if (text2[k].substr(1, 1) === '0')
+                            DP_yAxis[axis_id].position = false;
+                        if (text2[k].substr(1, 1) === '1')
+                            DP_yAxis[axis_id].position = true;
+                    } else if (text2[k].substr(0, 1) === 'C') {
+                        if (text2[k].substr(1, 1) === '0')
+                            DP_yAxis[axis_id].type = 0;
+                        if (text2[k].substr(1, 1) === '1')
+                            DP_yAxis[axis_id].type = 1;
+                    } else if (text2[k].substr(0, 1) === 'A') {
+                        if (text2[k].substr(1, 1) === '0')
+                            DP_yAxis[axis_id].limit = 0;
+                        if (text2[k].substr(1, 1) === '1')
+                            DP_yAxis[axis_id].limit = 1;
+                        if (text2[k].substr(1, 1) === '2')
+                            DP_yAxis[axis_id].limit = 2;
+                    } else if (text2[k].substr(0, 1) === 'L') {
+                        DP_yAxis[axis_id].min = parseFloat(text2[k].substr(1, 15));
+                    } else if (text2[k].substr(0, 1) === 'H') {
+                        DP_yAxis[axis_id].max = parseFloat(text2[k].substr(1, 15));
+                    } else if (text2[k].substr(0, 1) === 'G') {
+                        DP_yAxis[axis_id].tick = parseInt(text2[k].substr(1, 15));
+                    } else if (text2[k].substr(0, 1) === 'F') {
+                        DP_yAxis[axis_id].color = parseInt(text2[k].substr(1, 2));
+                    } else if (text2[k].substr(0, 1) === 'T') {
+                        try {
+                           DP_yAxis[axis_id].text = decodeURIComponent(text2[k].substr(1, 50));
+                        } catch {
+                           DP_yAxis[axis_id].text = text2[k].substr(1, 50);
+                        }
+                    }
+                }
+        	}
+        }
+        // Read default Settings
+    	if (DP_settings['Setting']) {
+            var text2 = DP_settings['Setting'].split('|');
+            for (var k = 0; k < text2.length; k++) {
+                if (text2[k].substr(0, 1) === 'L') {
+                	DP_Legend = parseInt(text2[k].substr(1, 2));
+                } else if (text2[k].substr(0, 1) === 'N') {
+                	DP_Navigator = parseInt(text2[k].substr(1, 2));
+                } else if (text2[k].substr(0, 1) === 'P') {
+                	DP_Labels = parseInt(text2[k].substr(1, 2));
+                } else if (text2[k].substr(0, 1) === 'D') {
+                	DP_DayLight = parseInt(text2[k].substr(1, 2));
+                } else if (text2[k].substr(0, 1) === 'G') {
+                	DP_Grid = parseInt(text2[k].substr(1, 2));
+                } else if (text2[k].substr(0, 1) === 'F') {
+                	DP_ShowFilter = parseInt(text2[k].substr(1, 2));
+                } else if (text2[k].substr(0, 1) === 'I') {
+                	DP_DataPointFilter = parseInt(text2[k].substr(1, 2));
+                } else if (text2[k].substr(0, 1) === 'B') {
+                	DP_Theme = text2[k].substr(1,30);
+                } else if (text2[k].substr(0, 1) === 'R') {
+                	H2_refreshSec = parseInt(text2[k].substr(1, 2));
+                } else if (text2[k].substr(0, 1) === 'T') {
+                   try {
+                	   DP_Title = decodeURIComponent(text2[k].substr(1,50));
+                   } catch {
+                	   DP_Title = text2[k].substr(1,50);
+                   }
+                } else if (text2[k].substr(0, 1) === 'S') {
+                   try {
+                   	DP_Subtitle = decodeURIComponent(text2[k].substr(1,60));
+                   } catch {
+                    	DP_Subtitle = text2[k].substr(1,60);
+                   }
+                }
+            }
+    	}
+    } else {
+    	DP_settings = {};
+    }
+}
 
 function readLinkData() {
     // check parameter from get-link
@@ -1558,16 +1605,30 @@ function readLinkData() {
 */
 function requestData2(TXT_JSON) {
 
-    var DP_rooms = [];
-    var DP_gewerk = [];
-
     if (!TXT_JSON.result)
         return;
+
+
+    if ( JSON.stringify(TXT_JSON) != getLocalData('DataPoints')  ) {
+       // save LocalData DataPoints
+       setLocalData('DataPoints', JSON.stringify(TXT_JSON), 7);
+    
+       parse_dataPoints(TXT_JSON);
+    }
+
+}
+
+
+function parse_dataPoints(TXT_JSON) {
+
+    var DP_rooms = [];
+    var DP_gewerk = [];
 
     // in result are all datapoint, let's check which are not hidden and active
 
     // DP_point = TXT_JSON.result;
     DP_point = [];
+    DP_attribute = [];
     for (i = 0; i < TXT_JSON.result.length; i++) {
         DP_point.push(TXT_JSON.result[i]);
     }
@@ -1874,7 +1935,19 @@ $(document).ready(function() {
 		DP_ApiKey = apiKey.substring(1,apiKey.length);	
 	}
 
-	requestSettings();
+    var loc_setting = getLocalData('setting');
+	 if (loc_setting) {
+
+       DP_settings = JSON.parse(loc_setting);
+       parse_setting(DP_settings);
+       readLinkData();
+
+       // read data in delay of 5 sec
+       setTimeout(requestSettings, 1000);
+
+    } else {
+      requestSettings();
+    }
 
     document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - 160) + "px");
 
@@ -2835,7 +2908,7 @@ function saveLine() {
     strCustom += '|S' + DP_attribute[attr].stack;
     strCustom += '|X' + DP_attribute[attr].factor;
     strCustom += '|O' + DP_attribute[attr].offset;
-    strCustom += '|U' + DP_attribute[attr].unit;
+    strCustom += '|U' + encodeURIComponent(DP_attribute[attr].unit).replace(new RegExp("'", 'g'),'%27' );
 
     var DP_pos = DP_point.findIndex(obj=>obj.idx.toString() === DP_PopupID);
     var key = 'POINT'+DP_PopupID;
@@ -2977,8 +3050,8 @@ function saveSetting() {
     strCustom += '|I' + DP_DataPointFilter.toString();
     strCustom += '|B' + DP_Theme;
     strCustom += '|R' + DP_AutoRefresh;
-    strCustom += '|T' + DP_Title;
-    strCustom += '|S' + DP_Subtitle;
+    strCustom += '|T' + encodeURIComponent(DP_Title).replace(new RegExp("'", 'g'),'%27' );
+    strCustom += '|S' + encodeURIComponent(DP_Subtitle).replace(new RegExp("'", 'g'),'%27' );
 
 // Save to Global Settings    
     DP_settings.Setting = strCustom;
@@ -2989,11 +3062,13 @@ function saveSetting() {
 function saveSettingsH2() {
     	
     var key = 'SETTING';
-	var strSetNew = JSON.stringify(DP_settings);
+	 var strSetNew = JSON.stringify(DP_settings);
     var strSetOld = JSON.stringify(DP_settings_old);
 	
     if (strSetNew != strSetOld) {
-    	
+    
+      setLocalData('setting', strSetNew);	
+
     	DP_settings_old = JSON.parse(strSetNew);
 
        var url = 'http://' + H2_server + ':' + H2_port;
@@ -3317,7 +3392,7 @@ $("#AxisDefault").click(function() {
     strCustom += '|H' + DP_yAxis[DP_PopupAxisPos].max;
     strCustom += '|G' + DP_yAxis[DP_PopupAxisPos].tick;
     strCustom += '|F' + DP_yAxis[DP_PopupAxisPos].color;
-    strCustom += '|T' + DP_yAxis[DP_PopupAxisPos].text;
+    strCustom += '|T' + encodeURIComponent(DP_yAxis[DP_PopupAxisPos].text).replace(new RegExp("'", 'g'),'%27' );
     
 // Save to global Settings    
     DP_settings['YAXIS'+DP_PopupAxisPos] = strCustom; 
@@ -3468,7 +3543,7 @@ function ChartSetOptions() {
     Highcharts.stockChart('container', {
         chart: {
             events: {
-                load: requestData,
+                load: requestInitData,
             },
             panning: true,
             panKey: 'shift',
@@ -3860,3 +3935,17 @@ function chartSetElements() {
 
 }
 
+function setLocalData(cname, cvalue) {
+
+  if (typeof(Storage) !== "undefined") {
+    localStorage.setItem(cname , cvalue );
+  }
+}
+
+function getLocalData(cname) {
+
+  if (typeof(Storage) !== "undefined") {
+    return localStorage.getItem(cname );
+  }
+  return "";
+}
