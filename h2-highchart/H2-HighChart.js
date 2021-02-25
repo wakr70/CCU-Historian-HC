@@ -1298,11 +1298,16 @@ function requestInitData() {
 	// speed up with local data and read actual one later
        chart = $('#container').highcharts();
 
-       parse_dataPoints(JSON.parse(loc_dataPoints));
-
-    // actual data will be read in 2 sec.
-       setTimeout(requestData, 2000);
-
+       DP_point = JSON.parse(loc_dataPoints);
+       
+       if (DP_point[1] && DP_point[1].attributes) {
+	       parse_dataPoints();
+	
+    	   // actual data will be read in 2 sec.
+	       setTimeout(requestData, 2000);
+       } else {
+    	   requestData()
+       }
     } else {
 	   requestData()
     }
@@ -1607,32 +1612,14 @@ function requestData2(TXT_JSON) {
         return;
 
 
-    if ( JSON.stringify(TXT_JSON) != getLocalData('DataPoints')  ) {
-       // save LocalData DataPoints
-       setLocalData('DataPoints', JSON.stringify(TXT_JSON), 7);
-    
-       parse_dataPoints(TXT_JSON);
-    }
-
-}
-
-
-function parse_dataPoints(TXT_JSON) {
-
-    var DP_rooms = [];
-    var DP_gewerk = [];
-
-    // in result are all datapoint, let's check which are not hidden and active
-
     // DP_point = TXT_JSON.result;
-    DP_point = [];
-    DP_attribute = [];
+    var DP_point_loc = [];
     for (i = 0; i < TXT_JSON.result.length; i++) {
-        DP_point.push(TXT_JSON.result[i]);
+    	DP_point_loc.push(TXT_JSON.result[i]);
     }
-
+    
     // Sort data points on DisplayName
-    DP_point.sort(function(a, b) {
+    DP_point_loc.sort(function(a, b) {
         var x = a.attributes.displayName + '.' + a.id.identifier;
         var y = b.attributes.displayName + '.' + b.id.identifier;
         x = x.toLowerCase();
@@ -1645,6 +1632,25 @@ function parse_dataPoints(TXT_JSON) {
         }
         return 0;
     });
+
+    if ( JSON.stringify(DP_point_loc) != getLocalData('DataPoints')  ) {
+       // save LocalData DataPoints
+       setLocalData('DataPoints', JSON.stringify(DP_point_loc));
+       DP_Point = [];
+       DP_point = DP_point_loc;
+       
+       parse_dataPoints();
+    }
+
+}
+
+
+function parse_dataPoints() {
+
+    var DP_rooms = [];
+    var DP_gewerk = [];
+
+    DP_attribute = [];
 
     // Alle Serien aufbauen und Räume & Gewerke sammeln nur für anzeigbare
     for (i = 0; i < DP_point.length; i++) {
@@ -2918,8 +2924,11 @@ function saveLine() {
 
     if (DP_point[DP_pos].attributes.custom.HighChart != strCustom ) {
     	
-    	DP_point[DP_pos].attributes.custom.HighChart = strCustom;
+       DP_point[DP_pos].attributes.custom.HighChart = strCustom;
 
+       // Save local cache for start performance
+       setLocalData('DataPoints', JSON.stringify(DP_point));
+	
        var url = 'http://' + H2_server + ':' + H2_port;
        url += '/query/jsonrpc.gy';
        url += (DP_ApiKey=="")?"":"?"+DP_ApiKey;
