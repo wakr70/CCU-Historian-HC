@@ -14,15 +14,18 @@ var DP_Themes = {
       ignoreHiddenSeries: true,
       spacing:  [0,10,15,10 ] ,
       styledMode: false,
+
       style: null,
       width: null, 
       height: null,
       className: null,
       plotBorderColor: "#cccccc",
+
       plotBorderWidth: null,
       plotBackgroundColor: null,
-      plotShadow: null,
       plotBackgroundImage: null,
+      plotShadow: false,
+
       resetZoomButton: {
          position: {
             align: "right",
@@ -202,18 +205,21 @@ var DP_Themes = {
       }
    },
    rangeSelector: {
-      buttonTheme: {
-         fill: null,
-         stroke: null,
-         style: null,
-         states: null,
-         inputStyle: null
+      buttonTheme: { // styles for the buttons
+            fill: 'none',
+            stroke: 'none', 'stroke-width': 0, 
+            r: 5,
+            style: {
+                color: '#666666',
+                fontWeight: 'bold'
+            }
       },
-      inputBoxBorderColor: null,
+      inputBoxBorderColor: "none",
       inputStyle: null,
       labelStyle: {
          color: "#666666"
       }
+
    },
    navigator: {
       handles: {
@@ -420,35 +426,7 @@ var DP_Themes = {
             style: {
                 color: '#CCC',
                 fontWeight: 'bold'
-            },
-            states: {
-                hover: {
-                    fill: {
-                        linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-                        stops: [
-                            [0.4, '#BBB'],
-                            [0.6, '#888']
-                        ]
-                    },
-                    stroke: '#000000',
-                    style: {
-                        color: 'white'
-                    }
-                },
-                select: {
-                    fill: {
-                        linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-                        stops: [
-                            [0.1, '#000'],
-                            [0.3, '#333']
-                        ]
-                    },
-                    stroke: '#000000',
-                    style: {
-                        color: 'yellow'
-                    }
-                }
-            }
+            }            
         },
         inputStyle: {
             backgroundColor: '#333',
@@ -688,34 +666,6 @@ var DP_Themes = {
             style: {
                 color: '#CCC',
                 fontWeight: 'bold'
-            },
-            states: {
-                hover: {
-                    fill: {
-                        linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-                        stops: [
-                            [0.4, '#BBB'],
-                            [0.6, '#888']
-                        ]
-                    },
-                    stroke: '#000000',
-                    style: {
-                        color: 'white'
-                    }
-                },
-                select: {
-                    fill: {
-                        linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-                        stops: [
-                            [0.1, '#000'],
-                            [0.3, '#333']
-                        ]
-                    },
-                    stroke: '#000000',
-                    style: {
-                        color: 'yellow'
-                    }
-                }
             }
         },
         inputStyle: {
@@ -906,22 +856,6 @@ var DP_Themes = {
             stroke: '#000000',
             style: {
                 color: '#CCC'
-            },
-            states: {
-                hover: {
-                    fill: '#707073',
-                    stroke: '#000000',
-                    style: {
-                        color: 'white'
-                    }
-                },
-                select: {
-                    fill: '#000003',
-                    stroke: '#000000',
-                    style: {
-                        color: 'white'
-                    }
-                }
             }
         },
         inputBoxBorderColor: '#505053',
@@ -1135,34 +1069,6 @@ var DP_Themes = {
             style: {
                 color: '#CCC',
                 fontWeight: 'bold'
-            },
-            states: {
-                hover: {
-                    fill: {
-                        linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-                        stops: [
-                            [0.4, '#BBB'],
-                            [0.6, '#888']
-                        ]
-                    },
-                    stroke: '#000000',
-                    style: {
-                        color: 'white'
-                    }
-                },
-                select: {
-                    fill: {
-                        linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-                        stops: [
-                            [0.1, '#000'],
-                            [0.3, '#333']
-                        ]
-                    },
-                    stroke: '#000000',
-                    style: {
-                        color: 'yellow'
-                    }
-                }
             }
         },
         inputStyle: {
@@ -1649,34 +1555,6 @@ var DP_Themes = {
 	          style: {
 	              color: '#CCC',
 	              fontWeight: 'bold'
-	          },
-	          states: {
-	              hover: {
-	                  fill: {
-	                      linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-	                      stops: [
-	                          [0.4, '#BBB'],
-	                          [0.6, '#888']
-	                      ]
-	                  },
-	                  stroke: '#000000',
-	                  style: {
-	                      color: 'white'
-	                  }
-	              },
-	              select: {
-	                  fill: {
-	                      linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-	                      stops: [
-	                          [0.1, '#000'],
-	                          [0.3, '#333']
-	                      ]
-	                  },
-	                  stroke: '#000000',
-	                  style: {
-	                      color: 'yellow'
-	                  }
-	              }
 	          }
 	      },
 	      inputStyle: {

@@ -9,7 +9,7 @@ var H2_refreshSec = 60;
 // Refresh Time is enabled
 
 // declare global Variables
-var H2_version = 'v4.0';
+var H2_version = 'v4.01';
 var chart;
 var filter_feld = '';
 var DP_point = [];
@@ -2784,7 +2784,7 @@ function AddAggregationMinMax(serieObj) {
         }
     }
 
-    Highcharts.each(serieObj.userOptions.data, function(p, i) {
+    serieObj.userOptions.data.forEach( function(p) {
         arr_dp.push([p[0], p[1], p[1]]);
     })
 
