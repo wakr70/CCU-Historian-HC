@@ -131,6 +131,7 @@ var DP_Themes = {
     legend: {
         align: "center",
         alignColumns: true,
+        backgroundColor: 'rgba(0,0,0,0.03)',
         borderColor: "#999999",
         borderRadius: 0,
         enabled: true,
@@ -153,11 +154,19 @@ var DP_Themes = {
            fontWeight: "bold",
            textOverflow: "ellipsis"
         },
-        layout: "horizontal",
         navigation: {
-           activeColor: "#003399",
-           inactiveColor: "#cccccc"
+            activeColor: '#003399',
+            inactiveColor: '#cccccc',
+            animation: true,
+            arrowSize: 12,
+            style: {
+                fontWeight: 'bold',
+                color: '#333',
+                fontSize: '12px'
+            }
         },
+        layout: "horizontal",
+        padding: 5,
         shadow: false,
         squareSymbol: true,
         symbolPadding: 5,
@@ -217,7 +226,7 @@ var DP_Themes = {
       inputBoxBorderColor: "none",
       inputStyle: null,
       labelStyle: {
-         color: "#666666"
+          color: "#666666"
       }
 
    },
@@ -371,9 +380,10 @@ var DP_Themes = {
         }
     },
     legend: {
+        backgroundColor: 'rgba(0,0,0,0.3)',
         itemStyle: {
             font: '9pt Trebuchet MS, Verdana, sans-serif',
-            color: '#606060'
+            color: '#FFFFFF'
         },
         itemHoverStyle: {
             color: '#000000',
@@ -480,7 +490,7 @@ var DP_Themes = {
     },
 
     // special colors for some of the
-    legendBackgroundColor: 'rgba(0, 0, 0, 0.5)',
+    legendBackgroundColor: 'rgb(255,255,255)',
     background2: 'rgb(0, 0, 0)',
     dataLabelsColor: '#444',
     textColor: '#C0C0C0',
@@ -612,9 +622,10 @@ var DP_Themes = {
         }
     },
     legend: {
+        backgroundColor: 'rgba(0,0,0,0.3)',
         itemStyle: {
             font: '9pt Trebuchet MS, Verdana, sans-serif',
-            color: '#808080'
+            color: '#FFF'
         },
         itemHoverStyle: {
             color: '#000000',
@@ -634,7 +645,6 @@ var DP_Themes = {
             color: '#CCC'
         }
     },
-
     navigation: {
         buttonOptions: {
             symbolStroke: '#DDDDDD',
@@ -651,8 +661,6 @@ var DP_Themes = {
             }
         }
     },
-
-    // scroll charts
     rangeSelector: {
         buttonTheme: {
             fill: {
@@ -674,9 +682,9 @@ var DP_Themes = {
         },
         labelStyle: {
             color: 'silver'
-        }
+        },
+        y: 100
     },
-
     navigator: {
         handles: {
             backgroundColor: '#666',
@@ -689,7 +697,6 @@ var DP_Themes = {
             lineColor: '#A6C7ED'
         }
     },
-
     scrollbar: {
         barBackgroundColor: {
             linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
@@ -810,6 +817,7 @@ var DP_Themes = {
         }
     },
     legend: {
+        backgroundColor: 'rgba(0,0,0,0.3)',
         itemStyle: {
             color: '#E0E0E3'
         },

@@ -41,6 +41,7 @@ var DP_ColorNext = 0;
 var DP_Title = '';
 var DP_Subtitle = '';
 var DP_Loading = 0;
+var DP_Button_Jump = false;
 var DP_yAxis = [{
     position: false,
     limit: 0,
@@ -226,9 +227,9 @@ var DP_yAxis_default = JSON.parse(JSON.stringify(DP_yAxis));
 
 function createChart() {
     if (DP_Theme != 'Standard' && DP_Themes[DP_Theme]) {
-    	DP_Theme_Setting = Highcharts.merge(DP_Themes.Standard, DP_Themes[DP_Theme]);
+      DP_Theme_Setting = Highcharts.merge(DP_Themes.Standard, DP_Themes[DP_Theme]);
     } else {
-    	DP_Theme_Setting = Highcharts.merge(DP_Themes.Standard, {});
+      DP_Theme_Setting = Highcharts.merge(DP_Themes.Standard, {});
     }
     Highcharts.setOptions(DP_Theme_Setting);
 
@@ -354,37 +355,37 @@ function defaultAttrib(DP, colorNr, idx) {
       if (text2.length > 0) {
         for (var k = 0; k < text2.length; k++) {
             if (text2[k].substr(0, 1) === 'A') {
-              	attr.aggr = text2[k];
+                attr.aggr = text2[k];
             } else if (text2[k].substr(0, 1) === 'Y') {
-              	attr.yaxis = text2[k];
+                attr.yaxis = text2[k];
             } else if (text2[k].substr(0, 1) === 'T') {
-              	attr.atime = text2[k];
+                attr.atime = text2[k];
             } else if (text2[k].substr(0, 1) === 'F') {
-              	attr.color = text2[k];
+                attr.color = text2[k];
             } else if (text2[k].substr(0, 1) === 'C') {
-              	attr.comp = text2[k];
+                attr.comp = text2[k];
             } else if (text2[k].substr(0, 1) === 'L') {
-              	attr.line = text2[k];
+                attr.line = text2[k];
             } else if (text2[k].substr(0, 1) === 'M') {
-              	attr.mark = text2[k];
+                attr.mark = text2[k];
             } else if (text2[k].substr(0, 1) === 'D') {
-              	attr.dash = text2[k];
+                attr.dash = text2[k];
             } else if (text2[k].substr(0, 1) === 'W') {
-              	attr.width = text2[k];
+                attr.width = text2[k];
             } else if (text2[k].substr(0, 1) === 'V') {
-              	attr.visible = parseInt(text2[k].substr(1, 1));
+                attr.visible = parseInt(text2[k].substr(1, 1));
             } else if (text2[k].substr(0, 1) === 'S') {
-              	attr.stack = parseInt(text2[k].substr(1, 2));
+                attr.stack = parseInt(text2[k].substr(1, 2));
             } else if (text2[k].substr(0, 1) === 'U') {
               try {
-             	attr.unit = decodeURIComponent( text2[k].substr(1, 20));
+                attr.unit = decodeURIComponent( text2[k].substr(1, 20));
               } catch(err) {
-             	attr.unit = text2[k].substr(1, 20);
+                attr.unit = text2[k].substr(1, 20);
               }
             } else if (text2[k].substr(0, 1) === 'X') {
-              	attr.factor = parseFloat(text2[k].substr(1, 10));
+                attr.factor = parseFloat(text2[k].substr(1, 10));
             } else if (text2[k].substr(0, 1) === 'O') {
-              	attr.offset = parseFloat(text2[k].substr(1, 10));
+                attr.offset = parseFloat(text2[k].substr(1, 10));
             }
         }
       }
@@ -740,45 +741,45 @@ function addSerie(DP, DP_type) {
 }
 
 function defineDataLabels() {
-	
-	var objLabels;
-	
-	if (DP_Labels == 0) {
-		objLabels = { enabled: false }; 
-	} else if (DP_Labels == 1) {
-		objLabels = { enabled: true,
-	    	          allowOverlap: true,
-	    	          color: null,
-	    	          style: {
-	    	              "color": null,
-	    	          },
-	    	          formatter: function() {
-	    	              var last = this.series.data[this.series.data.length - 1];
+  
+  var objLabels;
+  
+  if (DP_Labels == 0) {
+    objLabels = { enabled: false }; 
+  } else if (DP_Labels == 1) {
+    objLabels = { enabled: true,
+                  allowOverlap: true,
+                  color: null,
+                  style: {
+                      "color": null,
+                  },
+                  formatter: function() {
+                      var last = this.series.data[this.series.data.length - 1];
                           if (this.point.category === last.category) {
                               return this.series.name;
-	    	              }
-	    	              return "";
-	    	          }
-		            };
-	
-	} else if (DP_Labels == 2) {
-		objLabels = { enabled: true,
-  	                  allowOverlap: false,
-  	                  color: null,
-  	                  style: {
-  	                      "color": null,
-  	                  },
-  	                  formatter: function() {
-  	        	          return Highcharts.numberFormat(this.y,1);;
-  	                  }
+                      }
+                      return "";
+                  }
+                };
+  
+  } else if (DP_Labels == 2) {
+    objLabels = { enabled: true,
+                      allowOverlap: false,
+                      color: null,
+                      style: {
+                          "color": null,
+                      },
+                      formatter: function() {
+                        return Highcharts.numberFormat(this.y,1);;
+                      }
                     };
-	}
+  }
     
     return objLabels;
 }
 
 function defineMarker(iMarker, strColor, iLineW) {
-	
+  
     var objMarker = {
             enabled: false,
             states: {
@@ -838,8 +839,8 @@ function defineMarker(iMarker, strColor, iLineW) {
                 fillColor: 'white',
             };
     }
-	
-	return objMarker;
+  
+  return objMarker;
 }
 
 function SetData(objSerie) {
@@ -941,9 +942,9 @@ function BufferSerienData(id, data) {
 
         // update counter
         if (DP_Navigator < 3) {
-        	document.getElementById("count_val").innerHTML = (Number(document.getElementById("count_val").innerHTML) + data.values.length).toString();
+          document.getElementById("count_val").innerHTML = (Number(document.getElementById("count_val").innerHTML) + data.values.length).toString();
         } else {
-        	document.getElementById("count_val").innerHTML = "";
+          document.getElementById("count_val").innerHTML = "";
         }
     }
 
@@ -952,9 +953,12 @@ function BufferSerienData(id, data) {
 
     // queue clear for this one
     DP_Queue.splice(q_i, 1);
+
     loadingInfo();
 
     SetSerienData(attrIDX, serie);
+
+    loadingInfo();
 }
 
 function SetSerienData(p_attr, serieObj) {
@@ -1242,7 +1246,7 @@ function getDataH2(p_series, p_attrID, p_attr, datStart, datEnd) {
     DP_Queue.push([key, p_attrID, p_series, p_attr, datStart, datEnd]);
 
     // display loading info
-    setTimeout(loadingInfo, 500);
+    loadingInfo();
 
     // get serien data from H2 database
        var url = 'http://' + H2_server + ':' + H2_port;
@@ -1255,28 +1259,28 @@ function getDataH2(p_series, p_attrID, p_attr, datStart, datEnd) {
 
        postData = JSON.stringify(postData);
 
-	    $.ajax({
-	        url: url,
-	        dataType: "json",
-	        contentType: "application/json",
-	        type: "post",
+      $.ajax({
+          url: url,
+          dataType: "json",
+          contentType: "application/json",
+          type: "post",
             data: postData,
-	        cache: false,
-	        async: true,
-	        error: function(xhr, status, error) {
-	            console.log('AXAJ-error:');
-	            console.log(xhr);
-	            console.log(status);
-	            console.log(error);
-	        },
-	        success: function(result) {
+          cache: false,
+          async: true,
+          error: function(xhr, status, error) {
+              console.log('AXAJ-error:');
+              console.log(xhr);
+              console.log(status);
+              console.log(error);
+          },
+          success: function(result) {
                if (!result.result) {
                    console.log(result);
                } else if (result.result) {
                    BufferSerienData(result.id, result.result);
                }
             }
-	    });
+      });
     return;
 }
 
@@ -1284,32 +1288,32 @@ function getDataH2(p_series, p_attrID, p_attr, datStart, datEnd) {
 function requestInitData() {
 
     if (DP_Navigator < 3) {
-    	document.getElementById("count_val").innerHTML = "0";
-        document.getElementById('count_text').innerHTML = ChhLanguage.default.historian.labelValues;
+      document.getElementById("count_val").innerHTML = "0";
+      document.getElementById('count_text').innerHTML = ChhLanguage.default.historian.labelValues;
     } else {
-      	document.getElementById("count_val").innerHTML = "";
-        document.getElementById('count_text').innerHTML = "";
+      document.getElementById("count_val").innerHTML = "";
+      document.getElementById('count_text').innerHTML = "";
     }
 
     // get LocalData DataPoints
     var loc_dataPoints = getLocalData('DataPoints');
-	if (loc_dataPoints) {
+    if (loc_dataPoints) {
      
-	// speed up with local data and read actual one later
+      // speed up with local data and read actual one later
        chart = $('#container').highcharts();
 
        DP_point = JSON.parse(loc_dataPoints);
        
        if (DP_point[1] && DP_point[1].attributes) {
-	       parse_dataPoints();
-	
-    	   // actual data will be read in 2 sec.
-	       setTimeout(requestData, 2000);
+         parse_dataPoints();
+
+         // actual data will be read in 2 sec.
+         setTimeout(requestData, 2000);
        } else {
-    	   requestData()
+         requestData()
        }
     } else {
-	   requestData()
+      requestData()
     }
 
 }
@@ -1320,9 +1324,6 @@ function requestInitData() {
 */
 function requestData() {
 
-   // display loading info
-   setTimeout(loadingInfo, 500);
-   
    var url = 'http://' + H2_server + ':' + H2_port;
    url += '/query/jsonrpc.gy';
    url += (DP_ApiKey=="")?"":"?"+DP_ApiKey;
@@ -1336,21 +1337,21 @@ function requestData() {
    $.ajax({
         url: url,
         dataType: "json",
-		contentType: "application/json",
-		type: "post",
-		data: postData,
-		cache: false,
-		async: true,
-		error: function(xhr, status, error) {
-			console.log('AXAJ-error:');
-	        console.log(xhr);
-	        console.log(status);
-	        console.log(error);
-	    },
-	    success: function(result) {
-	        requestData2(result);
-	    }
-	});
+    contentType: "application/json",
+    type: "post",
+    data: postData,
+    cache: false,
+    async: true,
+    error: function(xhr, status, error) {
+      console.log('AXAJ-error:');
+          console.log(xhr);
+          console.log(status);
+          console.log(error);
+      },
+      success: function(result) {
+          requestData2(result);
+      }
+  });
 
 }
 
@@ -1371,44 +1372,42 @@ function requestSettings() {
     postData = JSON.stringify(postData);
 
     $.ajax({
-	        url: url,
-	        dataType: "json",
-	        contentType: "application/json",
-	        type: "post",
+          url: url,
+          dataType: "json",
+          contentType: "application/json",
+          type: "post",
             data: postData,
-	        cache: false,
-	        async: true,
-	        error: function(xhr, status, error) {
-	            console.log('AXAJ-error:');
-	            console.log(xhr);
-	            console.log(status);
-	            console.log(error);
-	        },
-	        success: function(result) {
-        	    // Get Settings from H2 database as String
-	        	if (result.result) { 
-	        	    try {
-	        	    	var strSetNew = result.result.replace(new RegExp("'", 'g'),'"' );
-	
-		        	    DP_settings = JSON.parse(strSetNew);
-		        	    DP_settings_old = JSON.parse(strSetNew);
-		             // console.log(DP_settings);
-	        	    }
-	        	    catch (e) {
-	        	        console.log(e);
-	        	    }
-	             }  
-		         if ( strSetNew != getLocalData('setting') ) {
-		            // save LocalData Settings
-		            setLocalData('setting', strSetNew);
-		
-		            parse_setting(DP_settings);
-		            
-		            readLinkData();
-		         }
-	
-	        },
-	    });
+          cache: false,
+          async: true,
+          error: function(xhr, status, error) {
+            console.log('AXAJ-error:');
+            console.log(xhr);
+            console.log(status);
+            console.log(error);
+          },
+          success: function(result) {
+            // Get Settings from H2 database as String
+            if (result.result) { 
+              try {
+                var strSetNew = result.result.replace(new RegExp("'", 'g'),'"' );
+
+                DP_settings = JSON.parse(strSetNew);
+                DP_settings_old = JSON.parse(strSetNew);
+              }
+              catch (e) {
+                  console.log(e);
+              }
+            }
+            if ( strSetNew != getLocalData('setting') ) {
+              // save LocalData Settings
+              setLocalData('setting', strSetNew);
+              
+              parse_setting(DP_settings);
+              
+              readLinkData();
+            }
+          },
+      });
 }
 
 function parse_setting(DP_settings) {
@@ -1417,7 +1416,7 @@ function parse_setting(DP_settings) {
     // take default values from database
     if (DP_settings) {
         for (var x = 0; x < DP_yAxis.length; x++) {
-        	if (DP_settings['YAXIS'+x]) {
+          if (DP_settings['YAXIS'+x]) {
                 var text2 = DP_settings['YAXIS'+x].split('|');
                 var axis_id = x;
                 for (var k = 0; k < text2.length; k++) {
@@ -1454,47 +1453,47 @@ function parse_setting(DP_settings) {
                         }
                     }
                 }
-        	}
+          }
         }
         // Read default Settings
-    	if (DP_settings['Setting']) {
+      if (DP_settings['Setting']) {
             var text2 = DP_settings['Setting'].split('|');
             for (var k = 0; k < text2.length; k++) {
                 if (text2[k].substr(0, 1) === 'L') {
-                	DP_Legend = parseInt(text2[k].substr(1, 2));
+                  DP_Legend = parseInt(text2[k].substr(1, 2));
                 } else if (text2[k].substr(0, 1) === 'N') {
-                	DP_Navigator = parseInt(text2[k].substr(1, 2));
+                  DP_Navigator = parseInt(text2[k].substr(1, 2));
                 } else if (text2[k].substr(0, 1) === 'P') {
-                	DP_Labels = parseInt(text2[k].substr(1, 2));
+                  DP_Labels = parseInt(text2[k].substr(1, 2));
                 } else if (text2[k].substr(0, 1) === 'D') {
-                	DP_DayLight = parseInt(text2[k].substr(1, 2));
+                  DP_DayLight = parseInt(text2[k].substr(1, 2));
                 } else if (text2[k].substr(0, 1) === 'G') {
-                	DP_Grid = parseInt(text2[k].substr(1, 2));
+                  DP_Grid = parseInt(text2[k].substr(1, 2));
                 } else if (text2[k].substr(0, 1) === 'F') {
-                	DP_ShowFilter = parseInt(text2[k].substr(1, 2));
+                  DP_ShowFilter = parseInt(text2[k].substr(1, 2));
                 } else if (text2[k].substr(0, 1) === 'I') {
-                	DP_DataPointFilter = parseInt(text2[k].substr(1, 2));
+                  DP_DataPointFilter = parseInt(text2[k].substr(1, 2));
                 } else if (text2[k].substr(0, 1) === 'B') {
-                	DP_Theme = text2[k].substr(1,30);
+                  DP_Theme = text2[k].substr(1,30);
                 } else if (text2[k].substr(0, 1) === 'R') {
-                	H2_refreshSec = parseInt(text2[k].substr(1, 2));
+                  H2_refreshSec = parseInt(text2[k].substr(1, 2));
                 } else if (text2[k].substr(0, 1) === 'T') {
                    try {
-                	   DP_Title = decodeURIComponent(text2[k].substr(1,50));
+                     DP_Title = decodeURIComponent(text2[k].substr(1,50));
                    } catch {
-                	   DP_Title = text2[k].substr(1,50);
+                     DP_Title = text2[k].substr(1,50);
                    }
                 } else if (text2[k].substr(0, 1) === 'S') {
                    try {
-                   	DP_Subtitle = decodeURIComponent(text2[k].substr(1,60));
+                     DP_Subtitle = decodeURIComponent(text2[k].substr(1,60));
                    } catch {
-                    	DP_Subtitle = text2[k].substr(1,60);
+                     DP_Subtitle = text2[k].substr(1,60);
                    }
                 }
             }
-    	}
+      }
     } else {
-    	DP_settings = {};
+      DP_settings = {};
     }
 }
 
@@ -1550,7 +1549,7 @@ function readLinkData() {
             } else if (nv[0].toLowerCase() === 'theme') {
                 DP_Theme = decodeURIComponent(nv[1].toLowerCase());
             } else if (nv[0].toLowerCase() === 'dpfilter') {
-            	DP_DataPointFilter = parseInt(decodeURIComponent(nv[1]));
+              DP_DataPointFilter = parseInt(decodeURIComponent(nv[1]));
             } else if (nv[0].toLowerCase() === 'labels') {
                 if (decodeURIComponent(nv[1].toLowerCase()) === 'true') {
                     DP_Labels = 1;
@@ -1581,12 +1580,12 @@ function readLinkData() {
                     DP_DayLight = 3;
                 }
             } else if (nv[0].toLowerCase() === 'grid') {
-            	DP_Grid = parseInt(decodeURIComponent(nv[1]));
+              DP_Grid = parseInt(decodeURIComponent(nv[1]));
             } else if (nv[0].toLowerCase() === 'refresh') {
                 if (parseInt(decodeURIComponent(nv[1])) > 0) {
                     H2_refreshSec = parseInt(decodeURIComponent(nv[1]));
                 } else if (decodeURIComponent(nv[1].toLowerCase()) === 'true') {
-                	H2_refreshSec = 60;
+                  H2_refreshSec = 60;
                 }
             }
         }
@@ -1598,7 +1597,7 @@ function readLinkData() {
     } 
     
     createChart();
-	
+  
 }
 
 
@@ -1615,7 +1614,7 @@ function requestData2(TXT_JSON) {
     // DP_point = TXT_JSON.result;
     var DP_point_loc = [];
     for (i = 0; i < TXT_JSON.result.length; i++) {
-    	DP_point_loc.push(TXT_JSON.result[i]);
+      DP_point_loc.push(TXT_JSON.result[i]);
     }
     
     // Sort data points on DisplayName
@@ -1796,7 +1795,7 @@ function parse_dataPoints() {
                             } else if (text2[k].substr(0, 1) === 'W') {
                                 DP_attribute[attrpos].width = text2[k];
                             } else if (text2[k].substr(0, 1) === 'S') {
-                            	DP_attribute[attrpos].stack = parseInt(text2[k].substr(1, 2));
+                              DP_attribute[attrpos].stack = parseInt(text2[k].substr(1, 2));
                             } else if (text2[k].substr(0, 1) === 'V') {
                                 DP_attribute[attrpos].visible = parseInt(text2[k].substr(1, 1));
                             } else if (text2[k].substr(0, 1) === 'U') {
@@ -1877,6 +1876,10 @@ function parse_dataPoints() {
                 if (decodeURIComponent(nv[1].toLowerCase()) === 'false' || decodeURIComponent(nv[1].toLowerCase()) === '0') {
                     DP_ShowFilter = 0;
                 }
+                // only filterline both
+                if (decodeURIComponent(nv[1].toLowerCase()) === '1') {
+                    DP_ShowFilter = 1;
+                }       
                 // only filterline without menue
                 if (decodeURIComponent(nv[1].toLowerCase()) === '2') {
                     DP_ShowFilter = 2;
@@ -1890,7 +1893,8 @@ function parse_dataPoints() {
     }
     
     // Update Chart
-    chart.update({ yAxis: defineYAxis() },false,false);
+    chart.update({ yAxis: defineYAxis(),
+                   legend: defineLegend() },false,false);
 
     // Yaxis options
     $("#Select-Yaxis").empty();
@@ -1934,13 +1938,13 @@ function parse_dataPoints() {
 */
 $(document).ready(function() {
 
-	DP_ApiKey = "";
-	if (apiKey != "") {
-		DP_ApiKey = apiKey.substring(1,apiKey.length);	
-	}
+  DP_ApiKey = "";
+  if (apiKey != "") {
+    DP_ApiKey = apiKey.substring(1,apiKey.length);  
+  }
 
     var loc_setting = getLocalData('setting');
-	 if (loc_setting) {
+   if (loc_setting) {
 
        DP_settings = JSON.parse(loc_setting);
        parse_setting(DP_settings);
@@ -1956,11 +1960,6 @@ $(document).ready(function() {
     document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - 160) + "px");
 
     // Translate to Language Set
-    document.getElementById('button1').innerHTML = ChhLanguage.default.historian.buttonDay;
-    document.getElementById('button2').innerHTML = ChhLanguage.default.historian.buttonWeek;
-    document.getElementById('button3').innerHTML = ChhLanguage.default.historian.buttonMonth;
-    document.getElementById('button4').innerHTML = ChhLanguage.default.historian.buttonYear;
-    document.getElementById('button5').innerHTML = ChhLanguage.default.historian.buttonALL;
     document.getElementById('refresh').innerHTML = ChhLanguage.default.historian.buttonRefresh;
     document.getElementById('createLink').innerHTML = ChhLanguage.default.historian.buttonLink;
     document.getElementById('filterFeld').placeholder = ChhLanguage.default.historian.filterPlaceHolder;
@@ -2005,9 +2004,9 @@ $(document).ready(function() {
                  'L', x + w*0.2, y,
                  'L', x        , y + h*0.2,
                  'Z' ];
-  	
-    	
-//    	return ['M', x, y, 'L', x + w, y + h, 'M', x + w, y, 'L', x, y + h, 'z'];
+    
+      
+//      return ['M', x, y, 'L', x + w, y + h, 'M', x + w, y, 'L', x, y + h, 'z'];
     };
     if (Highcharts.VMLRenderer) {
         Highcharts.VMLRenderer.prototype.symbols.cross = Highcharts.SVGRenderer.prototype.symbols.cross;
@@ -2401,23 +2400,23 @@ function loadNewSerienData() {
 }
 
 function loadNewAxisInfo() {
-	var yaxis_count = 0;
-	
-	var yaxis_grid = (DP_Grid === 2 || DP_Grid === 3 || DP_Grid === 5 || DP_Grid === 6) ? 1 : 0;
-	var yaxis_mgrid = (DP_Grid === 5 || DP_Grid === 6) ? 1 : 0;
+  var yaxis_count = 0;
+  
+  var yaxis_grid = (DP_Grid === 2 || DP_Grid === 3 || DP_Grid === 5 || DP_Grid === 6) ? 1 : 0;
+  var yaxis_mgrid = (DP_Grid === 5 || DP_Grid === 6) ? 1 : 0;
 
     for (var axispos = 0; axispos < DP_yAxis.length; axispos++) {
-    	var axVisible = false;
+      var axVisible = false;
         for (var serie = 0; serie < chart.yAxis[axispos].series.length; serie++) {
             if (chart.yAxis[axispos].series[serie].visible) {
-            	axVisible = true;
-            	break;
+              axVisible = true;
+              break;
             }
-        }   	
+        }     
         
 //         if (chart.yAxis[axispos].hasVisibleSeries) {
         if (axVisible) {
-        	yaxis_count++;
+          yaxis_count++;
 
             var axiscolor = null;
             if (DP_yAxis[axispos].color == 0) {
@@ -2448,16 +2447,16 @@ function loadNewAxisInfo() {
                     },
 
                     // set gridlines only on 1 
-                	gridLineWidth: (yaxis_count === 1) ? yaxis_grid : 0,
-                   	minorGridLineWidth: (yaxis_count === 1) ? yaxis_mgrid : 0,
+                  gridLineWidth: (yaxis_count === 1) ? yaxis_grid : 0,
+                    minorGridLineWidth: (yaxis_count === 1) ? yaxis_mgrid : 0,
                     minorTickInterval: (DP_Grid == 5 || DP_Grid == 6) ? 'auto' : null,
                     visible: true
                 }, false);
             } else {
                 chart.yAxis[axispos].update({
                     // set gridlines only on 1 
-                	gridLineWidth: (yaxis_count === 1) ? yaxis_grid : 0,
-                   	minorGridLineWidth: (yaxis_count === 1) ? yaxis_mgrid : 0,
+                  gridLineWidth: (yaxis_count === 1) ? yaxis_grid : 0,
+                    minorGridLineWidth: (yaxis_count === 1) ? yaxis_mgrid : 0,
                     minorTickInterval: (DP_Grid == 5 || DP_Grid == 6) ? 'auto' : null,
                     visible: true
                 }, false);
@@ -2741,7 +2740,7 @@ function AutoRefresh() {
     if (DP_AutoRefresh > 0) {
         setTimeout(AutoRefresh, 1000);
         if (DP_Navigator < 3) {
-        	document.getElementById('autorefresh').innerHTML = ' - ' + ChhLanguage.default.highcharts.autorefreshText + ':' + AutoRefreshCount + ' Sek.';
+          document.getElementById('autorefresh').innerHTML = ' - ' + ChhLanguage.default.highcharts.autorefreshText + ':' + AutoRefreshCount + ' Sek.';
         }
         AutoRefreshCount--;
         if (AutoRefreshCount <= 0) {
@@ -2759,6 +2758,15 @@ function AutoRefresh() {
 
 //********************
 function loadingInfo() {
+    if (DP_Queue.length > 0) {
+        chart.showLoading();
+    } else {
+        chart.hideLoading();
+        if (DP_Button_Jump) {      
+          chart.xAxis[0].setExtremes(Zeitraum_Start.getTime(), Zeitraum_Ende.getTime(), true);
+          DP_Button_Jump = false;
+        }
+    }
     if (DP_Queue.length > 0 && DP_Navigator < 3) {
         if (DP_Loading != DP_Queue.length) {
            document.getElementById('loading').innerHTML = ' (Loading - '+DP_Queue.length+') <img src="loading.gif" alt="loading" height="20" width="20">';
@@ -2883,21 +2891,21 @@ function showDialogLine(serieObj) {
 
 // Close Dialog
 $("#DialogBtnOK").click(function() {
-	getDialogLine();
+  getDialogLine();
 });
 
 //Close Dialog and save as default
 $("#LineDefault").click(function() {
-	saveLine();
+  saveLine();
 });
 
-function saveLine() {	
+function saveLine() { 
 
-	getDialogLine();
+  getDialogLine();
 
-	var attr = DP_attribute.findIndex(obj=>obj.id === DP_PopupID);
+  var attr = DP_attribute.findIndex(obj=>obj.id === DP_PopupID);
     if (attr == -1) {
-    	return
+      return
     }
     var strCustom = '';
     strCustom +=       DP_attribute[attr].aggr;
@@ -2923,12 +2931,12 @@ function saveLine() {
     }
 
     if (DP_point[DP_pos].attributes.custom.HighChart != strCustom ) {
-    	
+      
        DP_point[DP_pos].attributes.custom.HighChart = strCustom;
 
        // Save local cache for start performance
        setLocalData('DataPoints', JSON.stringify(DP_point));
-	
+  
        var url = 'http://' + H2_server + ':' + H2_port;
        url += '/query/jsonrpc.gy';
        url += (DP_ApiKey=="")?"":"?"+DP_ApiKey;
@@ -2942,28 +2950,28 @@ function saveLine() {
 
        postData = JSON.stringify(postData);
 
-	    $.ajax({
-	        url: url,
-	        dataType: "json",
-	        contentType: "application/json",
-	        type: "post",
+      $.ajax({
+          url: url,
+          dataType: "json",
+          contentType: "application/json",
+          type: "post",
            data: postData,
-	        cache: false,
-	        async: true,
-	        error: function(xhr, status, error) {
-	            console.log('AXAJ-error:');
-	            console.log(xhr);
-	            console.log(status);
-	            console.log(error);
-	        },
-	        success: function(result) {
-	            console.log(result);
-	        }
-	    });
-	    
+          cache: false,
+          async: true,
+          error: function(xhr, status, error) {
+              console.log('AXAJ-error:');
+              console.log(xhr);
+              console.log(status);
+              console.log(error);
+          },
+          success: function(result) {
+              console.log(result);
+          }
+      });
+      
     }
-    return;	
-	
+    return; 
+  
 }
 
 // Close Dialog Line
@@ -3004,7 +3012,7 @@ function getDialogLine() {
 
     $("#LinePopup").modal('hide');
 
-    ChangeEventRaumFilter();	
+    ChangeEventRaumFilter();  
 }
 
 // Show Dialog
@@ -3029,19 +3037,19 @@ function showDialogSettings() {
 
 // Close Dialog Settings
 $("#Dialog2BtnOK").click(function() {
-	getDialogSetting();
+  getDialogSetting();
 });
 
-	
+  
 //Close Dialog and save as default
 $("#SettingDefault").click(function() {
-	saveSetting();
+  saveSetting();
 });
-	
+  
 function saveSetting() {
-	
-	getDialogSetting();
-	
+  
+  getDialogSetting();
+  
     var strCustom = '';
     strCustom += 'L' + DP_Legend.toString();
     strCustom += '|N' + DP_Navigator.toString();
@@ -3062,55 +3070,54 @@ function saveSetting() {
 }
 
 function saveSettingsH2() {
-    	
+      
     var key = 'SETTING';
-	var strSetNew = JSON.stringify(DP_settings);
+    var strSetNew = JSON.stringify(DP_settings);
     var strSetOld = JSON.stringify(DP_settings_old);
-	
+  
     if (strSetNew != strSetOld) {
     
-      setLocalData('setting', strSetNew);	
+      setLocalData('setting', strSetNew); 
 
       DP_settings_old = JSON.parse(strSetNew);
 
-       var url = 'http://' + H2_server + ':' + H2_port;
-       url += '/query/jsonrpc.gy';
-       url += (DP_ApiKey=="")?"":"?"+DP_ApiKey;
+      var url = 'http://' + H2_server + ':' + H2_port;
+      url += '/query/jsonrpc.gy';
+      url += (DP_ApiKey=="")?"":"?"+DP_ApiKey;
 
+      strSetNew = strSetNew.replace(new RegExp('"', 'g'), "'");
 
-       strSetNew = strSetNew.replace(new RegExp('"', 'g'), "'");
-
-       var postData = {id: key,
+      var postData = {id: key,
                        method: 'setConfig',
                        params: [ 'HighChart', strSetNew ]};
 
-       postData = JSON.stringify(postData);
+      postData = JSON.stringify(postData);
 
-	    $.ajax({
-	        url: url,
-	        dataType: "json",
-	        contentType: "application/json",
-	        type: "post",
+      $.ajax({
+          url: url,
+          dataType: "json",
+          contentType: "application/json",
+          type: "post",
             data: postData,
-	        cache: false,
-	        async: true,
-	        error: function(xhr, status, error) {
-	            console.log('AXAJ-error:');
-	            console.log(xhr);
-	            console.log(status);
-	            console.log(error);
-	        },
-	        success: function(result) {
-	            console.log(result);
-	        }
-	    });
+          cache: false,
+          async: true,
+          error: function(xhr, status, error) {
+              console.log('AXAJ-error:');
+              console.log(xhr);
+              console.log(status);
+              console.log(error);
+          },
+          success: function(result) {
+              console.log(result);
+          }
+      });
     }
-    return;	
+    return; 
 }
 
 function getDialogSetting() {
 
-	$("#SettingPopup").modal('hide');
+  $("#SettingPopup").modal('hide');
 
     var filterrefresh = false;
 
@@ -3175,12 +3182,13 @@ function getDialogSetting() {
     if (DP_ShowFilter.toString() != document.getElementById("Select-Content").value) {
         DP_ShowFilter = parseInt(document.getElementById("Select-Content").value);
         showFilterLine();
+        ChartSetOptions();
         filterrefresh = true;
     }
     
     // DataPointFilter
     if (DP_DataPointFilter.toString() != document.getElementById("Select-DataPoint").value) {
-    	DP_DataPointFilter = parseInt(document.getElementById("Select-DataPoint").value);
+      DP_DataPointFilter = parseInt(document.getElementById("Select-DataPoint").value);
         filterrefresh = true;
     }
 
@@ -3224,13 +3232,13 @@ $("#Dialog2BtnClose").click(function() {
 });
 
 function showFilterLine() {
-	// check height of navigator+messages+range selector
-	if (DP_Navigator == 4 || DP_Navigator == 3) {
-		var nav_height = 10;
-	} else {
-		var nav_height = 55;
-	}		
-	
+  // check height of navigator+messages+range selector
+  if (DP_Navigator == 4 || DP_Navigator == 3) {
+    var nav_height = 10;
+  } else {
+    var nav_height = 55;
+  }   
+  
     // ajust height of content to screen height
     if (DP_ShowFilter === 0) {
         document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - nav_height - 0) + "px");
@@ -3267,7 +3275,8 @@ function defineLegend() {
             align: 'right',
             verticalAlign: 'top',
             floating: false,
-            y: 30,
+            y: (DP_Navigator <4) ? -30 : 0,
+            maxHeight: $(document).height() - (DP_ShowFilter === 0?90:0) - (DP_ShowFilter === 1?200:0) - (DP_ShowFilter === 2?120:0) - (DP_ShowFilter === 3?180:0)
         };
     } else if (DP_Legend == 3) {
         ret = {
@@ -3277,6 +3286,7 @@ function defineLegend() {
             verticalAlign: 'top',
             floating: true,
             y: 25,
+            maxHeight: 200
         };
     } else if (DP_Legend == 4) {
         ret = {
@@ -3286,6 +3296,7 @@ function defineLegend() {
             verticalAlign: 'bottom',
             floating: true,
             y: (DP_Navigator == 1) ? -50 : -70,
+            maxHeight: 200
         };
     } else if (DP_Legend == 5) {
         ret = {
@@ -3294,7 +3305,8 @@ function defineLegend() {
             align: 'center',
             verticalAlign: 'top',
             floating: false,
-            y: 40,
+            y: 0,
+            maxHeight: 200
         };
     } else if (DP_Legend == 6) {
         ret = {
@@ -3304,6 +3316,7 @@ function defineLegend() {
             verticalAlign: 'bottom',
             floating: false,
             y: 0,
+            maxHeight: 200
         };
         // on DP_Legend = 1 and default
     } else {
@@ -3313,14 +3326,11 @@ function defineLegend() {
             align: 'left',
             verticalAlign: 'top',
             floating: false,
-            y: 0,
+            y: (DP_Navigator <4) ? -30 : 0,
+            maxHeight: $(document).height() - (DP_ShowFilter === 0?90:0) - (DP_ShowFilter === 1?200:0) - (DP_ShowFilter === 2?120:0) - (DP_ShowFilter === 3?180:0)
         };
     }
-    ret['backgroundColor'] = '#FFFFFF';
     ret['x'] = 0;
-    ret['navigation'] = {
-        arrowSize: 20
-    };
 
     return ret;
 }
@@ -3364,12 +3374,12 @@ function showDialogYAxis(id) {
 
 // Close Dialog Settings
 $("#Dialog3BtnOK").click(function() {
-	getDialogAxis();
+  getDialogAxis();
 });
 
 //Close Dialog and save as default
 $("#AxisDefault").click(function() {
-	getDialogAxis();
+  getDialogAxis();
 
     var strCustom = '';
     strCustom += 'P' + ((DP_yAxis[DP_PopupAxisPos].position) ? '1' : '0');
@@ -3386,12 +3396,12 @@ $("#AxisDefault").click(function() {
     
     saveSettingsH2();
     
-    return;	
-	
+    return; 
+  
 });
 
 function getDialogAxis() {
-	
+  
     $("#AxisPopup").modal('hide');
 
     // Update YAxis parameter
@@ -3489,9 +3499,9 @@ function showDialogYAxisUpdatColor() {
     if (colorPos == 0 || colorPos == 1) {
         document.getElementById("Select-AxisColor").style.backgroundColor = Highcharts.defaultOptions.yAxis.lineColor;
     } else {
-	   colorPos -= 2;   // set back -2
-	   document.getElementById("Select-AxisColor").style.backgroundColor = chart.options.colors[colorPos];
-	} 	
+     colorPos -= 2;   // set back -2
+     document.getElementById("Select-AxisColor").style.backgroundColor = chart.options.colors[colorPos];
+  }   
 }
 
 // define Comparisation days back
@@ -3545,38 +3555,46 @@ function ChartSetOptions() {
         },
 
         rangeSelector: {
-        	enabled: (DP_Navigator < 4) ? true : false,
+          enabled: (DP_Navigator < 4) ? true : false,
             buttons: [{
                 count: 30,
                 type: 'minute',
-                text: ChhLanguage.default.highcharts.range30M
+                text: ChhLanguage.default.highcharts.range30M,
+                events: { click: function(e) { checkZeitraum(this) } }
             }, {
                 count: 1,
                 type: 'hour',
-                text: ChhLanguage.default.highcharts.rangeH
+                text: ChhLanguage.default.highcharts.rangeH,
+                events: { click: function(e) { checkZeitraum(this) } }
             }, {
                 count: 6,
                 type: 'hour',
-                text: ChhLanguage.default.highcharts.range6H
+                text: ChhLanguage.default.highcharts.range6H,
+                events: { click: function(e) { checkZeitraum(this) } }
             }, {
                 count: 1,
                 type: 'day',
                 text: ChhLanguage.default.highcharts.rangeD,
+                events: { click: function(e) { checkZeitraum(this) } }
             }, {
                 count: 1,
                 type: 'week',
                 text: ChhLanguage.default.highcharts.rangeW,
+                events: { click: function(e) { checkZeitraum(this) } }
             }, {
                 count: 1,
                 type: 'month',
                 text: ChhLanguage.default.highcharts.rangeM,
+                events: { click: function(e) { checkZeitraum(this) } }
             }, {
                 count: 1,
                 type: 'year',
                 text: ChhLanguage.default.highcharts.rangeY,
+                events: { click: function(e) { checkZeitraum(this) } }
             }, {
                 type: 'all',
-                text: ChhLanguage.default.highcharts.rangeALL
+                text: ChhLanguage.default.highcharts.rangeALL,
+                events: { click: function(e) { checkZeitraum(this) } }
             }],
             allButtonsEnabled: true,
             inputEnabled: false,
@@ -3589,7 +3607,7 @@ function ChartSetOptions() {
                 x: 0,
             },
             x: 0,
-            y: 0,
+            y: 10,
         },
 
         navigation: {
@@ -3659,20 +3677,18 @@ function ChartSetOptions() {
         xAxis: {
             type: 'datetime',
             ordinal: false,
-        	gridLineWidth: (DP_Grid == 1 || DP_Grid == 3 || DP_Grid == 4 || DP_Grid == 6) ? 1 : 0,
-        	minorGridLineWidth: (DP_Grid == 4 || DP_Grid == 6) ? 1 : 0,
-        	minorTickInterval: (DP_Grid == 4 || DP_Grid == 6) ? 'auto' : null,
+            gridLineWidth: (DP_Grid == 1 || DP_Grid == 3 || DP_Grid == 4 || DP_Grid == 6) ? 1 : 0,
+            minorGridLineWidth: (DP_Grid == 4 || DP_Grid == 6) ? 1 : 0,
+            minorTickInterval: (DP_Grid == 4 || DP_Grid == 6) ? 'auto' : null,
             dataMax: Date.now(),
             events: {
                 afterSetExtremes: function() {
-                	showAggrText();
+                  showAggrText();
                 },
             },
         },
 
         yAxis: defineYAxis(),
-
-        legend: defineLegend(),
 
         plotOptions: {
             series: {
@@ -3707,13 +3723,13 @@ function ChartSetOptions() {
                         }
                     },
                     show: function() {
-                        loadNewAxisInfo();
+                      loadNewAxisInfo();
                     },
                     hide: function() {
-                    	loadNewAxisInfo();
+                      loadNewAxisInfo();
                     },
                     click: function() {
-                        showDialogLine(this);
+                      showDialogLine(this);
                     },
                 }
             },
@@ -3731,48 +3747,48 @@ function ChartSetOptions() {
 }
 
 function showAggrText() {
-	var attr;
+  var attr;
     var aggrType;
     if (DP_Navigator < 3) {
-	    for (var serie = 0; serie < chart.series.length; serie++) {
-	        if (chart.series[serie].visible && chart.series[serie].options.group != "nav") {
-	            var grouping = chart.series[serie].currentDataGrouping;
-	            if (grouping) {
-	                var text = grouping.unitName;
-	                if (ChhLanguage.default.highcharts['aggr' + text]) {
-	                    text = ChhLanguage.default.highcharts['aggr' + text];
-	                }
-	                if (chart.series[serie].options.id) {
-	                    attr = DP_attribute.findIndex(obj=>obj.id === chart.series[serie].options.id.toString());
-	                    aggrType = 0;
-	                    if (attr != -1) {
-	                        aggrType = parseInt(DP_attribute[attr].aggr.substr(1, 2))
-	                    }
-	                }
-	
-	                if (aggrType === 1) {
-	                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt1 + ': ' + grouping.count + '/' + text;
-	                } else if (aggrType === 2) {
-	                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt2 + ': ' + grouping.count + '/' + text;
-	                } else if (aggrType === 3) {
-	                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt3 + ': ' + grouping.count + '/' + text;
-	                } else if (aggrType === 4) {
-	                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt4 + ': ' + grouping.count + '/' + text;
-	                } else if (aggrType === 5) {
-	                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt5 + ': ' + grouping.count + '/' + text;
-	                } else if (aggrType === 6) {
-	                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt6;
-	                } else if (aggrType === 7) {
-	                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt7 + ': ' + grouping.count + '/' + text;
-	                } else {
-	                    document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt1 + ': ' + grouping.count + '/' + text;
-	                }
-	            } else {
-	                document.getElementById('aggr_text').innerHTML = ' -  ' + ChhLanguage.default.historian.aggrtxt0;
-	            }
-	            break;
-	        }
-	    }
+      for (var serie = 0; serie < chart.series.length; serie++) {
+          if (chart.series[serie].visible && chart.series[serie].options.group != "nav") {
+              var grouping = chart.series[serie].currentDataGrouping;
+              if (grouping) {
+                  var text = grouping.unitName;
+                  if (ChhLanguage.default.highcharts['aggr' + text]) {
+                      text = ChhLanguage.default.highcharts['aggr' + text];
+                  }
+                  if (chart.series[serie].options.id) {
+                      attr = DP_attribute.findIndex(obj=>obj.id === chart.series[serie].options.id.toString());
+                      aggrType = 0;
+                      if (attr != -1) {
+                          aggrType = parseInt(DP_attribute[attr].aggr.substr(1, 2))
+                      }
+                  }
+  
+                  if (aggrType === 1) {
+                      document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt1 + ': ' + grouping.count + '/' + text;
+                  } else if (aggrType === 2) {
+                      document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt2 + ': ' + grouping.count + '/' + text;
+                  } else if (aggrType === 3) {
+                      document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt3 + ': ' + grouping.count + '/' + text;
+                  } else if (aggrType === 4) {
+                      document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt4 + ': ' + grouping.count + '/' + text;
+                  } else if (aggrType === 5) {
+                      document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt5 + ': ' + grouping.count + '/' + text;
+                  } else if (aggrType === 6) {
+                      document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt6;
+                  } else if (aggrType === 7) {
+                      document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt7 + ': ' + grouping.count + '/' + text;
+                  } else {
+                      document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt1 + ': ' + grouping.count + '/' + text;
+                  }
+              } else {
+                  document.getElementById('aggr_text').innerHTML = ' -  ' + ChhLanguage.default.historian.aggrtxt0;
+              }
+              break;
+          }
+      }
     } else {
         document.getElementById('aggr_text').innerHTML = '';
     }
@@ -3880,36 +3896,6 @@ function chartSetElements() {
     });
 
     // **********************
-    $('#button1').click(function() {
-        Zeitraum_Start = new Date(Zeitraum_Ende - (new Date(86400000 * 1)));
-        loadNewSerienData();
-    });
-
-    // **********************
-    $('#button2').click(function() {
-        Zeitraum_Start = new Date(Zeitraum_Ende - (new Date(86400000 * 7)));
-        loadNewSerienData();
-    });
-
-    // **********************
-    $('#button3').click(function() {
-        Zeitraum_Start = new Date(Zeitraum_Ende - (new Date(86400000 * 30)));
-        loadNewSerienData();
-    });
-
-    // **********************
-    $('#button4').click(function() {
-        Zeitraum_Start = new Date(Zeitraum_Ende - (new Date(86400000 * 1 * 365)));
-        loadNewSerienData();
-    });
-
-    // **********************
-    $('#button5').click(function() {
-        Zeitraum_Start = new Date(Zeitraum_Ende - (new Date(86400000 * 5 * 365)));
-        loadNewSerienData();
-    });
-
-    // **********************
     $('#refresh').click(function() {
         Zeitraum_Ende = new Date(Date.now());
         loadNewSerienData();
@@ -3936,6 +3922,18 @@ function getLocalData(cname) {
   try {
     return localStorage.getItem(cname);
   } catch {
-	return "";
+  return "";
   }
 }
+
+// check if new data should be loaded
+function checkZeitraum(rangInfo) {
+    var datNew = new Date(Zeitraum_Ende - (new Date(rangInfo._range)));  
+    if (Zeitraum_Start > datNew ) {
+      Zeitraum_Start = datNew;
+      loadNewSerienData();
+      DP_Button_Jump = true;
+      return false;    
+    }
+}
+                
