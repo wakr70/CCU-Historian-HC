@@ -9,7 +9,7 @@ var H2_refreshSec = 60;
 // Refresh Time is enabled
 
 // declare global Variables
-var H2_version = 'v4.01';
+var H2_version = 'v4.2';
 var chart;
 var filter_feld = '';
 var DP_point = [];
@@ -1391,12 +1391,21 @@ function requestSettings() {
               try {
                 var strSetNew = result.result.replace(new RegExp("'", 'g'),'"' );
 
-                DP_settings = JSON.parse(strSetNew);
-                DP_settings_old = JSON.parse(strSetNew);
+                if (strSetNew && strSetNew.substring(0,2) === '{"') {
+                  DP_settings = JSON.parse(strSetNew);
+                  DP_settings_old = JSON.parse(strSetNew);
+                } else {
+                  DP_settings = {'Setting': ''};
+                  strSetNew = JSON.stringify(DP_settings);
+                }
               }
               catch (e) {
                   console.log(e);
               }
+
+            } else {
+              DP_settings = {'Setting': ''};
+              strSetNew = JSON.stringify(DP_settings);
             }
             if ( strSetNew != getLocalData('setting') ) {
               // save LocalData Settings
@@ -1938,13 +1947,13 @@ function parse_dataPoints() {
 */
 $(document).ready(function() {
 
-  DP_ApiKey = "";
-  if (apiKey != "") {
-    DP_ApiKey = apiKey.substring(1,apiKey.length);  
-  }
+    DP_ApiKey = "";
+    if (apiKey != "") {
+      DP_ApiKey = apiKey.substring(1,apiKey.length);  
+    }
 
     var loc_setting = getLocalData('setting');
-   if (loc_setting) {
+    if (loc_setting && loc_setting.substring(0,2) === '{"') {
 
        DP_settings = JSON.parse(loc_setting);
        parse_setting(DP_settings);
@@ -3660,7 +3669,7 @@ function ChartSetOptions() {
                         onclick: function() {
                             createUrl();
                         },
-                    }, "separator", "printChart", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG", ]
+                    }, "separator", "viewFullscreen" , "printChart", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG", ]
                 }
             }
         },
@@ -3910,7 +3919,6 @@ function chartSetElements() {
 
 // save to Local Browser Storage
 function setLocalData(cname, cvalue) {
-
   try {
     localStorage.setItem(cname , cvalue);
   } catch { }
@@ -3918,11 +3926,10 @@ function setLocalData(cname, cvalue) {
 
 // read Local Browser Storage to speed up 1 display 
 function getLocalData(cname) {
-
   try {
     return localStorage.getItem(cname);
   } catch {
-  return "";
+    return "";
   }
 }
 
