@@ -974,6 +974,9 @@ function SetSerienData(p_attr, serieObj) {
     var arr = [];
     var backSec = 0;
 
+    if (typeof serieObj.options === 'undefined') {
+      return;
+    }
     // Min/Max not needed         
     if (serieObj.options.name === 'MinMax') {
         return;
@@ -3207,10 +3210,11 @@ function getDialogSetting() {
         DP_Theme = document.getElementById("Select-Theme").value;
         if (DP_Theme == 'Standard') {
             Highcharts.setOptions(DP_Themes.Standard);
+            DP_Theme_Setting = DP_Themes.Standard;
         } else {
             if (DP_Themes[DP_Theme]) {
-                var chartingOptions = Highcharts.merge(DP_Themes.Standard, DP_Themes[DP_Theme]);
-                Highcharts.setOptions(chartingOptions);
+                DP_Theme_Setting = Highcharts.merge(DP_Themes.Standard, DP_Themes[DP_Theme]);
+                Highcharts.setOptions(DP_Theme_Setting);
             }
         }
 
@@ -3816,6 +3820,25 @@ function chartSetElements() {
         $('body').css('background-color', chart.options.chart.borderColor);
     }
     $('#message').css('color', chart.options.labels.style.color);
+
+    if ((typeof DP_Theme_Setting.background2) === 'string') {
+        $('.navbar-default').css('background-color', DP_Theme_Setting.background2);
+        $('.btn-default').css('background-color', DP_Theme_Setting.background2);
+        $('.form-select-h2').css('background-color', DP_Theme_Setting.background2);
+        $('.form-input-h2').css('background-color', DP_Theme_Setting.background2);
+        $('div.modal-content').css('background-color', DP_Theme_Setting.background2);
+    }
+    if ((typeof DP_Theme_Setting.textColor) === 'string') {
+        $('.navbar-default').css('color', DP_Theme_Setting.textColor);
+        $('.btn-default').css('color', DP_Theme_Setting.textColor);
+        $('.btn-default').css('border-color', DP_Theme_Setting.textColor);
+        $('.form-select-h2').css('color', DP_Theme_Setting.textColor);
+        $('.form-select-h2').css('border-color', DP_Theme_Setting.textColor);
+        $('.form-input-h2').css('color', DP_Theme_Setting.textColor);
+        $('.form-input-h2').css('border-color', DP_Theme_Setting.textColor);
+        $('div.modal-content').css('color', DP_Theme_Setting.textColor);
+        $('div.modal-content').css('border-color', DP_Theme_Setting.textColor);
+    }
 
     $("#Select-Color").empty();
     // Color options
