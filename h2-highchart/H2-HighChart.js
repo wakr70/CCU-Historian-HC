@@ -1304,9 +1304,12 @@ function requestInitData() {
      
       // speed up with local data and read actual one later
        chart = $('#container').highcharts();
-
-       DP_point = JSON.parse(loc_dataPoints);
        
+       try {
+         DP_point = JSON.parse(loc_dataPoints);
+       } catch {
+         DP_point = {};
+       }
        if (DP_point[1] && DP_point[1].attributes) {
          parse_dataPoints();
 
@@ -1322,7 +1325,6 @@ function requestInitData() {
     } else {
       requestData()
     }
-
 }
 
 /**
@@ -1963,18 +1965,20 @@ $(document).ready(function() {
 
     var loc_setting = getLocalData('setting');
     if (loc_setting && loc_setting.substring(0,2) === '{"') {
-
-       DP_settings = JSON.parse(loc_setting);
-       parse_setting(DP_settings);
-       readLinkData();
-
-       // read config data only if old
-       var loc_settime = getLocalData('settingTime');
-       if ( loc_settime === null || parseInt(loc_settime) + 3600000 <= Date.now() ) {
-         // read data in delay of 1 sec
-         setTimeout(requestSettings, 1000);
+       try {
+         DP_settings = JSON.parse(loc_setting);
+         parse_setting(DP_settings);
+         readLinkData();
+  
+         // read config data only if old
+         var loc_settime = getLocalData('settingTime');
+         if ( loc_settime === null || parseInt(loc_settime) + 3600000 <= Date.now() ) {
+           // read data in delay of 1 sec
+           setTimeout(requestSettings, 1000);
+         }
+       } catch {
+         requestSettings();
        }
-
     } else {
       requestSettings();
     }
