@@ -1309,7 +1309,7 @@ var DP_Themes = {
         className: 'skies',
         borderWidth: 0,
         plotShadow: false,
-        plotBackgroundImage: 'https://www.highcharts.com/demo/gfx/skies.jpg',
+        plotBackgroundImage: 'skies.jpg',
         plotBorderWidth: 1
     },
     title: {
