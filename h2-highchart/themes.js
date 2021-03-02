@@ -283,7 +283,7 @@ var DP_Themes = {
 
 'dark-green': {
     colors: ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1",
-    	     "#000000", "#663300", "#000066", "#4B0082", "#ff0000", "#8B008B", "#ff4000", "#ff8000", "#ffbf00", "#ffff00", 
+           "#000000", "#663300", "#000066", "#4B0082", "#ff0000", "#8B008B", "#ff4000", "#ff8000", "#ffbf00", "#ffff00", 
              "#bfff00", "#80ff00", "#40ff00", "#00ff00", "#00ff40", "#00ff80", "#00ffbf", "#00ffff", "#00bfff", "#0080ff", 
              "#0040ff", "#0000ff", "#4000ff", "#8000ff", "#bf00ff", "#ff00ff", "#ff00bf", "#ff0080", "#ff0040", "#ff0000"],
              
@@ -506,7 +506,7 @@ var DP_Themes = {
 
 'avocado': {
     colors: ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1",
-    	       "#000000", "#663300", "#000066", "#4B0082", "#ff0000", "#8B008B", "#ff4000", "#ff8000", "#ffbf00", "#ffff00", 
+             "#000000", "#663300", "#000066", "#4B0082", "#ff0000", "#8B008B", "#ff4000", "#ff8000", "#ffbf00", "#ffff00", 
              "#bfff00", "#80ff00", "#40ff00", "#00ff00", "#00ff40", "#00ff80", "#00ffbf", "#00ffff", "#00bfff", "#0080ff", 
              "#0040ff", "#0000ff", "#4000ff", "#8000ff", "#bf00ff", "#ff00ff", "#ff00bf", "#ff0080", "#ff0040", "#ff0000"],
         
@@ -525,7 +525,7 @@ var DP_Themes = {
 },
  'dark-blue': {
    colors: ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1",
-	          "#000000", "#663300", "#000066", "#4B0082", "#ff0000", "#8B008B", "#ff4000", "#ff8000", "#ffbf00", "#ffff00", 
+            "#000000", "#663300", "#000066", "#4B0082", "#ff0000", "#8B008B", "#ff4000", "#ff8000", "#ffbf00", "#ffff00", 
             "#bfff00", "#80ff00", "#40ff00", "#00ff00", "#00ff40", "#00ff80", "#00ffbf", "#00ffff", "#00bfff", "#0080ff", 
             "#0040ff", "#0000ff", "#4000ff", "#8000ff", "#bf00ff", "#ff00ff", "#ff00bf", "#ff0080", "#ff0040", "#ff0000"],
        
@@ -743,7 +743,7 @@ var DP_Themes = {
 
 'dark-unica':{
     colors: ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1",
-    	     "#000000", "#663300", "#000066", "#4B0082", "#ff0000", "#8B008B", "#ff4000", "#ff8000", "#ffbf00", "#ffff00", 
+             "#000000", "#663300", "#000066", "#4B0082", "#ff0000", "#8B008B", "#ff4000", "#ff8000", "#ffbf00", "#ffff00", 
              "#bfff00", "#80ff00", "#40ff00", "#00ff00", "#00ff40", "#00ff80", "#00ffbf", "#00ffff", "#00bfff", "#0080ff", 
              "#0040ff", "#0000ff", "#4000ff", "#8000ff", "#bf00ff", "#ff00ff", "#ff00bf", "#ff0080", "#ff0040", "#ff0000"],
    
@@ -921,7 +921,7 @@ var DP_Themes = {
 
 'gray': {
     colors: ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1",
-    	     "#000000", "#663300", "#000066", "#4B0082", "#ff0000", "#8B008B", "#ff4000", "#ff8000", "#ffbf00", "#ffff00", 
+             "#000000", "#663300", "#000066", "#4B0082", "#ff0000", "#8B008B", "#ff4000", "#ff8000", "#ffbf00", "#ffff00", 
              "#bfff00", "#80ff00", "#40ff00", "#00ff00", "#00ff40", "#00ff80", "#00ffbf", "#00ffff", "#00bfff", "#0080ff", 
              "#0040ff", "#0000ff", "#4000ff", "#8000ff", "#bf00ff", "#ff00ff", "#ff00bf", "#ff0080", "#ff0040", "#ff0000"],
    
@@ -1148,7 +1148,7 @@ var DP_Themes = {
 
 'grid-light': {
     colors: ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1",
-    	     "#000000", "#663300", "#000066", "#4B0082", "#ff0000", "#8B008B", "#ff4000", "#ff8000", "#ffbf00", "#ffff00", 
+             "#000000", "#663300", "#000066", "#4B0082", "#ff0000", "#8B008B", "#ff4000", "#ff8000", "#ffbf00", "#ffff00", 
              "#bfff00", "#80ff00", "#40ff00", "#00ff00", "#00ff40", "#00ff80", "#00ffbf", "#00ffff", "#00bfff", "#0080ff", 
              "#0040ff", "#0000ff", "#4000ff", "#8000ff", "#bf00ff", "#ff00ff", "#ff00bf", "#ff0080", "#ff0040", "#ff0000"],
    
@@ -1301,7 +1301,7 @@ var DP_Themes = {
 
 'skies': {
     colors: ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1",
-    	     "#000000", "#663300", "#000066", "#4B0082", "#ff0000", "#8B008B", "#ff4000", "#ff8000", "#ffbf00", "#ffff00", 
+             "#000000", "#663300", "#000066", "#4B0082", "#ff0000", "#8B008B", "#ff4000", "#ff8000", "#ffbf00", "#ffff00", 
              "#bfff00", "#80ff00", "#40ff00", "#00ff00", "#00ff40", "#00ff80", "#00ffbf", "#00ffff", "#00bfff", "#0080ff", 
              "#0040ff", "#0000ff", "#4000ff", "#8000ff", "#bf00ff", "#ff00ff", "#ff00bf", "#ff0080", "#ff0040", "#ff0000"],
    
@@ -1381,7 +1381,7 @@ var DP_Themes = {
 }, 
 'sunset': {
     colors: ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1",
-    	     "#000000", "#663300", "#000066", "#4B0082", "#ff0000", "#8B008B", "#ff4000", "#ff8000", "#ffbf00", "#ffff00", 
+             "#000000", "#663300", "#000066", "#4B0082", "#ff0000", "#8B008B", "#ff4000", "#ff8000", "#ffbf00", "#ffff00", 
              "#bfff00", "#80ff00", "#40ff00", "#00ff00", "#00ff40", "#00ff80", "#00ffbf", "#00ffff", "#00bfff", "#0080ff", 
              "#0040ff", "#0000ff", "#4000ff", "#8000ff", "#bf00ff", "#ff00ff", "#ff00bf", "#ff0080", "#ff0040", "#ff0000"],
    
@@ -1399,18 +1399,18 @@ var DP_Themes = {
 },
 
 'transparent': {
-	chart: {
-	    backgroundColor: 'rgba(255, 255, 255, 0.0)',
-	    plotBackgroundColor: 'rgba(255,255,255, .1)',
+  chart: {
+      backgroundColor: 'rgba(255, 255, 255, 0.0)',
+      plotBackgroundColor: 'rgba(255,255,255, .1)',
         plotShadow: false,
-	    style: {
-	        fontFamily: 'Dosis, sans-serif'
-	    }
-	},
+      style: {
+          fontFamily: 'Dosis, sans-serif'
+      }
+  },
     tooltip: {
         backgroundColor: 'rgba(247,247,247,0.7)'
     },
-	legend: {
+  legend: {
         borderColor: null,
         borderRadius: 0,
         borderWidth: 0,
@@ -1420,14 +1420,14 @@ var DP_Themes = {
  
   },
 'dark-transp': {
-	chart: {
-	    backgroundColor: 'rgba(255, 255, 255, 0.0)',
-	    plotBackgroundColor: 'rgba(255,255,255, .1)',
+  chart: {
+      backgroundColor: 'rgba(255, 255, 255, 0.0)',
+      plotBackgroundColor: 'rgba(255,255,255, .1)',
         plotShadow: false,
-	    style: {
-	        fontFamily: 'Dosis, sans-serif'
-	    }
-	},
+      style: {
+          fontFamily: 'Dosis, sans-serif'
+      }
+  },
     title: {
       style: {
           color: '#C0C0C0',
@@ -1438,197 +1438,193 @@ var DP_Themes = {
           color: '#666666',
       }
     },
-	  xAxis: {
-	      gridLineColor: '#333333',
-	      labels: {
-	          style: {
-	              color: '#A0A0A0'
-	          }
-	      },
-	      lineColor: '#A0A0A0',
-	      tickColor: '#A0A0A0',
-	      title: {
-	          style: {
-	              color: '#CCC',
-	              fontWeight: 'bold',
-	              fontSize: '12px',
-	              fontFamily: 'Trebuchet MS, Verdana, sans-serif'
-	
-	          }
-	      }
-	  },
-	  yAxis: {
-	      gridLineColor: '#333333',
-	      labels: {
-	          style: {
-	              color: '#A0A0A0'
-	          }
-	      },
-	      lineColor: '#A0A0A0',
-	      tickColor: '#A0A0A0',
-	      tickWidth: 1,
-	      title: {
-	          style: {
-	              color: '#CCC',
-	              fontWeight: 'bold',
-	              fontSize: '12px',
-	              fontFamily: 'Trebuchet MS, Verdana, sans-serif'
-	          }
-	      }
-	  },
-	  tooltip: {
-	      backgroundColor: 'rgba(247,247,247,0.7)',
-	      style: {
-	          color: '#F0F0F0'
-	      }
-	  },
-	  toolbar: {
-	      itemStyle: {
-	          color: 'silver'
-	      }
-	  },
-	  plotOptions: {
-	      line: {
-	          dataLabels: {
-	              color: '#CCC'
-	          },
-	          marker: {
-	              lineColor: '#333'
-	          }
-	      },
-	      spline: {
-	          marker: {
-	              lineColor: '#333'
-	          }
-	      },
-	      scatter: {
-	          marker: {
-	              lineColor: '#333'
-	          }
-	      },
-	      candlestick: {
-	          lineColor: 'white'
-	      }
-	  },
-	  legend: {
-	      borderColor: null,
-	      borderRadius: 0,
-	      borderWidth: 0,
-	      // backgroundColor not working, 
-	      backgroundColor2: 'rgba(255, 255, 255, 0.0)',
-	      itemStyle: {
-	          color: '#A0A0A0'
-	      },
-	      itemHoverStyle: {
-	          color: '#FFFFFF',
-	          fontWeight: 'bold'
-	      },
-	      itemHiddenStyle: {
-	    	  color: '#606060'
-	      }
-	  },
-	  credits: {
-	      style: {
-	          color: '#666'
-	      }
-	  },
-	  labels: {
-	      style: {
-	          color: '#CCC'
-	      }
-	  },
-	
-	
-	  navigation: {
-	      buttonOptions: {
-	          symbolStroke: '#DDDDDD',
-	          hoverSymbolStroke: '#FFFFFF',
-	          theme: {
-	              fill: {
-	                  linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-	                  stops: [
-	                      [0.4, '#606060'],
-	                      [0.6, '#333333']
-	                  ]
-	              },
-	              stroke: '#000000'
-	          }
-	      }
-	  },
+    xAxis: {
+        gridLineColor: '#333333',
+        labels: {
+            style: {
+                color: '#A0A0A0'
+            }
+        },
+        lineColor: '#A0A0A0',
+        tickColor: '#A0A0A0',
+        title: {
+            style: {
+                color: '#CCC',
+                fontWeight: 'bold',
+                fontSize: '12px',
+                fontFamily: 'Trebuchet MS, Verdana, sans-serif'
+            }
+        }
+    },
+    yAxis: {
+        gridLineColor: '#333333',
+        labels: {
+            style: {
+                color: '#A0A0A0'
+            }
+        },
+        lineColor: '#A0A0A0',
+        tickColor: '#A0A0A0',
+        tickWidth: 1,
+        title: {
+            style: {
+                color: '#CCC',
+                fontWeight: 'bold',
+                fontSize: '12px',
+                fontFamily: 'Trebuchet MS, Verdana, sans-serif'
+            }
+        }
+    },
+    tooltip: {
+        backgroundColor: 'rgba(247,247,247,0.7)',
+        style: {
+            color: '#F0F0F0'
+        }
+    },
+    toolbar: {
+        itemStyle: {
+            color: 'silver'
+        }
+    },
+    plotOptions: {
+        line: {
+            dataLabels: {
+                color: '#CCC'
+            },
+            marker: {
+                lineColor: '#333'
+            }
+        },
+        spline: {
+            marker: {
+                lineColor: '#333'
+            }
+        },
+        scatter: {
+            marker: {
+                lineColor: '#333'
+            }
+        },
+        candlestick: {
+            lineColor: 'white'
+        }
+    },
+    legend: {
+        borderColor: null,
+        borderRadius: 0,
+        borderWidth: 0,
+        // backgroundColor not working, 
+        backgroundColor2: 'rgba(255, 255, 255, 0.0)',
+        itemStyle: {
+            color: '#A0A0A0'
+        },
+        itemHoverStyle: {
+            color: '#FFFFFF',
+            fontWeight: 'bold'
+        },
+        itemHiddenStyle: {
+          color: '#606060'
+        }
+    },
+    credits: {
+        style: {
+            color: '#666'
+        }
+    },
+    labels: {
+        style: {
+            color: '#CCC'
+        }
+    },
+    navigation: {
+        buttonOptions: {
+            symbolStroke: '#DDDDDD',
+            hoverSymbolStroke: '#FFFFFF',
+            theme: {
+                fill: {
+                    linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                    stops: [
+                        [0.4, '#606060'],
+                        [0.6, '#333333']
+                    ]
+                },
+                stroke: '#000000'
+            }
+        }
+    },
 
-	  // scroll charts
-	  rangeSelector: {
-	      buttonTheme: {
-	          fill: {
-	              linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-	              stops: [
-	                  [0.4, '#888'],
-	                  [0.6, '#555']
-	              ]
-	          },
-	          stroke: '#000000',
-	          style: {
-	              color: '#CCC',
-	              fontWeight: 'bold'
-	          }
-	      },
-	      inputStyle: {
-	          backgroundColor: '#333',
-	          color: 'silver'
-	      },
-	      labelStyle: {
-	          color: 'silver'
-	      }
-	  },
+    // scroll charts
+    rangeSelector: {
+        buttonTheme: {
+            fill: {
+                linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                stops: [
+                    [0.4, '#888'],
+                    [0.6, '#555']
+                ]
+            },
+            stroke: '#000000',
+            style: {
+                color: '#CCC',
+                fontWeight: 'bold'
+            }
+        },
+        inputStyle: {
+            backgroundColor: '#333',
+            color: 'silver'
+        },
+        labelStyle: {
+            color: 'silver'
+        }
+    },
 
-	  navigator: {
-	      handles: {
-	          backgroundColor: '#666',
-	          borderColor: '#AAA'
-	      },
-	      outlineColor: '#CCC',
-	      maskFill: 'rgba(16, 16, 16, 0.5)',
-	      series: {
-	          color: '#7798BF',
-	          lineColor: '#A6C7ED'
-	      }
-	  },
+    navigator: {
+        handles: {
+            backgroundColor: '#666',
+            borderColor: '#AAA'
+        },
+        outlineColor: '#CCC',
+        maskFill: 'rgba(16, 16, 16, 0.5)',
+        series: {
+            color: '#7798BF',
+            lineColor: '#A6C7ED'
+        }
+    },
 
-	  scrollbar: {
-	      barBackgroundColor: {
-	          linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-	          stops: [
-	              [0.4, '#888'],
-	              [0.6, '#555']
-	          ]
-	      },
-	      barBorderColor: '#CCC',
-	      buttonArrowColor: '#CCC',
-	      buttonBackgroundColor: {
-	          linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-	          stops: [
-	              [0.4, '#888'],
-	              [0.6, '#555']
-	          ]
-	      },
-	      buttonBorderColor: '#CCC',
-	      rifleColor: '#FFF',
-	      trackBackgroundColor: {
-	          linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-	          stops: [
-	              [0, '#000'],
-	              [1, '#333']
-	          ]
-	      },
-	      trackBorderColor: '#666'
-	  },
-	
-	  // special colors for some of the
-	  dataLabelsColor: '#444',
-	  textColor: '#C0C0C0',
-	  maskColor: 'rgba(255,255,255,0.3)'
-	       
-	  },
+    scrollbar: {
+        barBackgroundColor: {
+            linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+            stops: [
+                [0.4, '#888'],
+                [0.6, '#555']
+            ]
+        },
+        barBorderColor: '#CCC',
+        buttonArrowColor: '#CCC',
+        buttonBackgroundColor: {
+            linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+            stops: [
+                [0.4, '#888'],
+                [0.6, '#555']
+            ]
+        },
+        buttonBorderColor: '#CCC',
+        rifleColor: '#FFF',
+        trackBackgroundColor: {
+            linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+            stops: [
+                [0, '#000'],
+                [1, '#333']
+            ]
+        },
+        trackBorderColor: '#666'
+    },
+    // special colors for some of the
+    dataLabelsColor: '#444',
+    textColor: '#C0C0C0',
+    maskColor: 'rgba(255,255,255,0.3)'
+         
+    },
 
 'standard-groß': {
     title: {
