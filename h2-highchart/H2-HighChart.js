@@ -422,7 +422,7 @@ function addSerie(DP, DP_type) {
 
     var attrIDX = (DP_type === '') ? DP.idx.toString() : (DP_type + '_' + DP.idx.toString());
 
-    var attr = DP_attribute.findIndex(obj => obj.id === attrIDX);
+    var attr = DP_attribute.findIndex(obj=>obj.id === attrIDX);
 
     if (attr === -1) {
         DP_attribute.push( defaultAttrib(DP, -1, attrIDX ) );
@@ -1310,8 +1310,12 @@ function requestInitData() {
        if (DP_point[1] && DP_point[1].attributes) {
          parse_dataPoints();
 
-         // actual data will be read in 2 sec.
-         setTimeout(requestData, 2000);
+         // read datapoints only if old
+         var loc_datatime = getLocalData('DataPointsTime');
+         if ( loc_datatime === null || parseInt(loc_datatime) + 3600000 <= Date.now() ) {
+           // actual data will be read in 2 sec.
+           setTimeout(requestData, 2000);
+         }
        } else {
          requestData()
        }
@@ -1405,7 +1409,6 @@ function requestSettings() {
               catch (e) {
                   console.log(e);
               }
-
             } else {
               DP_settings = {'Setting': ''};
               strSetNew = JSON.stringify(DP_settings);
@@ -1418,6 +1421,7 @@ function requestSettings() {
               
               readLinkData();
             }
+            setLocalData('settingTime', Date.now()); 
           },
       });
 }
@@ -1647,11 +1651,13 @@ function requestData2(TXT_JSON) {
     if ( JSON.stringify(DP_point_loc) != getLocalData('DataPoints')  ) {
        // save LocalData DataPoints
        setLocalData('DataPoints', JSON.stringify(DP_point_loc));
+
        DP_Point = [];
        DP_point = DP_point_loc;
        
        parse_dataPoints();
     }
+    setLocalData('DataPointsTime', Date.now()); 
 
 }
 
@@ -1962,8 +1968,12 @@ $(document).ready(function() {
        parse_setting(DP_settings);
        readLinkData();
 
-       // read data in delay of 5 sec
-       setTimeout(requestSettings, 1000);
+       // read config data only if old
+       var loc_settime = getLocalData('settingTime');
+       if ( loc_settime === null || parseInt(loc_settime) + 3600000 <= Date.now() ) {
+         // read data in delay of 1 sec
+         setTimeout(requestSettings, 1000);
+       }
 
     } else {
       requestSettings();
@@ -2499,6 +2509,7 @@ function loadNewAxisInfo() {
                 }
             }
         }
+        return true;
     });
     $('.highcharts-axis-labels').click(function(event) {
         if (this.classList) {
@@ -2510,6 +2521,7 @@ function loadNewAxisInfo() {
                 }
             }
         }
+        return true;
     });
 
 }
@@ -2745,6 +2757,7 @@ function createUrl() {
 
     window.open(url, '_blank');
     window.focus();
+    return true;
 }
 
 //********************
@@ -2904,11 +2917,13 @@ function showDialogLine(serieObj) {
 // Close Dialog
 $("#DialogBtnOK").click(function() {
   getDialogLine();
+  return true;
 });
 
 //Close Dialog and save as default
 $("#LineDefault").click(function() {
   saveLine();
+  return true;
 });
 
 function saveLine() { 
@@ -2948,6 +2963,7 @@ function saveLine() {
 
        // Save local cache for start performance
        setLocalData('DataPoints', JSON.stringify(DP_point));
+       setLocalData('DataPointsTime', Date.now()); 
   
        var url = 'http://' + H2_server + ':' + H2_port;
        url += '/query/jsonrpc.gy';
@@ -2988,7 +3004,8 @@ function saveLine() {
 
 // Close Dialog Line
 $("#DialogBtnClose").click(function() {
-    $("#LinePopup").modal('hide');
+  $("#LinePopup").modal('hide');
+  return true;
 });
 
 //Show Dialog
@@ -3050,12 +3067,14 @@ function showDialogSettings() {
 // Close Dialog Settings
 $("#Dialog2BtnOK").click(function() {
   getDialogSetting();
+  return true;
 });
 
   
 //Close Dialog and save as default
 $("#SettingDefault").click(function() {
   saveSetting();
+  return true;
 });
   
 function saveSetting() {
@@ -3090,6 +3109,7 @@ function saveSettingsH2() {
     if (strSetNew != strSetOld) {
     
       setLocalData('setting', strSetNew); 
+      setLocalData('settingTime', Date.now()); 
 
       DP_settings_old = JSON.parse(strSetNew);
 
@@ -3388,6 +3408,7 @@ function showDialogYAxis(id) {
 // Close Dialog Settings
 $("#Dialog3BtnOK").click(function() {
   getDialogAxis();
+  return true;
 });
 
 //Close Dialog and save as default
@@ -3409,8 +3430,7 @@ $("#AxisDefault").click(function() {
     
     saveSettingsH2();
     
-    return; 
-  
+    return true;
 });
 
 function getDialogAxis() {
@@ -3465,7 +3485,8 @@ function getDialogAxis() {
 
 // Close Dialog Settings
 $("#Dialog3BtnClose").click(function() {
-    $("#AxisPopup").modal('hide');
+  $("#AxisPopup").modal('hide');
+  return true;
 });
 
 // define Y-Axis array
@@ -3573,41 +3594,41 @@ function ChartSetOptions() {
                 count: 30,
                 type: 'minute',
                 text: ChhLanguage.default.highcharts.range30M,
-                events: { click: function(e) { checkZeitraum(this) } }
+                events: { click: function(e) { checkZeitraum(this); return true } }
             }, {
                 count: 1,
                 type: 'hour',
                 text: ChhLanguage.default.highcharts.rangeH,
-                events: { click: function(e) { checkZeitraum(this) } }
+                events: { click: function(e) { checkZeitraum(this); return true } }
             }, {
                 count: 6,
                 type: 'hour',
                 text: ChhLanguage.default.highcharts.range6H,
-                events: { click: function(e) { checkZeitraum(this) } }
+                events: { click: function(e) { checkZeitraum(this); return true } }
             }, {
                 count: 1,
                 type: 'day',
                 text: ChhLanguage.default.highcharts.rangeD,
-                events: { click: function(e) { checkZeitraum(this) } }
+                events: { click: function(e) { checkZeitraum(this); return true } }
             }, {
                 count: 1,
                 type: 'week',
                 text: ChhLanguage.default.highcharts.rangeW,
-                events: { click: function(e) { checkZeitraum(this) } }
+                events: { click: function(e) { checkZeitraum(this); return true } }
             }, {
                 count: 1,
                 type: 'month',
                 text: ChhLanguage.default.highcharts.rangeM,
-                events: { click: function(e) { checkZeitraum(this) } }
+                events: { click: function(e) { checkZeitraum(this); return true } }
             }, {
                 count: 1,
                 type: 'year',
                 text: ChhLanguage.default.highcharts.rangeY,
-                events: { click: function(e) { checkZeitraum(this) } }
+                events: { click: function(e) { checkZeitraum(this); return true } }
             }, {
                 type: 'all',
                 text: ChhLanguage.default.highcharts.rangeALL,
-                events: { click: function(e) { checkZeitraum(this) } }
+                events: { click: function(e) { checkZeitraum(this); return true } }
             }],
             allButtonsEnabled: true,
             inputEnabled: false,
@@ -3661,17 +3682,20 @@ function ChartSetOptions() {
                                 DP_Limit = true;
                             }
                             ChangeEventRaumFilter();
+                            return true;
                         },
                     }, {
                         text: ChhLanguage.default.historian.buttonRefresh,
                         onclick: function() {
                             Zeitraum_Ende = new Date(Date.now());
                             loadNewSerienData();
+                            return true;
                         },
                     }, {
                         text: ChhLanguage.default.historian.buttonLink,
                         onclick: function() {
                             createUrl();
+                            return true;
                         },
                     }, "separator", "viewFullscreen" , "printChart", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG", ]
                 }
@@ -3743,6 +3767,7 @@ function ChartSetOptions() {
                     },
                     click: function() {
                       showDialogLine(this);
+                      return true;
                     },
                 }
             },
@@ -3931,11 +3956,13 @@ function chartSetElements() {
     $('#refresh').click(function() {
         Zeitraum_Ende = new Date(Date.now());
         loadNewSerienData();
+        return true;
     });
 
     // **********************
     $('#createLink').click(function() {
         createUrl();
+        return true;
     });
 
 }
