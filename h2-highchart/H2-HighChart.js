@@ -3254,19 +3254,19 @@ function showFilterLine() {
   
     // ajust height of content to screen height
     if (DP_ShowFilter === 0) {
-        document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - nav_height - 0) + "px");
+        document.getElementById("container").setAttribute("style", "height:" + ($(window).height() - nav_height - 0) + "px");
         document.getElementById("filter").style.display = "none";
         $('nav.navbar.navbar-default')[0].style.display = "none";
     } else if (DP_ShowFilter === 1) {
-        document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - nav_height - 105) + "px");
+        document.getElementById("container").setAttribute("style", "height:" + ($(window).height() - nav_height - 105) + "px");
         document.getElementById("filter").style.display = "block";
         $('nav.navbar.navbar-default')[0].style.display = "block";
     } else if (DP_ShowFilter === 2) {
-        document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - nav_height - 35) + "px");
+        document.getElementById("container").setAttribute("style", "height:" + ($(window).height() - nav_height - 35) + "px");
         document.getElementById("filter").style.display = "block";
         $('nav.navbar.navbar-default')[0].style.display = "none";
     } else if (DP_ShowFilter === 3) {
-        document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - nav_height - 70) + "px");
+        document.getElementById("container").setAttribute("style", "height:" + ($(window).height() - nav_height - 70) + "px");
         document.getElementById("filter").style.display = "none";
         $('nav.navbar.navbar-default')[0].style.display = "block";
     }
@@ -3289,7 +3289,7 @@ function defineLegend() {
             verticalAlign: 'top',
             floating: false,
             y: (DP_Navigator <4) ? -30 : 0,
-            maxHeight: $(document).height() - (DP_ShowFilter === 0?90:0) - (DP_ShowFilter === 1?200:0) - (DP_ShowFilter === 2?120:0) - (DP_ShowFilter === 3?180:0)
+            maxHeight: $(window).height() - (DP_ShowFilter === 0?90:0) - (DP_ShowFilter === 1?200:0) - (DP_ShowFilter === 2?120:0) - (DP_ShowFilter === 3?180:0)
         };
     } else if (DP_Legend == 3) {
         ret = {
@@ -3340,7 +3340,7 @@ function defineLegend() {
             verticalAlign: 'top',
             floating: false,
             y: (DP_Navigator <4) ? -30 : 0,
-            maxHeight: $(document).height() - (DP_ShowFilter === 0?90:0) - (DP_ShowFilter === 1?200:0) - (DP_ShowFilter === 2?120:0) - (DP_ShowFilter === 3?180:0)
+            maxHeight: $(window).height() - (DP_ShowFilter === 0?90:0) - (DP_ShowFilter === 1?200:0) - (DP_ShowFilter === 2?120:0) - (DP_ShowFilter === 3?180:0)
         };
     }
     ret['x'] = 0;
@@ -3966,4 +3966,27 @@ function checkZeitraum(rangInfo) {
       return false;    
     }
 }
-                
+
+$(window).resize(function() {
+
+  if (DP_Navigator == 4 || DP_Navigator == 3) {
+    var nav_height = 10;
+  } else {
+    var nav_height = 55;
+  }
+  if (DP_ShowFilter === 0) {
+      var char_height = $(window).height() - nav_height - 0;
+  } else if (DP_ShowFilter === 1) {
+      var char_height = $(window).height() - nav_height - 105;
+  } else if (DP_ShowFilter === 2) {
+      var char_height = $(window).height() - nav_height - 35;
+  } else if (DP_ShowFilter === 3) {
+      var char_height = $(window).height() - nav_height - 70;
+  }
+  
+  document.getElementById("container").setAttribute("style", "height:" + (char_height) + "px");
+
+  chart.legend.update(defineLegend());
+  chart.reflow();
+    
+});                

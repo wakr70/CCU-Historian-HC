@@ -31,11 +31,12 @@ renderer.content={
         button id:'createLink', class:'btn btn-default', 'Link erzeugen'
     }
    }
-
-   div(id:'container') { 
-      style: "min-height: 400px; height: auto; min-width: 310px"
+   div(id:'chart-container-outer') {
+      style: "position:relative; flex-grow:1"
+      div(id:'container') { 
+         style: "position:absolute; left:0; top: 0; bottom:0; right:0; overflow:hidden; min-height: 400px; min-width: 310px"
+      }
    }
-
    div(id:'message') {
       span id: "count_val", ""
       span id: "count_text", ""
