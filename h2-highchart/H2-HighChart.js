@@ -4,7 +4,7 @@
 
 // Setup H2 Database Services, default set to same server as this webpage and port 8082
 var H2_server = location.hostname;
-var H2_port = (location.port === "") ? 80 : location.port;
+var H2_port = (location.port === "") ? "80" : location.port;
 var H2_refreshSec = 60;
 // Refresh Time is enabled
 
@@ -592,81 +592,12 @@ function addSerie(DP, DP_type) {
   var pointFormat = null;
   var serienName = '';
 
-  pointFormater = function() {
-    var xDate = new Date(this.x + (getComparisionBackDay(this.series.options.id.split('_')[0])));
-
-    var txta = "<span style='fill:" + this.color + "'>\u25CF </span>"
-             + this.series.name + ": <b>"
-             + Highcharts.numberFormat(this.y, 2, ",", ".") + " "
-             + this.series.tooltipOptions.valueSuffix + "</b><br/>";
-
-    if (this.series.hasGroupedData) {
-
-      var lAggrType = '';
-      if (this.series.options.id) {
-        attr = DP_attribute.findIndex(obj => obj.id === this.series.options.id.toString());
-        lAggrType = 0;
-        if (attr != -1) {
-          lAggrType = parseInt(DP_attribute[attr].aggr.substr(1, 2));
-        }
-      }
-
-      var pointRange;
-      if (this.series.currentDataGrouping.totalRange) {
-        pointRange = this.series.currentDataGrouping.totalRange;
-      }
-
-      var xEnde = Highcharts.dateFormat('%H:%M', xDate.getTime() + pointRange);
-      if (xEnde == '00:00') {
-        xEnde = '24:00';
-      }
-
-      // get Timeframe text
-      if (pointRange < 3600000) {
-        txta += "<b>" + Highcharts.dateFormat('%A, %e. %b %Y, %H:%M', xDate) + '-' + xEnde + "</b>";
-      } else if (pointRange < 86400000) {
-        txta += "<b>" + Highcharts.dateFormat('%A, %e. %b %Y, %H:%M', xDate) + '-' + xEnde + "</b>";
-      } else if (pointRange < 86400000 * 20) {
-        txta += "<b>" + Highcharts.dateFormat('%e. %b', xDate) + '-' + Highcharts.dateFormat('%e. %b %Y', xDate.getTime() + pointRange - 86400000) + "</b>";
-      } else {
-        txta += "<b>" + Highcharts.dateFormat('%b %Y', xDate) + "</b>";
-      }
-
-      // get Aggregation Symbol
-      txta += '<i> (<b>';
-      if (lAggrType == 1) { txta += jQuery('<div/>').html('&#x00d8; ').text(); }
-      // average
-      if (lAggrType == 2) { txta += jQuery('<div/>').html('&#x0394; ').text(); }
-      // delta
-      if (lAggrType == 3) { txta += jQuery('<div/>').html('&#x03a8; ').text(); }
-      // min/max
-      if (lAggrType == 4) { txta += jQuery('<div/>').html('&#x01a9; ').text(); }
-      // sum
-      if (lAggrType == 5) { txta += jQuery('<div/>').html('&#x01ac; ').text(); }
-      // TIME_ON
-      if (lAggrType == 6) { txta += jQuery('<div/>').html('&#x2248; ').text(); }
-      // delta+
-      if (lAggrType == 7) { txta += jQuery('<div/>').html('&#x2359; ').text(); }
-
-      if (this.series.currentDataGrouping) {
-        let text = this.series.currentDataGrouping.unitName + ((this.series.currentDataGrouping.count > 1) ? '2' : '').toString();
-        if (ChhLanguage.default.highcharts['aggr' + text]) {
-          text = ChhLanguage.default.highcharts['aggr' + text];
-        }
-        txta += '</b> ' + this.series.currentDataGrouping.count + ' ' + text;
-      }
-      txta += ")</i><br/>";
-
-    } else {
-      txta += "<b>" + Highcharts.dateFormat('%A, %b %e, %H:%M:%S', xDate) + "</b>";
-    }
-    return txta;
-  };
+  pointFormater = function() { return toolTipInfo(this); };
 
   if (DP_type.substr(0, 1) === 'C') {
     serienName = (DP.id.interfaceId === "SysVar")
-                 ? (DP.attributes.displayName)
-                 : (DP.attributes.displayName + '.' + DP.id.identifier) + '(' + ChhLanguage.default.historian['comptype' + DP_type] + ')';
+      ? (DP.attributes.displayName)
+      : (DP.attributes.displayName + '.' + DP.id.identifier) + '(' + ChhLanguage.default.historian['comptype' + DP_type] + ')';
   } else if (DP.id.interfaceId === "SysVar") {
     serienName = DP.attributes.displayName;
   } else {
@@ -855,15 +786,15 @@ function setData(objSerie) {
         found = true;
         setSerienData(attr, objSerie);
       } else if (DP_attribute[attr].buffer_data.buffer_start > datStart
-              && DP_attribute[attr].buffer_data.buffer_start <= datEnd
-              && DP_attribute[attr].buffer_data.buffer_end >= datEnd
-              && DP_attribute[attr].buffer_data.values.length > 0) {
+        && DP_attribute[attr].buffer_data.buffer_start <= datEnd
+        && DP_attribute[attr].buffer_data.buffer_end >= datEnd
+        && DP_attribute[attr].buffer_data.values.length > 0) {
         // append to begin
         datEnd = DP_attribute[attr].buffer_data.buffer_start;
       } else if (DP_attribute[attr].buffer_data.buffer_start <= datStart
-              && DP_attribute[attr].buffer_data.buffer_end >= datStart
-              && DP_attribute[attr].buffer_data.buffer_end < datEnd
-              && DP_attribute[attr].buffer_data.values.length > 0) {
+        && DP_attribute[attr].buffer_data.buffer_end >= datStart
+        && DP_attribute[attr].buffer_data.buffer_end < datEnd
+        && DP_attribute[attr].buffer_data.values.length > 0) {
         // append to end by refresh button
         datStart = DP_attribute[attr].buffer_data.buffer_end;
       }
@@ -896,16 +827,16 @@ function bufferSerienData(id, data) {
     }
 
     if (DP_attribute[attrIDX].buffer_data.buffer_start >= DP_Queue[q_i][4]
-     && DP_attribute[attrIDX].buffer_data.buffer_start === DP_Queue[q_i][5]
-     && DP_attribute[attrIDX].buffer_data.values.length > 0) {
+      && DP_attribute[attrIDX].buffer_data.buffer_start === DP_Queue[q_i][5]
+      && DP_attribute[attrIDX].buffer_data.values.length > 0) {
 
       DP_attribute[attrIDX].buffer_data.buffer_start = DP_Queue[q_i][4];
       DP_attribute[attrIDX].buffer_data.timestamps = data.timestamps.concat(DP_attribute[attrIDX].buffer_data.timestamps);
       DP_attribute[attrIDX].buffer_data.values = data.values.concat(DP_attribute[attrIDX].buffer_data.values);
 
     } else if (DP_attribute[attrIDX].buffer_data.buffer_end <= DP_Queue[q_i][5]
-            && DP_attribute[attrIDX].buffer_data.buffer_end === DP_Queue[q_i][4]
-            && DP_attribute[attrIDX].buffer_data.values.length > 0) {
+      && DP_attribute[attrIDX].buffer_data.buffer_end === DP_Queue[q_i][4]
+      && DP_attribute[attrIDX].buffer_data.values.length > 0) {
 
       DP_attribute[attrIDX].buffer_data.buffer_end = DP_Queue[q_i][5];
       DP_attribute[attrIDX].buffer_data.timestamps = DP_attribute[attrIDX].buffer_data.timestamps.concat(data.timestamps);
@@ -973,18 +904,17 @@ function setSerienData(p_attr, serieObj) {
 
   // Define BufferLink
   var buffer = DP_attribute[p_attr].buffer_data;
-  var arrStart;
-  var arrEnd;
+
+  // get start and end position over binary search
+  var arrStart = sortedIndex(buffer.timestamps, datStart);
+  var arrEnd = sortedIndex(buffer.timestamps, datEnd);
+
   var i;
   var t;
   var last_value;
   var last_time;
   // collect all timesstamps and Values
   if (aggrType === 0) {
-
-    // get start and end position over binary search
-    arrStart = sortedIndex(buffer.timestamps, datStart);
-    arrEnd = sortedIndex(buffer.timestamps, datEnd);
 
     if (arrStart > 0 && datStart != buffer.timestamps[arrStart]) {
       arr.push([datStart - backSec, (buffer.values[arrStart - 1] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
@@ -996,9 +926,6 @@ function setSerienData(p_attr, serieObj) {
     // no aggregation but rounded to min, better for mouse over sync to other lines
   } else if (aggrType === 6) {
 
-    // get start and end position over binary search
-    arrStart = sortedIndex(buffer.timestamps, datStart);
-    arrEnd = sortedIndex(buffer.timestamps, datEnd);
     for (i = arrStart; i <= arrEnd; i++) {
 
       var timestamprounded = Math.round((buffer.timestamps[i] - backSec) / 60000) * 60000;
@@ -1007,10 +934,6 @@ function setSerienData(p_attr, serieObj) {
     }
     // Delta +/-
   } else if (aggrType === 2) {
-
-    // get start and end position if buffer over binary search
-    arrStart = sortedIndex(buffer.timestamps, datStart);
-    arrEnd = sortedIndex(buffer.timestamps, datEnd);
 
     // only if values found
     if (arrStart < buffer.timestamps.length) {
@@ -1038,10 +961,6 @@ function setSerienData(p_attr, serieObj) {
 
     // Delta +
   } else if (aggrType === 7) {
-
-    // get start and end position if buffer over binary search
-    arrStart = sortedIndex(buffer.timestamps, datStart);
-    arrEnd = sortedIndex(buffer.timestamps, datEnd);
 
     // only if values found
     if (arrStart < buffer.timestamps.length) {
@@ -1073,10 +992,6 @@ function setSerienData(p_attr, serieObj) {
 
     // collect all timesstamps and Values for TIME_ON Aggregation
   } else if (aggrType === 5) {
-
-    // get start and end position if buffer over binary search
-    arrStart = sortedIndex(buffer.timestamps, datStart);
-    arrEnd = sortedIndex(buffer.timestamps, datEnd);
 
     // only if values found
     if (arrStart < buffer.timestamps.length) {
@@ -1133,27 +1048,25 @@ function setSerienData(p_attr, serieObj) {
 
   } else {
 
-    // get start and end position over binary search
-    arrStart = sortedIndex(buffer.timestamps, datStart);
-    arrEnd = sortedIndex(buffer.timestamps, datEnd);
+    if (arrStart < buffer.timestamps.length) {
+      last_value = buffer.values[arrStart];
+      last_time = buffer.timestamps[arrStart];
 
-    last_value = buffer.values[arrStart];
-    last_time = buffer.timestamps[arrStart];
+      for (i = arrStart; i <= arrEnd; i++) {
 
-    for (i = arrStart; i <= arrEnd; i++) {
-
-      // fill long empty periods with last_value, that aggregation works
-      if ((buffer.timestamps[i] - last_time) > 600000) {
-        last_time = Math.round((last_time + 600000) / 60000) * 60000;
-        for (t = last_time; t < buffer.timestamps[i] - 300000; t = t + 600000) {
-          arr.push([t - backSec, last_value]);
+        // fill long empty periods with last_value, that aggregation works
+        if ((buffer.timestamps[i] - last_time) > 600000) {
+          last_time = Math.round((last_time + 600000) / 60000) * 60000;
+          for (t = last_time; t < buffer.timestamps[i] - 300000; t = t + 600000) {
+            arr.push([t - backSec, last_value]);
+          }
         }
+
+        last_value = (buffer.values[i] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset;
+        last_time = buffer.timestamps[i];
+
+        arr.push([buffer.timestamps[i] - backSec, last_value]);
       }
-
-      last_value = (buffer.values[i] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset;
-      last_time = buffer.timestamps[i];
-
-      arr.push([buffer.timestamps[i] - backSec, last_value]);
     }
   }
 
@@ -1253,7 +1166,7 @@ function getDataH2(p_series, p_attrID, p_attr, datStart, datEnd) {
     async: true,
     error: function(xhr, status, error) {
       ajaxErrorOutput(xhr, status, error);
-      },
+    },
     success: function(result) {
       if (!result.result) {
         console.log(result);
@@ -1332,7 +1245,7 @@ function requestData() {
     async: true,
     error: function(xhr, status, error) {
       ajaxErrorOutput(xhr, status, error);
-      },
+    },
     success: function(result) {
       requestData2(result);
     }
@@ -1368,7 +1281,7 @@ function requestSettings() {
     async: true,
     error: function(xhr, status, error) {
       ajaxErrorOutput(xhr, status, error);
-      },
+    },
     success: function(result) {
       let strSetNew;
       // Get Settings from H2 database as String
@@ -1699,7 +1612,7 @@ function parseDataPoints() {
   }
 
   // Sort on Rooms
-  DP_rooms.sort(function(a,b) { sortLowercase(a, b); });
+  DP_rooms.sort(function(a, b) { sortLowercase(a, b); });
 
   var text = '';
   var select = document.getElementById("Select-Raum");
@@ -1716,7 +1629,7 @@ function parseDataPoints() {
   }
 
   // Sort on Gewerk
-  DP_gewerk.sort(function(a,b) { sortLowercase(a, b); });
+  DP_gewerk.sort(function(a, b) { sortLowercase(a, b); });
 
   select = document.getElementById("Select-Gewerk");
   select.options[select.options.length] = new Option(ChhLanguage.default.historian.functionALL, 'ALLES');
@@ -1753,8 +1666,8 @@ function parseDataPoints() {
           if (text2.length > 0) {
 
             var DP_pos = DP_point.findIndex(obj => obj.idx.toString().toUpperCase() === dp_id.toString().toUpperCase()
-                                                 || ((obj.attributes.displayName) && obj.attributes.displayName.toUpperCase() === dp_id.toUpperCase())
-                                                 || (obj.id.address + '.' + obj.id.identifier).toUpperCase() === dp_id.toUpperCase());
+              || ((obj.attributes.displayName) && obj.attributes.displayName.toUpperCase() === dp_id.toUpperCase())
+              || (obj.id.address + '.' + obj.id.identifier).toUpperCase() === dp_id.toUpperCase());
             if (DP_pos != -1) {
               dp_id = DP_point[DP_pos].idx.toString();
             }
@@ -2971,8 +2884,8 @@ function saveLine() {
       data: postData,
       cache: false,
       async: true,
-    error: function(xhr, status, error) {
-      ajaxErrorOutput(xhr, status, error);
+      error: function(xhr, status, error) {
+        ajaxErrorOutput(xhr, status, error);
       },
       success: function(result) {
         console.log(result);
@@ -3116,8 +3029,8 @@ function saveSettingsH2() {
       data: postData,
       cache: false,
       async: true,
-    error: function(xhr, status, error) {
-      ajaxErrorOutput(xhr, status, error);
+      error: function(xhr, status, error) {
+        ajaxErrorOutput(xhr, status, error);
       },
       success: function(result) {
         console.log(result);
@@ -3964,7 +3877,7 @@ function checkZeitraum(rangInfo) {
     DP_Button_Jump = true;
     return false;
   }
-return true;
+  return true;
 }
 
 $(window).resize(function() {
@@ -4022,4 +3935,76 @@ function clickShowDialogYAxis(sobj) {
     }
   }
   return true;
+}
+
+function toolTipInfo(sobj) {
+  let xDate = new Date(sobj.x + (getComparisionBackDay(sobj.series.options.id.split('_')[0])));
+
+  let txta = "<span style='fill:" + sobj.color + "'>\u25CF </span>"
+    + sobj.series.name + ": <b>"
+    + Highcharts.numberFormat(sobj.y, 2, ",", ".") + " "
+    + sobj.series.tooltipOptions.valueSuffix + "</b><br/>";
+
+  if (sobj.series.hasGroupedData) {
+
+    let lAggrType = '';
+    if (sobj.series.options.id) {
+      let attr = DP_attribute.findIndex(obj => obj.id === sobj.series.options.id.toString());
+      lAggrType = 0;
+      if (attr != -1) {
+        lAggrType = parseInt(DP_attribute[attr].aggr.substr(1, 2));
+      }
+    }
+
+    let pointRange;
+    if (sobj.series.currentDataGrouping.totalRange) {
+      pointRange = sobj.series.currentDataGrouping.totalRange;
+    }
+
+    let xEnde = Highcharts.dateFormat('%H:%M', xDate.getTime() + pointRange);
+    if (xEnde == '00:00') {
+      xEnde = '24:00';
+    }
+
+    // get Timeframe text
+    if (pointRange < 3600000) {
+      txta += "<b>" + Highcharts.dateFormat('%A, %e. %b %Y, %H:%M', xDate) + '-' + xEnde + "</b>";
+    } else if (pointRange < 86400000) {
+      txta += "<b>" + Highcharts.dateFormat('%A, %e. %b %Y, %H:%M', xDate) + '-' + xEnde + "</b>";
+    } else if (pointRange < 86400000 * 20) {
+      txta += "<b>" + Highcharts.dateFormat('%e. %b', xDate) + '-'
+        + Highcharts.dateFormat('%e. %b %Y', xDate.getTime() + pointRange - 86400000) + "</b>";
+    } else {
+      txta += "<b>" + Highcharts.dateFormat('%b %Y', xDate) + "</b>";
+    }
+
+    // get Aggregation Symbol
+    txta += '<i> (<b>';
+    if (lAggrType == 1) { txta += jQuery('<div/>').html('&#x00d8; ').text(); }
+    // average
+    if (lAggrType == 2) { txta += jQuery('<div/>').html('&#x0394; ').text(); }
+    // delta
+    if (lAggrType == 3) { txta += jQuery('<div/>').html('&#x03a8; ').text(); }
+    // min/max
+    if (lAggrType == 4) { txta += jQuery('<div/>').html('&#x01a9; ').text(); }
+    // sum
+    if (lAggrType == 5) { txta += jQuery('<div/>').html('&#x01ac; ').text(); }
+    // TIME_ON
+    if (lAggrType == 6) { txta += jQuery('<div/>').html('&#x2248; ').text(); }
+    // delta+
+    if (lAggrType == 7) { txta += jQuery('<div/>').html('&#x2359; ').text(); }
+
+    if (sobj.series.currentDataGrouping) {
+      let text = sobj.series.currentDataGrouping.unitName + ((sobj.series.currentDataGrouping.count > 1) ? '2' : '').toString();
+      if (ChhLanguage.default.highcharts['aggr' + text]) {
+        text = ChhLanguage.default.highcharts['aggr' + text];
+      }
+      txta += '</b> ' + sobj.series.currentDataGrouping.count + ' ' + text;
+    }
+    txta += ")</i><br/>";
+
+  } else {
+    txta += "<b>" + Highcharts.dateFormat('%A, %b %e, %H:%M:%S', xDate) + "</b>";
+  }
+  return txta;
 }
