@@ -283,4 +283,4 @@ var ChhLanguage = {
       aggrsecond2: 'Sekunden',
     }
   }
-}; 
+};
