@@ -9,7 +9,7 @@ var H2_refreshSec = 60;
 // Refresh Time is enabled
 
 // declare global Variables
-var H2_version = 'v4.5';
+var H2_version = 'v5.0';
 var chart;
 var filter_feld = '';
 var DP_point = [];
@@ -1214,6 +1214,11 @@ function requestInitData() {
     }
   } else {
     requestData();
+  }
+
+  // show HighChart Stock Tools hidden
+  if (chart.stockTools) {
+    chart.stockTools.showhideBtn.click();
   }
 }
 
@@ -3455,6 +3460,17 @@ function chartSetOptions() {
     chart: {
       events: {
         load: requestInitData,
+        beforePrint: function () {
+           if ( window.DP_Themes.transparent ) {
+           	 DP_Theme_Print = Highcharts.merge(window.DP_Themes.Standard, window.DP_Themes.transparent);
+             this.update(DP_Theme_Print);
+           }
+        },
+        afterPrint: function () {
+           this.update(DP_Theme_Setting);
+			  chartSetOptions();
+			  chartSetElements();
+        }
       },
       panning: true,
       panKey: 'shift',
@@ -3577,7 +3593,7 @@ function chartSetOptions() {
               createUrl();
               return true;
             },
-          }, "separator", "viewFullscreen", "printChart", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG",]
+          }, "separator", "viewFullscreen", "printChart", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG", "separator", "downloadCSV", "downloadXLS", "viewData"]
         }
       }
     },
@@ -3660,7 +3676,12 @@ function chartSetOptions() {
       data: [],
       yAxis: 0,
       visible: false,
-    }]
+    }],
+    stockTools: {
+		gui: {
+        iconsURL: 'stock-tools/stock-icons/'
+      }
+    }
   });
 
 }

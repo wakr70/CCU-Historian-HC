@@ -19,6 +19,8 @@ renderer.head={
   title 'CCU-historian: HighChart'
   script { mkp.yieldUnescaped js }
   meta('http-equiv':'"expires" content="4500"') 
+  link(rel: 'stylesheet', href: 'stock-tools/popup.css')
+  link(rel: 'stylesheet', href: 'stock-tools/gui.css')
 }
 
 renderer.content={
@@ -230,6 +232,15 @@ renderer.end={
   script src:'highcharts-more.js'
   script src:'exporting.js'
   script src:'offline-exporting.js'
+  script src:'modules/export-data.js'
+  script src:'modules/debugger.js'
+  script src:'modules/boost.js'
+  script src:'stock-tools/indicators-all.js'
+  script src:'stock-tools/drag-panes.js'
+  script src:'stock-tools/annotations-advanced.js'
+  script src:'stock-tools/price-indicator.js'
+  script src:'stock-tools/full-screen.js'
+  script src:'stock-tools/stock-tools.js'
   script src:'language.js'
   script src:'themes.js'
   script src:'H2-HighChart.js'

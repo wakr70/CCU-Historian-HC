@@ -1,4 +1,4 @@
-var ChhLanguage = { 
+var ChhLanguage = {
   'default': {
     'interface': {
       'search': 'Suche',
