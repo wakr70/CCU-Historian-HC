@@ -9,7 +9,7 @@ var H2_refreshSec = 60;
 // Refresh Time is enabled
 
 // declare global Variables
-var H2_version = 'v4.4';
+var H2_version = 'v4.5';
 var chart;
 var filter_feld = '';
 var DP_point = [];
