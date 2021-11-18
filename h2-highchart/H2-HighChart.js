@@ -2,6 +2,10 @@
  * HighChart javascripts by wak 2019-2021
  ************************************/
 
+/* define SLINT globals do avoid issues */
+/* global ChhLanguage:false, DP_Themes:false */
+/* eslint-env browser */
+
 // Setup H2 Database Services, default set to same server as this webpage and port 8082
 var H2_server = location.hostname;
 var H2_port = (location.port === "") ? "80" : location.port;
@@ -42,13 +46,14 @@ var DP_Title = '';
 var DP_Subtitle = '';
 var DP_Loading = 0;
 var DP_Button_Jump = false;
+
 var DP_yAxis = [{
   position: false,
   limit: 0,
   min: 0,
   max: 0,
   tick: 11,
-  text: ChhLanguage.default.highcharts.yaxis0,
+  text: window.ChhLanguage.default.highcharts.yaxis0,
   color: 1,
   type: 0
 }, {
@@ -57,7 +62,7 @@ var DP_yAxis = [{
   min: 10,
   max: 30,
   tick: 11,
-  text: ChhLanguage.default.highcharts.yaxis1,
+  text: window.ChhLanguage.default.highcharts.yaxis1,
   color: 1,
   type: 0
 }, {
@@ -66,7 +71,7 @@ var DP_yAxis = [{
   min: -20,
   max: 50,
   tick: 11,
-  text: ChhLanguage.default.highcharts.yaxis2,
+  text: window.ChhLanguage.default.highcharts.yaxis2,
   color: 1,
   type: 0
 }, {
@@ -75,7 +80,7 @@ var DP_yAxis = [{
   min: 20,
   max: 90,
   tick: 11,
-  text: ChhLanguage.default.highcharts.yaxis3,
+  text: window.ChhLanguage.default.highcharts.yaxis3,
   color: 1,
   type: 0
 }, {
@@ -84,7 +89,7 @@ var DP_yAxis = [{
   min: 0,
   max: 100,
   tick: 11,
-  text: ChhLanguage.default.highcharts.yaxis4,
+  text: window.ChhLanguage.default.highcharts.yaxis4,
   color: 1,
   type: 0
 }, {
@@ -93,7 +98,7 @@ var DP_yAxis = [{
   min: 0,
   max: 2,
   tick: 11,
-  text: ChhLanguage.default.highcharts.yaxis5,
+  text: window.ChhLanguage.default.highcharts.yaxis5,
   color: 1,
   type: 0
 }, {
@@ -102,7 +107,7 @@ var DP_yAxis = [{
   min: 20,
   max: 100,
   tick: 11,
-  text: ChhLanguage.default.highcharts.yaxis6,
+  text: window.ChhLanguage.default.highcharts.yaxis6,
   color: 1,
   type: 0
 }, {
@@ -111,7 +116,7 @@ var DP_yAxis = [{
   min: 900,
   max: 1000,
   tick: 11,
-  text: ChhLanguage.default.highcharts.yaxis7,
+  text: window.ChhLanguage.default.highcharts.yaxis7,
   color: 1,
   type: 0
 }, {
@@ -120,7 +125,7 @@ var DP_yAxis = [{
   min: 0,
   max: 5000,
   tick: 11,
-  text: ChhLanguage.default.highcharts.yaxis8,
+  text: window.ChhLanguage.default.highcharts.yaxis8,
   color: 1,
   type: 0
 }, {
@@ -129,7 +134,7 @@ var DP_yAxis = [{
   min: 300,
   max: 3000,
   tick: 11,
-  text: ChhLanguage.default.highcharts.yaxis9,
+  text: window.ChhLanguage.default.highcharts.yaxis9,
   color: 1,
   type: 0
 }, {
@@ -138,7 +143,7 @@ var DP_yAxis = [{
   min: 3,
   max: 15,
   tick: 11,
-  text: ChhLanguage.default.highcharts.yaxis10,
+  text: window.ChhLanguage.default.highcharts.yaxis10,
   color: 1,
   type: 0
 }, {
@@ -147,7 +152,7 @@ var DP_yAxis = [{
   min: 0,
   max: 0,
   tick: 11,
-  text: ChhLanguage.default.highcharts.yaxis11,
+  text: window.ChhLanguage.default.highcharts.yaxis11,
   color: 1,
   type: 0
 }, {
@@ -156,7 +161,7 @@ var DP_yAxis = [{
   min: 0,
   max: 0,
   tick: 11,
-  text: ChhLanguage.default.highcharts.yaxis12,
+  text: window.ChhLanguage.default.highcharts.yaxis12,
   color: 1,
   type: 1
 }, {
@@ -165,7 +170,7 @@ var DP_yAxis = [{
   min: 0,
   max: 0,
   tick: 11,
-  text: ChhLanguage.default.highcharts.yaxis13,
+  text: window.ChhLanguage.default.highcharts.yaxis13,
   color: 1,
   type: 0
 }, {
@@ -174,7 +179,7 @@ var DP_yAxis = [{
   min: 0,
   max: 0,
   tick: 11,
-  text: ChhLanguage.default.highcharts.yaxis14,
+  text: window.ChhLanguage.default.highcharts.yaxis14,
   color: 1,
   type: 0
 }, {
@@ -183,7 +188,7 @@ var DP_yAxis = [{
   min: 0,
   max: 0,
   tick: 11,
-  text: ChhLanguage.default.highcharts.yaxis15,
+  text: window.ChhLanguage.default.highcharts.yaxis15,
   color: 1,
   type: 0
 }, {
@@ -192,7 +197,7 @@ var DP_yAxis = [{
   min: 0,
   max: 0,
   tick: 11,
-  text: ChhLanguage.default.highcharts.yaxis16,
+  text: window.ChhLanguage.default.highcharts.yaxis16,
   color: 1,
   type: 0
 }, {
@@ -201,7 +206,7 @@ var DP_yAxis = [{
   min: 0,
   max: 0,
   tick: 11,
-  text: ChhLanguage.default.highcharts.yaxis17,
+  text: window.ChhLanguage.default.highcharts.yaxis17,
   color: 1,
   type: 0
 }, {
@@ -210,7 +215,7 @@ var DP_yAxis = [{
   min: 0,
   max: 0,
   tick: 11,
-  text: ChhLanguage.default.highcharts.yaxis18,
+  text: window.ChhLanguage.default.highcharts.yaxis18,
   color: 1,
   type: 0
 }, {
@@ -219,7 +224,7 @@ var DP_yAxis = [{
   min: 0,
   max: 0,
   tick: 11,
-  text: ChhLanguage.default.highcharts.yaxis19,
+  text: window.ChhLanguage.default.highcharts.yaxis19,
   color: 1,
   type: 0
 }];
@@ -227,11 +232,11 @@ var DP_yAxis_default = JSON.parse(JSON.stringify(DP_yAxis));
 
 function createChart() {
   if (DP_Theme != 'Standard' && window.DP_Themes[DP_Theme]) {
-    DP_Theme_Setting = Highcharts.merge(window.DP_Themes.Standard, window.DP_Themes[DP_Theme]);
+    DP_Theme_Setting = window.Highcharts.merge(window.DP_Themes.Standard, window.DP_Themes[DP_Theme]);
   } else {
-    DP_Theme_Setting = Highcharts.merge(window.DP_Themes.Standard, {});
+    DP_Theme_Setting = window.Highcharts.merge(window.DP_Themes.Standard, {});
   }
-  Highcharts.setOptions(DP_Theme_Setting);
+  window.Highcharts.setOptions(DP_Theme_Setting);
 
   chartSetOptions();
 
@@ -597,7 +602,7 @@ function addSerie(DP, DP_type) {
   if (DP_type.substr(0, 1) === 'C') {
     serienName = (DP.id.interfaceId === "SysVar")
       ? (DP.attributes.displayName)
-      : (DP.attributes.displayName + '.' + DP.id.identifier) + '(' + ChhLanguage.default.historian['comptype' + DP_type] + ')';
+      : (DP.attributes.displayName + '.' + DP.id.identifier) + '(' + window.ChhLanguage.default.historian['comptype' + DP_type] + ')';
   } else if (DP.id.interfaceId === "SysVar") {
     serienName = DP.attributes.displayName;
   } else {
@@ -668,7 +673,7 @@ function defineDataLabels() {
         "color": null,
       },
       formatter: function() {
-        return Highcharts.numberFormat(this.y, 1);
+        return window.Highcharts.numberFormat(this.y, 1);
       }
     };
   }
@@ -871,14 +876,14 @@ function bufferSerienData(id, data) {
 
 function setSerienData(p_attr, serieObj) {
 
-  var aggrType = parseInt(DP_attribute[p_attr].aggr.substr(1, 2));
-  var compType = DP_attribute[p_attr].comp;
+  let aggrType = parseInt(DP_attribute[p_attr].aggr.substr(1, 2));
+  let compType = DP_attribute[p_attr].comp;
 
-  var datStart = Zeitraum_Start.getTime();
-  var datEnd = Zeitraum_Ende.getTime();
+  let datStart = Zeitraum_Start.getTime();
+  let datEnd = Zeitraum_Ende.getTime();
 
-  var arr = [];
-  var backSec = 0;
+  let arr = [];
+  let backSec = 0;
 
   if (typeof serieObj.options === 'undefined') {
     return;
@@ -896,178 +901,42 @@ function setSerienData(p_attr, serieObj) {
     datStart += backSec;
     datEnd += backSec;
 
-    var attr2 = DP_attribute.findIndex(obj => obj.id === serieObj.options.id.toString());
+    let attr2 = DP_attribute.findIndex(obj => obj.id === serieObj.options.id.toString());
     if (attr2) {
       aggrType = parseInt(DP_attribute[attr2].aggr.substr(1, 2));
     }
   }
 
-  // Define BufferLink
-  var buffer = DP_attribute[p_attr].buffer_data;
-
-  // get start and end position over binary search
-  var arrStart = sortedIndex(buffer.timestamps, datStart);
-  var arrEnd = sortedIndex(buffer.timestamps, datEnd);
-
-  var i;
-  var t;
-  var last_value;
-  var last_time;
-  // collect all timesstamps and Values
+    // collect all timesstamps and Values - no aggregation
   if (aggrType === 0) {
 
-    if (arrStart > 0 && datStart != buffer.timestamps[arrStart]) {
-      arr.push([datStart - backSec, (buffer.values[arrStart - 1] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
-    }
-    for (i = arrStart; i <= arrEnd; i++) {
-      arr.push([buffer.timestamps[i] - backSec, (buffer.values[i] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
-    }
+    arr = setSerienDataAggr0(p_attr, datStart, datEnd, backSec);
 
-    // no aggregation but rounded to min, better for mouse over sync to other lines
-  } else if (aggrType === 6) {
-
-    for (i = arrStart; i <= arrEnd; i++) {
-
-      var timestamprounded = Math.round((buffer.timestamps[i] - backSec) / 60000) * 60000;
-      arr.push([timestamprounded, (buffer.values[i] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
-
-    }
     // Delta +/-
   } else if (aggrType === 2) {
 
-    // only if values found
-    if (arrStart < buffer.timestamps.length) {
-      last_value = buffer.values[arrStart];
-      last_time = buffer.timestamps[arrStart];
-
-      for (i = arrStart + 1; i <= arrEnd; i++) {
-
-        if (buffer.timestamps[i] >= datStart && buffer.timestamps[i] <= datEnd) {
-          // fill missing times with delta 0 every 10 min.
-          if ((buffer.timestamps[i] - last_time) > 600000) {
-            last_time = Math.round((last_time + 600000) / 60000) * 60000;
-            for (t = last_time; t < buffer.timestamps[i]; t = t + 600000) {
-              arr.push([t, 0]);
-            }
-          }
-
-          arr.push([buffer.timestamps[i] - backSec, ((buffer.values[i] - last_value) * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
-
-          last_value = buffer.values[i];
-          last_time = buffer.timestamps[i];
-        }
-      }
-    }
-
-    // Delta +
-  } else if (aggrType === 7) {
-
-    // only if values found
-    if (arrStart < buffer.timestamps.length) {
-      last_value = buffer.values[arrStart];
-      last_time = buffer.timestamps[arrStart];
-
-      for (i = arrStart + 1; i <= arrEnd; i++) {
-
-        if (buffer.timestamps[i] >= datStart && buffer.timestamps[i] <= datEnd) {
-          // fill missing times with delta 0 every 10 min.
-          if ((buffer.timestamps[i] - last_time) > 600000) {
-            last_time = Math.round((last_time + 600000) / 60000) * 60000;
-            for (t = last_time; t < buffer.timestamps[i]; t = t + 600000) {
-              arr.push([t, 0]);
-            }
-          }
-
-          // only + values, - are ignored
-          var delta_val = ((buffer.values[i] - last_value) * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset;
-          if (delta_val >= 0) {
-            arr.push([buffer.timestamps[i] - backSec, delta_val]);
-          }
-
-          last_value = buffer.values[i];
-          last_time = buffer.timestamps[i];
-        }
-      }
-    }
+    arr = setSerienDataAggr2(p_attr, datStart, datEnd, backSec);
 
     // collect all timesstamps and Values for TIME_ON Aggregation
   } else if (aggrType === 5) {
 
-    // only if values found
-    if (arrStart < buffer.timestamps.length) {
+    arr = setSerienDataAggr5(p_attr, datStart, datEnd, backSec);
 
-      last_value = (buffer.values[arrStart] > 0) ? 1 : 0;
-      last_time = buffer.timestamps[arrStart];
+    // no aggregation but rounded to min, better for mouse over sync to other lines
+  } else if (aggrType === 6) {
 
-      for (i = arrStart + 1; i <= arrEnd; i++) {
-        if (last_value > 0 && buffer.values[i] === 0) {
+    arr = setSerienDataAggr6(p_attr, datStart, datEnd, backSec);
 
-          last_value = buffer.timestamps[i] - last_time;
-          // fill every minute with 1 as run time
-          if (last_value > 60000) {
-            for (t = last_time; t < buffer.timestamps[i] - 60000; t = t + 60000) {
-              arr.push([t - backSec, (1 * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
-              last_value -= 60000;
-            }
-          }
-          if (last_value > 0) {
-            arr.push([t - backSec, (Math.round(last_value / 60) / 1000 * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
-          }
-          last_value = 0;
-          last_time = buffer.timestamps[i];
+    // Delta +
+  } else if (aggrType === 7) {
 
-        } else if (last_value === 0 && buffer.values[i] > 0) {
+    arr = setSerienDataAggr7(p_attr, datStart, datEnd, backSec);
 
-          last_value = buffer.timestamps[i] - last_time;
-          // fill every minute with 1 as run time
-          if (last_value > 60000) {
-            for (t = last_time; t < buffer.timestamps[i] - 60000; t = t + 60000) {
-              arr.push([t - backSec, 0]);
-              last_value -= 60000;
-            }
-          }
-
-          last_value = 1;
-          last_time = buffer.timestamps[i];
-        }
-      }
-      // fill also last minutes if still on
-      if (last_value > 0) {
-        last_value = datEnd - last_time;
-        if (last_value > 60000) {
-          for (t = last_time; t < arrEnd - 60000; t = t + 60000) {
-            arr.push([t - backSec, (1 * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
-            last_value -= 60000;
-          }
-        }
-        if (last_value > 0) {
-          arr.push([t - backSec, (Math.round(last_value / 60) / 1000 * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
-        }
-      }
-    }
-
+    // default aggregation, repeat it to timeslots at least all 10 min
   } else {
 
-    if (arrStart < buffer.timestamps.length) {
-      last_value = buffer.values[arrStart];
-      last_time = buffer.timestamps[arrStart];
+    arr = setSerienDataAggr1(p_attr, datStart, datEnd, backSec);
 
-      for (i = arrStart; i <= arrEnd; i++) {
-
-        // fill long empty periods with last_value, that aggregation works
-        if ((buffer.timestamps[i] - last_time) > 600000) {
-          last_time = Math.round((last_time + 600000) / 60000) * 60000;
-          for (t = last_time; t < buffer.timestamps[i] - 300000; t = t + 600000) {
-            arr.push([t - backSec, last_value]);
-          }
-        }
-
-        last_value = (buffer.values[i] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset;
-        last_time = buffer.timestamps[i];
-
-        arr.push([buffer.timestamps[i] - backSec, last_value]);
-      }
-    }
   }
 
   if (arr.length > 0) {
@@ -1089,17 +958,260 @@ function setSerienData(p_attr, serieObj) {
   // read data for comp series
   if (DP_attribute[p_attr].comp != 'C0' && (serieObj.options.id.toString().substr(0, 1) != 'C')) {
 
-    var sobj = chart.get(DP_attribute[p_attr].comp + '_' + DP_attribute[p_attr].id);
-    var attrC = DP_attribute.findIndex(obj => obj.id === DP_attribute[p_attr].comp + '_' + DP_attribute[p_attr].id);
+    let sobj = chart.get(DP_attribute[p_attr].comp + '_' + DP_attribute[p_attr].id);
+    let attrC = DP_attribute.findIndex(obj => obj.id === DP_attribute[p_attr].comp + '_' + DP_attribute[p_attr].id);
     if (sobj && attrC != -1 && DP_attribute[attrC].comp === 'C0' && DP_attribute[attrC].visible === 2) {
       setSerienData(p_attr, sobj);
     }
   }
 }
 
+// collect all timesstamps and Values
+function setSerienDataAggr0(p_attr, datStart, datEnd, backSec) {
+
+  let arr = [];
+
+  // Define BufferLink
+  let buffer = DP_attribute[p_attr].buffer_data;
+
+  // get start and end position over binary search
+  let arrStart;
+  arrStart = sortedIndex(buffer.timestamps, datStart);
+  let arrEnd;
+  arrEnd = sortedIndex(buffer.timestamps, datEnd);
+
+  if (arrStart > 0 && datStart != buffer.timestamps[arrStart]) {
+    arr.push([datStart - backSec, (buffer.values[arrStart - 1] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
+  }
+  for (let i = arrStart; i <= arrEnd; i++) {
+    arr.push([buffer.timestamps[i] - backSec, (buffer.values[i] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
+  }
+
+  return arr;
+}
+
+// default aggregation, repeat it to timeslots at least all 10 min
+function setSerienDataAggr1(p_attr, datStart, datEnd, backSec) {
+
+  let arr = [];
+
+  // Define BufferLink
+  let buffer = DP_attribute[p_attr].buffer_data;
+
+  // get start and end position over binary search
+  let arrStart;
+  arrStart = sortedIndex(buffer.timestamps, datStart);
+  let arrEnd;
+  arrEnd = sortedIndex(buffer.timestamps, datEnd);
+
+  if (arrStart < buffer.timestamps.length) {
+    let last_value = buffer.values[arrStart];
+    let last_time = buffer.timestamps[arrStart];
+
+    for (let i = arrStart; i <= arrEnd; i++) {
+
+      // fill long empty periods with last_value, that aggregation works
+      if ((buffer.timestamps[i] - last_time) > 600000) {
+        last_time = Math.round((last_time + 600000) / 60000) * 60000;
+        for (let t = last_time; t < buffer.timestamps[i] - 300000; t = t + 600000) {
+          arr.push([t - backSec, last_value]);
+        }
+      }
+
+      last_value = (buffer.values[i] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset;
+      last_time = buffer.timestamps[i];
+
+      arr.push([buffer.timestamps[i] - backSec, last_value]);
+    }
+  }
+
+  return arr;
+}
+
+// Delta +/-
+function setSerienDataAggr2(p_attr, datStart, datEnd, backSec) {
+
+  let arr = [];
+
+  // Define BufferLink
+  let buffer = DP_attribute[p_attr].buffer_data;
+
+  // get start and end position over binary search
+  let arrStart;
+  arrStart = sortedIndex(buffer.timestamps, datStart);
+  let arrEnd;
+  arrEnd = sortedIndex(buffer.timestamps, datEnd);
+
+  // only if values found
+  if (arrStart < buffer.timestamps.length) {
+    let last_value = buffer.values[arrStart];
+    let last_time = buffer.timestamps[arrStart];
+
+    for (let i = arrStart + 1; i <= arrEnd; i++) {
+
+      if (buffer.timestamps[i] >= datStart && buffer.timestamps[i] <= datEnd) {
+        // fill missing times with delta 0 every 10 min.
+        if ((buffer.timestamps[i] - last_time) > 600000) {
+          last_time = Math.round((last_time + 600000) / 60000) * 60000;
+          for (let t = last_time; t < buffer.timestamps[i]; t = t + 600000) {
+            arr.push([t, 0]);
+          }
+        }
+
+        arr.push([buffer.timestamps[i] - backSec, ((buffer.values[i] - last_value) * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
+
+        last_value = buffer.values[i];
+        last_time = buffer.timestamps[i];
+      }
+    }
+  }
+
+  return arr;
+}
+
+// collect all timesstamps and Values for TIME_ON Aggregation
+function setSerienDataAggr5(p_attr, datStart, datEnd, backSec) {
+
+  let arr = [];
+  let t = 0;
+
+  // Define BufferLink
+  let buffer = DP_attribute[p_attr].buffer_data;
+
+  // get start and end position over binary search
+  let arrStart;
+  arrStart = sortedIndex(buffer.timestamps, datStart);
+  let arrEnd;
+  arrEnd = sortedIndex(buffer.timestamps, datEnd);
+
+  // only if values found
+  if (arrStart < buffer.timestamps.length) {
+
+    let last_value = (buffer.values[arrStart] > 0) ? 1 : 0;
+    let last_time = buffer.timestamps[arrStart];
+
+    for (let i = arrStart + 1; i <= arrEnd; i++) {
+      if (last_value > 0 && buffer.values[i] === 0) {
+
+        last_value = buffer.timestamps[i] - last_time;
+        t = last_time;
+        // fill every minute with 1 as run time
+        if (last_value > 60000) {
+          for (t = last_time; t < buffer.timestamps[i] - 60000; t = t + 60000) {
+            arr.push([t - backSec, (1 * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
+            last_value -= 60000;
+          }
+        }
+        if (last_value > 0) {
+          arr.push([t - 1 - backSec, (Math.round(last_value / 60) / 1000 * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
+        }
+        last_value = 0;
+        last_time = buffer.timestamps[i];
+
+      } else if (last_value === 0 && buffer.values[i] > 0) {
+
+        last_value = buffer.timestamps[i] - last_time;
+        // fill every minute with 1 as run time
+        if (last_value > 60000) {
+          for (t = last_time; t < buffer.timestamps[i] - 60000; t = t + 60000) {
+            arr.push([t - backSec, 0]);
+            last_value -= 60000;
+          }
+        }
+
+        last_value = 1;
+        last_time = buffer.timestamps[i];
+      }
+    }
+    // fill also last minutes if still on
+    if (last_value > 0) {
+      last_value = datEnd - last_time;
+      if (last_value > 60000) {
+        for (t = last_time; t < datEnd - 60000; t = t + 60000) {
+          arr.push([t - backSec, (1 * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
+          last_value -= 60000;
+        }
+      }
+      if (last_value > 0) {
+        arr.push([datEnd - backSec, (Math.round(last_value / 60) / 1000 * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
+      }
+    }
+  }
+  return arr;
+}
+
+// no aggregation but rounded to min, better for mouse over sync to other lines
+function setSerienDataAggr6(p_attr, datStart, datEnd, backSec) {
+
+  let arr = [];
+
+  // Define BufferLink
+  let buffer = DP_attribute[p_attr].buffer_data;
+
+  // get start and end position over binary search
+  let arrStart;
+  arrStart = sortedIndex(buffer.timestamps, datStart);
+  let arrEnd;
+  arrEnd = sortedIndex(buffer.timestamps, datEnd);
+
+  for (let i = arrStart; i <= arrEnd; i++) {
+
+    let timestamprounded = Math.round((buffer.timestamps[i] - backSec) / 60000) * 60000;
+    arr.push([timestamprounded, (buffer.values[i] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
+
+  }
+
+  return arr;
+}
+
+// Delta +
+function setSerienDataAggr7(p_attr, datStart, datEnd, backSec) {
+
+  var arr = [];
+
+  // Define BufferLink
+  let buffer = DP_attribute[p_attr].buffer_data;
+
+  // get start and end position over binary search
+  let arrStart;
+  arrStart = sortedIndex(buffer.timestamps, datStart);
+  let arrEnd;
+  arrEnd = sortedIndex(buffer.timestamps, datEnd);
+
+  // only if values found
+  if (arrStart < buffer.timestamps.length) {
+    let last_value = buffer.values[arrStart];
+    let last_time = buffer.timestamps[arrStart];
+
+    for (let i = arrStart + 1; i <= arrEnd; i++) {
+
+      if (buffer.timestamps[i] >= datStart && buffer.timestamps[i] <= datEnd) {
+        // fill missing times with delta 0 every 10 min.
+        if ((buffer.timestamps[i] - last_time) > 600000) {
+          last_time = Math.round((last_time + 600000) / 60000) * 60000;
+          for (let t = last_time; t < buffer.timestamps[i]; t = t + 600000) {
+            arr.push([t, 0]);
+          }
+        }
+
+        // only + values, - are ignored
+        let delta_val = ((buffer.values[i] - last_value) * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset;
+        if (delta_val >= 0) {
+          arr.push([buffer.timestamps[i] - backSec, delta_val]);
+        }
+
+        last_value = buffer.values[i];
+        last_time = buffer.timestamps[i];
+      }
+    }
+  }
+  return arr;
+}
+
+
 // Find next timestamp in array by binary search
 function sortedIndex(array, value) {
-  var low = 0, high = array.length - 1, mid;
+  let low = 0, high = array.length - 1, mid;
   if (array[low] >= value) {
     return 0;
   }
@@ -1182,7 +1294,7 @@ function requestInitData() {
 
   if (DP_Navigator < 3) {
     document.getElementById("count_val").innerHTML = "0";
-    document.getElementById('count_text').innerHTML = ChhLanguage.default.historian.labelValues;
+    document.getElementById('count_text').innerHTML = window.ChhLanguage.default.historian.labelValues;
   } else {
     document.getElementById("count_val").innerHTML = "";
     document.getElementById('count_text').innerHTML = "";
@@ -1292,7 +1404,7 @@ function requestSettings() {
       // Get Settings from H2 database as String
       if (result.result) {
         try {
-          strSetNew = result.result.replace(new RegExp("'", 'g'), '"');
+          strSetNew = result.result.replace(/'/g, '"');
 
           if (strSetNew && strSetNew.substring(0, 2) === '{"') {
             DP_settings = JSON.parse(strSetNew);
@@ -1439,10 +1551,10 @@ function readLinkData() {
         filter_feld = decodeURIComponent(nv[1].toLowerCase());
       } else if (nv[0].toLowerCase() === 'title') {
         DP_Title = decodeURIComponent(nv[1]);
-        DP_Title = DP_Title.replace('§', '%');
+        DP_Title = DP_Title.replaceAll('§', '%').replaceAll('µ', '&');
       } else if (nv[0].toLowerCase() === 'subtitle') {
         DP_Subtitle = decodeURIComponent(nv[1]);
-        DP_Subtitle = DP_Subtitle.replace('§', '%');
+        DP_Subtitle = DP_Subtitle.replaceAll('§', '%').replaceAll('µ', '&');
       } else if (nv[0].toLowerCase() === 'legend') {
         if (decodeURIComponent(nv[1].toLowerCase()) === 'false') {
           DP_Legend = 0;
@@ -1568,7 +1680,6 @@ function requestData2(TXT_JSON) {
 
 
 function parseDataPoints() {
-
   var DP_rooms = [];
   var DP_gewerk = [];
   var t;
@@ -1576,7 +1687,6 @@ function parseDataPoints() {
   var c;
   var text2;
   var attr;
-
   DP_attribute = [];
 
   // Alle Serien aufbauen und Räume & Gewerke sammeln nur für anzeigbare
@@ -1623,12 +1733,12 @@ function parseDataPoints() {
   var select = document.getElementById("Select-Raum");
 
   // add default all and sysvar
-  select.options[select.options.length] = new Option(ChhLanguage.default.historian.roomALL, 'ALLES');
-  select.options[select.options.length] = new Option(ChhLanguage.default.historian.sysvarALL, 'SYSVAR');
+  select.options[select.options.length] = new Option(window.ChhLanguage.default.historian.roomALL, 'ALLES');
+  select.options[select.options.length] = new Option(window.ChhLanguage.default.historian.sysvarALL, 'SYSVAR');
   for (i = 0; i < DP_rooms.length; i++) {
     text = DP_rooms[i];
-    if (ChhLanguage.default.historian[text]) {
-      text = ChhLanguage.default.historian[text];
+    if (window.ChhLanguage.default.historian[text]) {
+      text = window.ChhLanguage.default.historian[text];
     }
     select.options[select.options.length] = new Option(text, DP_rooms[i]);
   }
@@ -1637,11 +1747,11 @@ function parseDataPoints() {
   DP_gewerk.sort(function(a, b) { sortLowercase(a, b); });
 
   select = document.getElementById("Select-Gewerk");
-  select.options[select.options.length] = new Option(ChhLanguage.default.historian.functionALL, 'ALLES');
+  select.options[select.options.length] = new Option(window.ChhLanguage.default.historian.functionALL, 'ALLES');
   for (i = 0; i < DP_gewerk.length; i++) {
     text = DP_gewerk[i];
-    if (ChhLanguage.default.historian[text]) {
-      text = ChhLanguage.default.historian[text];
+    if (window.ChhLanguage.default.historian[text]) {
+      text = window.ChhLanguage.default.historian[text];
     }
     select.options[select.options.length] = new Option(text, DP_gewerk[i]);
   }
@@ -1651,8 +1761,6 @@ function parseDataPoints() {
 
   var nv;
   var parts;
-  var k;
-  var j;
   // check parameter from get-link
   if (location.search) {
     parts = decodeURIComponent(location.search.substring(1)).split('&');
@@ -1664,113 +1772,13 @@ function parseDataPoints() {
       // nur noch DP Werte
       if (nv[0].toLowerCase() === 'dp') {
         text = decodeURIComponent(nv[1]).toLowerCase().split(',');
-        for (j = 0; j < text.length; j++) {
-          text2 = text[j].toUpperCase().split('|');
-          var dp_id = text2[0];
-
-          if (text2.length > 0) {
-
-            var DP_pos = DP_point.findIndex(obj => obj.idx.toString().toUpperCase() === dp_id.toString().toUpperCase()
-              || ((obj.attributes.displayName) && obj.attributes.displayName.toUpperCase() === dp_id.toUpperCase())
-              || (obj.id.address + '.' + obj.id.identifier).toUpperCase() === dp_id.toUpperCase());
-            if (DP_pos != -1) {
-              dp_id = DP_point[DP_pos].idx.toString();
-            }
-
-            var attrpos = DP_attribute.findIndex(obj => obj.id === dp_id);
-            if (attrpos === -1) {
-              if (DP_pos != -1) {
-                attr = defaultAttrib(DP_point[DP_pos], j, dp_id);
-              } else {
-                attr = defaultAttrib(-1, j, dp_id);
-              }
-
-              DP_attribute.push(attr);
-              attrpos = DP_attribute.findIndex(obj => obj.id === dp_id);
-            }
-            DP_attribute[attrpos].visible = 2;
-            for (k = 1; k < text2.length; k++) {
-              if (text2[k].substr(0, 1) === 'A') {
-                DP_attribute[attrpos].aggr = text2[k];
-              } else if (text2[k].substr(0, 1) === 'Y') {
-                DP_attribute[attrpos].yaxis = text2[k];
-              } else if (text2[k].substr(0, 1) === 'T') {
-                DP_attribute[attrpos].atime = text2[k];
-              } else if (text2[k].substr(0, 1) === 'F') {
-                DP_attribute[attrpos].color = text2[k];
-              } else if (text2[k].substr(0, 1) === 'C') {
-                DP_attribute[attrpos].comp = text2[k];
-              } else if (text2[k].substr(0, 1) === 'L') {
-                DP_attribute[attrpos].line = text2[k];
-              } else if (text2[k].substr(0, 1) === 'M') {
-                DP_attribute[attrpos].mark = text2[k];
-              } else if (text2[k].substr(0, 1) === 'D') {
-                DP_attribute[attrpos].dash = text2[k];
-              } else if (text2[k].substr(0, 1) === 'W') {
-                DP_attribute[attrpos].width = text2[k];
-              } else if (text2[k].substr(0, 1) === 'S') {
-                DP_attribute[attrpos].stack = parseInt(text2[k].substr(1, 2));
-              } else if (text2[k].substr(0, 1) === 'V') {
-                DP_attribute[attrpos].visible = parseInt(text2[k].substr(1, 1));
-              } else if (text2[k].substr(0, 1) === 'U') {
-                DP_attribute[attrpos].unit = decodeURIComponent(nv[1]).split(',')[j].split('|')[k].substr(1, 20).replace("§", "%");
-              } else if (text2[k].substr(0, 1) === 'X') {
-                DP_attribute[attrpos].factor = parseFloat(text2[k].substr(1, 10));
-              } else if (text2[k].substr(0, 1) === 'O') {
-                DP_attribute[attrpos].offset = parseFloat(text2[k].substr(1, 10));
-              }
-            }
-          }
-        }
+        parseDataPointsDP(text,nv);
 
         // parameter YAXIS
       } else if (nv[0].toLowerCase() === 'yaxis') {
         text = decodeURIComponent(nv[1]).toLowerCase().split(',');
-        for (j = 0; j < text.length; j++) {
-          text2 = text[j].toUpperCase().split('|');
-          var axis_id = parseInt(text2[0].substr(1, 2));
-          if (axis_id >= 0 && axis_id < DP_yAxis.length) {
-            if (text2.length > 0) {
-              for (k = 1; k < text2.length; k++) {
-                if (text2[k].substr(0, 1) === 'P') {
-                  if (text2[k].substr(1, 1) === '0') {
-                    DP_yAxis[axis_id].position = false;
-                  }
-                  if (text2[k].substr(1, 1) === '1') {
-                    DP_yAxis[axis_id].position = true;
-                  }
-                } else if (text2[k].substr(0, 1) === 'C') {
-                  if (text2[k].substr(1, 1) === '0') {
-                    DP_yAxis[axis_id].type = 0;
-                  }
-                  if (text2[k].substr(1, 1) === '1') {
-                    DP_yAxis[axis_id].type = 1;
-                  }
-                } else if (text2[k].substr(0, 1) === 'A') {
-                  if (text2[k].substr(1, 1) === '0') {
-                    DP_yAxis[axis_id].limit = 0;
-                  }
-                  if (text2[k].substr(1, 1) === '1') {
-                    DP_yAxis[axis_id].limit = 1;
-                  }
-                  if (text2[k].substr(1, 1) === '2') {
-                    DP_yAxis[axis_id].limit = 2;
-                  }
-                } else if (text2[k].substr(0, 1) === 'L') {
-                  DP_yAxis[axis_id].min = parseFloat(text2[k].substr(1, 15));
-                } else if (text2[k].substr(0, 1) === 'H') {
-                  DP_yAxis[axis_id].max = parseFloat(text2[k].substr(1, 15));
-                } else if (text2[k].substr(0, 1) === 'G') {
-                  DP_yAxis[axis_id].tick = parseInt(text2[k].substr(1, 15));
-                } else if (text2[k].substr(0, 1) === 'F') {
-                  DP_yAxis[axis_id].color = parseInt(text2[k].substr(1, 2));
-                } else if (text2[k].substr(0, 1) === 'T') {
-                  DP_yAxis[axis_id].text = decodeURIComponent(nv[1]).split(',')[j].split('|')[k].substr(1, 50).replace("§", "%");
-                }
-              }
-            }
-          }
-        }
+        parseDataPointsAxis(text,nv);
+
         // parameter Raum
       } else if (nv[0].toLowerCase() === 'room') {
         var DP_start_room = decodeURIComponent(nv[1].toLowerCase());
@@ -1827,7 +1835,7 @@ function parseDataPoints() {
     if (DP_yAxis[i].text != "" && DP_yAxis[i].text != null) {
       option.text = DP_yAxis[i].text;
     } else {
-      option.text = ChhLanguage.default.historian['yaxis' + i];
+      option.text = window.ChhLanguage.default.historian['yaxis' + i];
     }
     option.value = 'Y' + i;
     select.add(option);
@@ -1840,10 +1848,16 @@ function parseDataPoints() {
   changeEventRaumFilter();
 
   // check parameter Zoom from get-link
+  parseDataPointsZoom();
+
+}
+
+/*****/
+function parseDataPointsZoom() {
   if (location.search) {
-    parts = decodeURIComponent(location.search.substring(1)).split('&');
-    for (i = 0; i < parts.length; i++) {
-      nv = parts[i].split('=');
+    let parts = decodeURIComponent(location.search.substring(1)).split('&');
+    for (let part of parts) {
+      let nv = part.split('=');
       if (!nv[0]) {
         continue;
       }
@@ -1854,7 +1868,117 @@ function parseDataPoints() {
       }
     }
   }
+}
 
+/*****/
+function parseDataPointsDP(text,nv) {
+  for (let j = 0; j < text.length; j++) {
+    let text2 = text[j].toUpperCase().split('|');
+    let dp_id = text2[0];
+
+    if (text2.length > 0) {
+
+      let DP_pos = DP_point.findIndex(obj => obj.idx.toString().toUpperCase() === dp_id.toString().toUpperCase()
+        || ((obj.attributes.displayName) && obj.attributes.displayName.toUpperCase() === dp_id.toUpperCase())
+        || (obj.id.address + '.' + obj.id.identifier).toUpperCase() === dp_id.toUpperCase());
+      if (DP_pos != -1) {
+        dp_id = DP_point[DP_pos].idx.toString();
+      }
+      let attrpos = DP_attribute.findIndex(obj => obj.id === dp_id);
+      if (attrpos === -1) {
+        let attr;
+        if (DP_pos != -1) {
+          attr = defaultAttrib(DP_point[DP_pos], j, dp_id);
+        } else {
+          attr = defaultAttrib(-1, j, dp_id);
+        }
+
+        DP_attribute.push(attr);
+        attrpos = DP_attribute.findIndex(obj => obj.id === dp_id);
+      }
+      DP_attribute[attrpos].visible = 2;
+      for (let k = 1; k < text2.length; k++) {
+        if (text2[k].substr(0, 1) === 'A') {
+          DP_attribute[attrpos].aggr = text2[k];
+        } else if (text2[k].substr(0, 1) === 'Y') {
+          DP_attribute[attrpos].yaxis = text2[k];
+        } else if (text2[k].substr(0, 1) === 'T') {
+          DP_attribute[attrpos].atime = text2[k];
+        } else if (text2[k].substr(0, 1) === 'F') {
+          DP_attribute[attrpos].color = text2[k];
+        } else if (text2[k].substr(0, 1) === 'C') {
+          DP_attribute[attrpos].comp = text2[k];
+        } else if (text2[k].substr(0, 1) === 'L') {
+          DP_attribute[attrpos].line = text2[k];
+        } else if (text2[k].substr(0, 1) === 'M') {
+          DP_attribute[attrpos].mark = text2[k];
+        } else if (text2[k].substr(0, 1) === 'D') {
+          DP_attribute[attrpos].dash = text2[k];
+        } else if (text2[k].substr(0, 1) === 'W') {
+          DP_attribute[attrpos].width = text2[k];
+        } else if (text2[k].substr(0, 1) === 'S') {
+          DP_attribute[attrpos].stack = parseInt(text2[k].substr(1, 2));
+        } else if (text2[k].substr(0, 1) === 'V') {
+          DP_attribute[attrpos].visible = parseInt(text2[k].substr(1, 1));
+        } else if (text2[k].substr(0, 1) === 'U') {
+          DP_attribute[attrpos].unit = decodeURIComponent(nv[1]).split(',')[j].split('|')[k].substr(1, 20).replaceAll("§", "%").replaceAll('µ', '&');
+        } else if (text2[k].substr(0, 1) === 'X') {
+          DP_attribute[attrpos].factor = parseFloat(text2[k].substr(1, 10));
+        } else if (text2[k].substr(0, 1) === 'O') {
+          DP_attribute[attrpos].offset = parseFloat(text2[k].substr(1, 10));
+        }
+      }
+    }
+  }
+}
+
+/*****/
+function parseDataPointsAxis(text,nv) {
+  for (let j = 0; j < text.length; j++) {
+    let text2 = text[j].toUpperCase().split('|');
+    let axis_id = parseInt(text2[0].substr(1, 2));
+    if (axis_id >= 0 && axis_id < DP_yAxis.length) {
+      if (text2.length > 0) {
+        for (let k = 1; k < text2.length; k++) {
+          if (text2[k].substr(0, 1) === 'P') {
+            if (text2[k].substr(1, 1) === '0') {
+              DP_yAxis[axis_id].position = false;
+            }
+            if (text2[k].substr(1, 1) === '1') {
+              DP_yAxis[axis_id].position = true;
+            }
+          } else if (text2[k].substr(0, 1) === 'C') {
+            if (text2[k].substr(1, 1) === '0') {
+              DP_yAxis[axis_id].type = 0;
+            }
+            if (text2[k].substr(1, 1) === '1') {
+              DP_yAxis[axis_id].type = 1;
+            }
+          } else if (text2[k].substr(0, 1) === 'A') {
+            if (text2[k].substr(1, 1) === '0') {
+              DP_yAxis[axis_id].limit = 0;
+            }
+            if (text2[k].substr(1, 1) === '1') {
+              DP_yAxis[axis_id].limit = 1;
+            }
+            if (text2[k].substr(1, 1) === '2') {
+              DP_yAxis[axis_id].limit = 2;
+            }
+          } else if (text2[k].substr(0, 1) === 'L') {
+            DP_yAxis[axis_id].min = parseFloat(text2[k].substr(1, 15));
+          } else if (text2[k].substr(0, 1) === 'H') {
+            DP_yAxis[axis_id].max = parseFloat(text2[k].substr(1, 15));
+          } else if (text2[k].substr(0, 1) === 'G') {
+            DP_yAxis[axis_id].tick = parseInt(text2[k].substr(1, 15));
+          } else if (text2[k].substr(0, 1) === 'F') {
+            DP_yAxis[axis_id].color = parseInt(text2[k].substr(1, 2));
+          } else if (text2[k].substr(0, 1) === 'T') {
+            DP_yAxis[axis_id].text = decodeURIComponent(nv[1]).split(',')[j].split('|')[k].substr(1, 50).replaceAll("§", "%").replaceAll('µ', '&');
+          }
+        }
+      }
+    }
+  }
 }
 
 /**
@@ -1890,13 +2014,13 @@ $(document).ready(function() {
   document.getElementById("container").setAttribute("style", "height:" + ($(document).height() - 160) + "px");
 
   // Translate to Language Set
-  document.getElementById('refresh').innerHTML = ChhLanguage.default.historian.buttonRefresh;
-  document.getElementById('createLink').innerHTML = ChhLanguage.default.historian.buttonLink;
-  document.getElementById('filterFeld').placeholder = ChhLanguage.default.historian.filterPlaceHolder;
-  document.title = ChhLanguage.default.interface.pageTitle;
+  document.getElementById('refresh').innerHTML = window.ChhLanguage.default.historian.buttonRefresh;
+  document.getElementById('createLink').innerHTML = window.ChhLanguage.default.historian.buttonLink;
+  document.getElementById('filterFeld').placeholder = window.ChhLanguage.default.historian.filterPlaceHolder;
+  document.title = window.ChhLanguage.default.interface.pageTitle;
 
   // Define a custom symbol PLUS
-  Highcharts.SVGRenderer.prototype.symbols.plus = function(x, y, w, h) {
+  window.Highcharts.SVGRenderer.prototype.symbols.plus = function(x, y, w, h) {
     return ['M', x + w * 0.3, y,
       'L', x + w * 0.7, y,
       'L', x + w * 0.7, y + h * 0.3,
@@ -1913,13 +2037,13 @@ $(document).ready(function() {
       'Z'];
   };
 
-  if (Highcharts.VMLRenderer) {
-    Highcharts.VMLRenderer.prototype.symbols.plus = Highcharts.SVGRenderer.prototype.symbols.plus;
+  if (window.Highcharts.VMLRenderer) {
+    window.Highcharts.VMLRenderer.prototype.symbols.plus = window.Highcharts.SVGRenderer.prototype.symbols.plus;
   }
-  Highcharts.defaultOptions.symbols.push('plus');
+  window.Highcharts.defaultOptions.symbols.push('plus');
 
   // Define a custom symbol CROSS
-  Highcharts.SVGRenderer.prototype.symbols.cross = function(x, y, w, h) {
+  window.Highcharts.SVGRenderer.prototype.symbols.cross = function(x, y, w, h) {
     return ['M', x, y + h * 0.2,
       'L', x + w * 0.3, y + h * 0.5,
       'L', x, y + h * 0.8,
@@ -1935,13 +2059,13 @@ $(document).ready(function() {
       'L', x, y + h * 0.2,
       'Z'];
   };
-  if (Highcharts.VMLRenderer) {
-    Highcharts.VMLRenderer.prototype.symbols.cross = Highcharts.SVGRenderer.prototype.symbols.cross;
+  if (window.Highcharts.VMLRenderer) {
+    window.Highcharts.VMLRenderer.prototype.symbols.cross = window.Highcharts.SVGRenderer.prototype.symbols.cross;
   }
-  Highcharts.defaultOptions.symbols.push('cross');
+  window.Highcharts.defaultOptions.symbols.push('cross');
 
   // Define a custom symbol STAR
-  Highcharts.SVGRenderer.prototype.symbols.star = function(x, y, w, h) {
+  window.Highcharts.SVGRenderer.prototype.symbols.star = function(x, y, w, h) {
     return [
       'M', x, y + 0.4 * h,
       'L', x + 0.35 * w, y + 0.35 * h,
@@ -1955,10 +2079,10 @@ $(document).ready(function() {
       'L', x + 0.25 * w, y + 0.65 * h,
       'Z'];
   };
-  if (Highcharts.VMLRenderer) {
-    Highcharts.VMLRenderer.prototype.symbols.star = Highcharts.SVGRenderer.prototype.symbols.star;
+  if (window.Highcharts.VMLRenderer) {
+    window.Highcharts.VMLRenderer.prototype.symbols.star = window.Highcharts.SVGRenderer.prototype.symbols.star;
   }
-  Highcharts.defaultOptions.symbols.push('star');
+  window.Highcharts.defaultOptions.symbols.push('star');
 
 
   var select;
@@ -1970,7 +2094,7 @@ $(document).ready(function() {
   select = document.getElementById("Select-Aggregation");
   for (i = 0; i < 8; i++) {
     option = document.createElement("option");
-    option.text = ChhLanguage.default.historian['aggrtxt' + i];
+    option.text = window.ChhLanguage.default.historian['aggrtxt' + i];
     option.value = 'A' + i;
     select.add(option);
   }
@@ -1979,7 +2103,7 @@ $(document).ready(function() {
   select = document.getElementById("Select-AggrTime");
   for (i = 0; i < 13; i++) {
     option = document.createElement("option");
-    option.text = ChhLanguage.default.historian['atimetxt' + i];
+    option.text = window.ChhLanguage.default.historian['atimetxt' + i];
     option.value = 'T' + i;
     select.add(option);
   }
@@ -1988,7 +2112,7 @@ $(document).ready(function() {
   select = document.getElementById("Select-Compare");
   for (i = 0; i < 14; i++) {
     option = document.createElement("option");
-    option.text = ChhLanguage.default.historian['comptype' + i];
+    option.text = window.ChhLanguage.default.historian['comptype' + i];
     option.value = 'C' + i;
     select.add(option);
   }
@@ -1997,7 +2121,7 @@ $(document).ready(function() {
   select = document.getElementById("Select-Line");
   for (i = 0; i < 12; i++) {
     option = document.createElement("option");
-    option.text = ChhLanguage.default.historian['linetype' + i];
+    option.text = window.ChhLanguage.default.historian['linetype' + i];
     option.value = 'L' + i;
     select.add(option);
   }
@@ -2006,8 +2130,8 @@ $(document).ready(function() {
   select = document.getElementById("Select-DashType");
   for (i = 0; i < DP_DashType.length; i++) {
     option = document.createElement("option");
-    if (ChhLanguage.default.historian['dashtype' + i]) {
-      option.text = ChhLanguage.default.historian['dashtype' + i];
+    if (window.ChhLanguage.default.historian['dashtype' + i]) {
+      option.text = window.ChhLanguage.default.historian['dashtype' + i];
     } else {
       option.text = DP_DashType[i];
     }
@@ -2019,7 +2143,7 @@ $(document).ready(function() {
   select = document.getElementById("Select-LineWidth");
   for (i = 0; i < 11; i++) {
     option = document.createElement("option");
-    option.text = ChhLanguage.default.historian['linewidth' + i];
+    option.text = window.ChhLanguage.default.historian['linewidth' + i];
     option.value = 'W' + i;
     select.add(option);
   }
@@ -2028,7 +2152,7 @@ $(document).ready(function() {
   select = document.getElementById("Select-Legend");
   for (i = 0; i < 7; i++) {
     option = document.createElement("option");
-    option.text = ChhLanguage.default.historian['legendtxt' + i];
+    option.text = window.ChhLanguage.default.historian['legendtxt' + i];
     option.value = i;
     select.add(option);
   }
@@ -2037,7 +2161,7 @@ $(document).ready(function() {
   select = document.getElementById("Select-Navigator");
   for (i = 0; i < 5; i++) {
     option = document.createElement("option");
-    option.text = ChhLanguage.default.historian['navitxt' + i];
+    option.text = window.ChhLanguage.default.historian['navitxt' + i];
     option.value = i;
     select.add(option);
   }
@@ -2046,7 +2170,7 @@ $(document).ready(function() {
   select = document.getElementById("Select-Label");
   for (i = 0; i < 3; i++) {
     option = document.createElement("option");
-    option.text = ChhLanguage.default.historian['labeltxt' + i];
+    option.text = window.ChhLanguage.default.historian['labeltxt' + i];
     option.value = i;
     select.add(option);
   }
@@ -2055,7 +2179,7 @@ $(document).ready(function() {
   select = document.getElementById("Select-Layout");
   for (i = 0; i < 4; i++) {
     option = document.createElement("option");
-    option.text = ChhLanguage.default.historian['layouttxt' + i];
+    option.text = window.ChhLanguage.default.historian['layouttxt' + i];
     option.value = i;
     select.add(option);
   }
@@ -2064,7 +2188,7 @@ $(document).ready(function() {
   select = document.getElementById("Select-Grid");
   for (i = 0; i < 7; i++) {
     option = document.createElement("option");
-    option.text = ChhLanguage.default.historian['gridtxt' + i];
+    option.text = window.ChhLanguage.default.historian['gridtxt' + i];
     option.value = i;
     select.add(option);
   }
@@ -2073,7 +2197,7 @@ $(document).ready(function() {
   select = document.getElementById("Select-Content");
   for (i = 0; i < 4; i++) {
     option = document.createElement("option");
-    option.text = ChhLanguage.default.historian['contenttxt' + i];
+    option.text = window.ChhLanguage.default.historian['contenttxt' + i];
     option.value = i;
     select.add(option);
   }
@@ -2082,7 +2206,7 @@ $(document).ready(function() {
   select = document.getElementById("Select-DataPoint");
   for (i = 0; i < 4; i++) {
     option = document.createElement("option");
-    option.text = ChhLanguage.default.historian['datapoint' + i];
+    option.text = window.ChhLanguage.default.historian['datapoint' + i];
     option.value = i;
     select.add(option);
   }
@@ -2099,37 +2223,37 @@ $(document).ready(function() {
   // Axis Type
   select = document.getElementById("Select-AxisType");
   option = document.createElement("option");
-  option.text = ChhLanguage.default.historian.yaxistype0;
+  option.text = window.ChhLanguage.default.historian.yaxistype0;
   option.value = '0';
   select.add(option);
   option = document.createElement("option");
-  option.text = ChhLanguage.default.historian.yaxistype1;
+  option.text = window.ChhLanguage.default.historian.yaxistype1;
   option.value = '1';
   select.add(option);
 
   // Axis Position
   select = document.getElementById("Select-Position");
   option = document.createElement("option");
-  option.text = ChhLanguage.default.historian.yaxispos0;
+  option.text = window.ChhLanguage.default.historian.yaxispos0;
   option.value = '0';
   select.add(option);
   option = document.createElement("option");
-  option.text = ChhLanguage.default.historian.yaxispos1;
+  option.text = window.ChhLanguage.default.historian.yaxispos1;
   option.value = '1';
   select.add(option);
 
   // Axis min/max
   select = document.getElementById("Select-Limit");
   option = document.createElement("option");
-  option.text = ChhLanguage.default.historian.yaxislimit0;
+  option.text = window.ChhLanguage.default.historian.yaxislimit0;
   option.value = '0';
   select.add(option);
   option = document.createElement("option");
-  option.text = ChhLanguage.default.historian.yaxislimit1;
+  option.text = window.ChhLanguage.default.historian.yaxislimit1;
   option.value = '1';
   select.add(option);
   option = document.createElement("option");
-  option.text = ChhLanguage.default.historian.yaxislimit2;
+  option.text = window.ChhLanguage.default.historian.yaxislimit2;
   option.value = '2';
   select.add(option);
 
@@ -2137,7 +2261,7 @@ $(document).ready(function() {
   select = document.getElementById("Select-Stacking");
   for (i = 0; i < 6; i++) {
     option = document.createElement("option");
-    option.text = ChhLanguage.default.historian['Stacking' + i];
+    option.text = window.ChhLanguage.default.historian['Stacking' + i];
     option.value = i;
     select.add(option);
   }
@@ -2158,13 +2282,13 @@ $(document).ready(function() {
         Scroll_Legend = !Scroll_Legend;
       });
     });
-  }(Highcharts));
+  }(window.Highcharts));
 
-  Highcharts.setOptions({
+  window.Highcharts.setOptions({
     global: {
       useUTC: false,
     },
-    lang: ChhLanguage.default.highcharts,
+    lang: window.ChhLanguage.default.highcharts,
   });
 
 });
@@ -2358,7 +2482,7 @@ function loadNewAxisInfo() {
 
       var axiscolor = null;
       if (DP_yAxis[axispos].color == 0) {
-        axiscolor = Highcharts.defaultOptions.yAxis.lineColor;
+        axiscolor = window.Highcharts.defaultOptions.yAxis.lineColor;
       } else if (DP_yAxis[axispos].color == 1 && chart.yAxis[axispos].series.length > 0) {
         for (let serie of chart.yAxis[axispos].series) {
           if (serie.visible) {
@@ -2501,74 +2625,16 @@ function loadNewPlotBand() {
 //********************
 function createUrl() {
   var url = location.pathname + "?";
-  var attr;
-  var DP_pos;
 
   // Add Periode Parameter
   url += 'periode=' + (Math.round(((Zeitraum_Ende - Zeitraum_Start) / (60 * 60 * 1000)) * 100) / 100).toString();
 
-  var url2 = '';
-  // Add DP Filter if some selected
-  for (let lserie of chart.series) {
-    if (lserie.options.group != "nav" && lserie.options.name != 'MinMax') {
-      // add Attribute if exist
-      attr = DP_attribute.findIndex(obj => obj.id === lserie.options.id.toString());
-      if (attr != -1) {
-        if (DP_attribute[attr].visible == 2 || (DP_attribute[attr].visible == 1 && DP_Limit)) {
-          url2 += lserie.options.id;
-          url2 += (DP_attribute[attr].aggr === 'A0') ? '' : '|' + DP_attribute[attr].aggr;
-          url2 += (DP_attribute[attr].atime === 'T1') ? '' : '|' + DP_attribute[attr].atime;
-          url2 += (DP_attribute[attr].yaxis === 'Y0') ? '' : '|' + DP_attribute[attr].yaxis;
-          url2 += (DP_attribute[attr].line === 'L0') ? '' : '|' + DP_attribute[attr].line;
-          url2 += (DP_attribute[attr].color === 'F0') ? '' : '|' + DP_attribute[attr].color;
-          url2 += (DP_attribute[attr].comp === 'C0') ? '' : '|' + DP_attribute[attr].comp;
-          url2 += (DP_attribute[attr].mark === 'M0') ? '' : '|' + DP_attribute[attr].mark;
-          url2 += (DP_attribute[attr].dash === 'D0') ? '' : '|' + DP_attribute[attr].dash;
-          url2 += (DP_attribute[attr].width === 'W2') ? '' : '|' + DP_attribute[attr].width;
-          url2 += (DP_attribute[attr].stack === 0) ? '' : '|S' + DP_attribute[attr].stack;
-          url2 += (DP_attribute[attr].factor === 1) ? '' : '|X' + DP_attribute[attr].factor;
-          url2 += (DP_attribute[attr].offset === 0) ? '' : '|O' + DP_attribute[attr].offset;
-
-          // check if still default unit, otherwise add to url
-          if (lserie.options.id.substr(0, 1) === 'C') {
-            DP_pos = DP_point.findIndex(obj => obj.idx.toString() === lserie.options.id.split('_')[1].toString());
-          } else {
-            DP_pos = DP_point.findIndex(obj => obj.idx.toString() === lserie.options.id.toString());
-          }
-          if (DP_pos === -1 || DP_point[DP_pos].attributes.unit != DP_attribute[attr].unit) {
-            url2 += (DP_attribute[attr].unit === 'xx') ? '' : '|U' + DP_attribute[attr].unit.replace("%", "§");
-          }
-
-          url2 += (DP_attribute[attr].visible === 2) ? '' : '|V' + DP_attribute[attr].visible;
-          url2 += ',';
-        }
-      }
-    }
-  }
+  var url2 = createUrlSerie();
   if (url2.length > 0) {
     url += '&dp=' + url2.substring(0, url2.length - 1);
   }
 
-  url2 = '';
-  for (var axispos = 0; axispos < DP_yAxis.length; axispos++) {
-    if (chart.yAxis[axispos].visible && chart.yAxis[axispos].hasVisibleSeries) {
-      if (JSON.stringify(DP_yAxis[axispos]) != JSON.stringify(DP_yAxis_default[axispos])) {
-
-        let lText = ((DP_yAxis[axispos].position) ? '1' : '0');
-
-        url2 += 'Y' + axispos;
-        url2 += (DP_yAxis[axispos].position == DP_yAxis_default[axispos].position) ? '' : '|P' + lText;
-        url2 += (DP_yAxis[axispos].type == DP_yAxis_default[axispos].type) ? '' : '|C' + DP_yAxis[axispos].type;
-        url2 += (DP_yAxis[axispos].limit == DP_yAxis_default[axispos].limit) ? '' : '|A' + DP_yAxis[axispos].limit;
-        url2 += (DP_yAxis[axispos].min == DP_yAxis_default[axispos].min) ? '' : '|L' + DP_yAxis[axispos].min;
-        url2 += (DP_yAxis[axispos].max == DP_yAxis_default[axispos].max) ? '' : '|H' + DP_yAxis[axispos].max;
-        url2 += (DP_yAxis[axispos].tick == DP_yAxis_default[axispos].tick) ? '' : '|G' + DP_yAxis[axispos].tick;
-        url2 += (DP_yAxis[axispos].color == DP_yAxis_default[axispos].color) ? '' : '|F' + DP_yAxis[axispos].color;
-        url2 += (DP_yAxis[axispos].text == DP_yAxis_default[axispos].text) ? '' : '|T' + DP_yAxis[axispos].text.replace("%", "§");
-        url2 += ',';
-      }
-    }
-  }
+  url2 = createUrlAxis();
 
   if (url2.length > 0) {
     url += '&yaxis=' + url2.substring(0, url2.length - 1);
@@ -2645,12 +2711,12 @@ function createUrl() {
 
   // Title
   if (DP_Title != '') {
-    url += '&title=' + DP_Title.replace("%", "§");
+    url += '&title=' + DP_Title.replaceAll("%", "§").replaceAll("&", "µ");
   }
 
   // Subtitle
   if (DP_Subtitle != '') {
-    url += '&subtitle=' + DP_Subtitle.replace("%", "§");
+    url += '&subtitle=' + DP_Subtitle.replaceAll("%", "§").replaceAll("&", "µ");
   }
 
   window.open(url, '_blank');
@@ -2659,11 +2725,81 @@ function createUrl() {
 }
 
 //********************
+function createUrlSerie() {
+  let DP_pos;
+  let url2 = '';
+  // Add DP Filter if some selected
+  for (let lserie of chart.series) {
+    if (lserie.options.group != "nav" && lserie.options.name != 'MinMax') {
+      // add Attribute if exist
+      let attr = DP_attribute.findIndex(obj => obj.id === lserie.options.id.toString());
+      if (attr != -1) {
+        if (DP_attribute[attr].visible == 2 || (DP_attribute[attr].visible == 1 && DP_Limit)) {
+          url2 += lserie.options.id;
+          url2 += (DP_attribute[attr].aggr === 'A0') ? '' : '|' + DP_attribute[attr].aggr;
+          url2 += (DP_attribute[attr].atime === 'T1') ? '' : '|' + DP_attribute[attr].atime;
+          url2 += (DP_attribute[attr].yaxis === 'Y0') ? '' : '|' + DP_attribute[attr].yaxis;
+          url2 += (DP_attribute[attr].line === 'L0') ? '' : '|' + DP_attribute[attr].line;
+          url2 += (DP_attribute[attr].color === 'F0') ? '' : '|' + DP_attribute[attr].color;
+          url2 += (DP_attribute[attr].comp === 'C0') ? '' : '|' + DP_attribute[attr].comp;
+          url2 += (DP_attribute[attr].mark === 'M0') ? '' : '|' + DP_attribute[attr].mark;
+          url2 += (DP_attribute[attr].dash === 'D0') ? '' : '|' + DP_attribute[attr].dash;
+          url2 += (DP_attribute[attr].width === 'W2') ? '' : '|' + DP_attribute[attr].width;
+          url2 += (DP_attribute[attr].stack === 0) ? '' : '|S' + DP_attribute[attr].stack;
+          url2 += (DP_attribute[attr].factor === 1) ? '' : '|X' + DP_attribute[attr].factor;
+          url2 += (DP_attribute[attr].offset === 0) ? '' : '|O' + DP_attribute[attr].offset;
+
+          // check if still default unit, otherwise add to url
+          if (lserie.options.id.substr(0, 1) === 'C') {
+            DP_pos = DP_point.findIndex(obj => obj.idx.toString() === lserie.options.id.split('_')[1].toString());
+          } else {
+            DP_pos = DP_point.findIndex(obj => obj.idx.toString() === lserie.options.id.toString());
+          }
+          if (DP_pos === -1 || DP_point[DP_pos].attributes.unit != DP_attribute[attr].unit) {
+            url2 += (DP_attribute[attr].unit === 'xx') ? '' : '|U' + DP_attribute[attr].unit.replaceAll("%", "§").replaceAll('&', 'µ');
+          }
+
+          url2 += (DP_attribute[attr].visible === 2) ? '' : '|V' + DP_attribute[attr].visible;
+          url2 += ',';
+        }
+      }
+    }
+  }
+  return url2;
+}
+
+
+//********************
+function createUrlAxis() {
+  let url2 = '';
+  for (let axispos = 0; axispos < DP_yAxis.length; axispos++) {
+    if (chart.yAxis[axispos].visible && chart.yAxis[axispos].hasVisibleSeries) {
+      if (JSON.stringify(DP_yAxis[axispos]) != JSON.stringify(DP_yAxis_default[axispos])) {
+
+        let lText = ((DP_yAxis[axispos].position) ? '1' : '0');
+
+        url2 += 'Y' + axispos;
+        url2 += (DP_yAxis[axispos].position == DP_yAxis_default[axispos].position) ? '' : '|P' + lText;
+        url2 += (DP_yAxis[axispos].type == DP_yAxis_default[axispos].type) ? '' : '|C' + DP_yAxis[axispos].type;
+        url2 += (DP_yAxis[axispos].limit == DP_yAxis_default[axispos].limit) ? '' : '|A' + DP_yAxis[axispos].limit;
+        url2 += (DP_yAxis[axispos].min == DP_yAxis_default[axispos].min) ? '' : '|L' + DP_yAxis[axispos].min;
+        url2 += (DP_yAxis[axispos].max == DP_yAxis_default[axispos].max) ? '' : '|H' + DP_yAxis[axispos].max;
+        url2 += (DP_yAxis[axispos].tick == DP_yAxis_default[axispos].tick) ? '' : '|G' + DP_yAxis[axispos].tick;
+        url2 += (DP_yAxis[axispos].color == DP_yAxis_default[axispos].color) ? '' : '|F' + DP_yAxis[axispos].color;
+        url2 += (DP_yAxis[axispos].text == DP_yAxis_default[axispos].text) ? '' : '|T' + DP_yAxis[axispos].text.replaceAll("%", "§").replaceAll('&', 'µ');
+        url2 += ',';
+      }
+    }
+  }
+  return url2;
+}
+
+//********************
 function autoRefresh() {
   if (DP_AutoRefresh > 0) {
     setTimeout(autoRefresh, 1000);
     if (DP_Navigator < 3) {
-      document.getElementById('autorefresh').innerHTML = ' - ' + ChhLanguage.default.highcharts.autorefreshText + ':' + AutoRefreshCount + ' Sek.';
+      document.getElementById('autorefresh').innerHTML = ' - ' + window.ChhLanguage.default.highcharts.autorefreshText + ':' + AutoRefreshCount + ' Sek.';
     }
     AutoRefreshCount--;
     if (AutoRefreshCount <= 0) {
@@ -2677,7 +2813,6 @@ function autoRefresh() {
     document.getElementById('autorefresh').innerHTML = '';
   }
 }
-
 
 //********************
 function loadingInfo() {
@@ -2844,7 +2979,7 @@ function saveLine() {
   strCustom += '|S' + DP_attribute[attr].stack;
   strCustom += '|X' + DP_attribute[attr].factor;
   strCustom += '|O' + DP_attribute[attr].offset;
-  strCustom += '|U' + encodeURIComponent(DP_attribute[attr].unit).replace(new RegExp("'", 'g'), '%27');
+  strCustom += '|U' + encodeURIComponent(DP_attribute[attr].unit).replace(/'/g, '%27');
 
   var DP_pos = DP_point.findIndex(obj => obj.idx.toString() === DP_PopupID);
   var key = 'POINT' + DP_PopupID;
@@ -2947,7 +3082,7 @@ function getDialogLine() {
 function showDialogSettings() {
 
   // set value on Popup
-  document.getElementsByClassName("modal-title2")[0].innerHTML = ChhLanguage.default.historian.settings;
+  document.getElementsByClassName("modal-title2")[0].innerHTML = window.ChhLanguage.default.historian.settings;
   document.getElementById("Select-Legend").value = DP_Legend.toString();
   document.getElementById("Select-Navigator").value = DP_Navigator.toString();
   document.getElementById("Select-Label").value = DP_Labels.toString();
@@ -2990,8 +3125,8 @@ function saveSetting() {
   strCustom += '|I' + DP_DataPointFilter.toString();
   strCustom += '|B' + DP_Theme;
   strCustom += '|R' + DP_AutoRefresh;
-  strCustom += '|T' + encodeURIComponent(DP_Title).replace(new RegExp("'", 'g'), '%27');
-  strCustom += '|S' + encodeURIComponent(DP_Subtitle).replace(new RegExp("'", 'g'), '%27');
+  strCustom += '|T' + encodeURIComponent(DP_Title).replace(/'/g, '%27');
+  strCustom += '|S' + encodeURIComponent(DP_Subtitle).replace(/'/g, '%27');
 
   // Save to Global Settings
   DP_settings.Setting = strCustom;
@@ -3016,7 +3151,7 @@ function saveSettingsH2() {
     url += '/query/jsonrpc.gy';
     url += (DP_ApiKey == "") ? "" : "?" + DP_ApiKey;
 
-    strSetNew = strSetNew.replace(new RegExp('"', 'g'), "'");
+    strSetNew = strSetNew.replace(/'/g, "'");
 
     var postData = {
       id: key,
@@ -3058,7 +3193,7 @@ function getDialogSetting() {
       if (!DP_Limit) {
         DP_Limit = true;
         filterrefresh = true;
-        $('.highcharts-contextmenu')[0].children[0].children[1].innerHTML = ChhLanguage.default.highcharts.limitactive;
+        $('.highcharts-contextmenu')[0].children[0].children[1].innerHTML = window.ChhLanguage.default.highcharts.limitactive;
       }
     }
   }
@@ -3126,12 +3261,12 @@ function getDialogSetting() {
   if (DP_Theme != document.getElementById("Select-Theme").value) {
     DP_Theme = document.getElementById("Select-Theme").value;
     if (DP_Theme == 'Standard') {
-      Highcharts.setOptions(window.DP_Themes.Standard);
+      window.Highcharts.setOptions(window.DP_Themes.Standard);
       DP_Theme_Setting = window.DP_Themes.Standard;
     } else {
       if (window.DP_Themes[DP_Theme]) {
-        DP_Theme_Setting = Highcharts.merge(window.DP_Themes.Standard, window.DP_Themes[DP_Theme]);
-        Highcharts.setOptions(DP_Theme_Setting);
+        DP_Theme_Setting = window.Highcharts.merge(window.DP_Themes.Standard, window.DP_Themes[DP_Theme]);
+        window.Highcharts.setOptions(DP_Theme_Setting);
       }
     }
 
@@ -3269,27 +3404,17 @@ function defineLegend() {
 // Show Dialog
 function showDialogYAxis(id) {
 
-  document.getElementsByClassName("modal-title3")[0].innerHTML = ChhLanguage.default.historian.axissetting + ' ' + id.substr(5, 2);
+  document.getElementsByClassName("modal-title3")[0].innerHTML = window.ChhLanguage.default.historian.axissetting + ' ' + id.substr(5, 2);
 
   // find axis object
   var axispos = parseInt(id.substr(5, 2));
   if (axispos >= 0 && axispos < chart.options.yAxis.length) {
-    let lPopupAxisObj = chart.options.yAxis[axispos];
     DP_PopupAxisPos = axispos;
-
-    document.getElementById("Line-Title3").value = lPopupAxisObj.title.text;
-    document.getElementById("Select-Position").value = lPopupAxisObj.opposite ? '1' : '0';
-    if (lPopupAxisObj.softMax) {
-      document.getElementById("Line-Min").value = lPopupAxisObj.softMin;
-      document.getElementById("Line-Max").value = lPopupAxisObj.softMax;
-    } else if (lPopupAxisObj.max) {
-      document.getElementById("Line-Min").value = lPopupAxisObj.min;
-      document.getElementById("Line-Max").value = lPopupAxisObj.max;
-    } else {
-      document.getElementById("Line-Min").value = 0;
-      document.getElementById("Line-Max").value = 0;
-    }
-    document.getElementById("Line-TickAmount").value = lPopupAxisObj.tickAmount;
+    document.getElementById("Line-Title3").value = DP_yAxis[DP_PopupAxisPos].text;
+    document.getElementById("Select-Position").value = DP_yAxis[DP_PopupAxisPos].position ? '1' : '0';
+    document.getElementById("Line-Min").value = DP_yAxis[DP_PopupAxisPos].min;
+    document.getElementById("Line-Max").value = DP_yAxis[DP_PopupAxisPos].max;
+    document.getElementById("Line-TickAmount").value = DP_yAxis[DP_PopupAxisPos].tick;
     document.getElementById("Select-AxisColor").value = DP_yAxis[DP_PopupAxisPos].color;
     document.getElementById("Select-Limit").value = DP_yAxis[DP_PopupAxisPos].limit;
     document.getElementById("Select-AxisType").value = DP_yAxis[DP_PopupAxisPos].type;
@@ -3321,7 +3446,7 @@ $("#AxisDefault").click(function() {
   strCustom += '|H' + DP_yAxis[DP_PopupAxisPos].max;
   strCustom += '|G' + DP_yAxis[DP_PopupAxisPos].tick;
   strCustom += '|F' + DP_yAxis[DP_PopupAxisPos].color;
-  strCustom += '|T' + encodeURIComponent(DP_yAxis[DP_PopupAxisPos].text).replace(new RegExp("'", 'g'), '%27');
+  strCustom += '|T' + encodeURIComponent(DP_yAxis[DP_PopupAxisPos].text).replace(/'/g, '%27');
 
   // Save to global Settings
   DP_settings['YAXIS' + DP_PopupAxisPos] = strCustom;
@@ -3370,7 +3495,7 @@ function getDialogAxis() {
     if (DP_yAxis[i].text != "" && DP_yAxis[i].text != null) {
       option.text = DP_yAxis[i].text;
     } else {
-      option.text = ChhLanguage.default.historian['yaxis' + i];
+      option.text = window.ChhLanguage.default.historian['yaxis' + i];
     }
     option.value = 'Y' + i;
     select.add(option);
@@ -3429,7 +3554,7 @@ $("#Select-AxisColor").on("change", function() {
 function showDialogYAxisUpdatColor() {
   var colorPos = parseInt(document.getElementById("Select-AxisColor").value);
   if (colorPos == 0 || colorPos == 1) {
-    document.getElementById("Select-AxisColor").style.backgroundColor = Highcharts.defaultOptions.yAxis.lineColor;
+    document.getElementById("Select-AxisColor").style.backgroundColor = window.Highcharts.defaultOptions.yAxis.lineColor;
   } else {
     colorPos -= 2;   // set back -2
     document.getElementById("Select-AxisColor").style.backgroundColor = chart.options.colors[colorPos];
@@ -3456,13 +3581,13 @@ function getComparisionBackDay(str_compType) {
 
 function chartSetOptions() {
 
-  Highcharts.stockChart('container', {
+  window.Highcharts.stockChart('container', {
     chart: {
       events: {
         load: requestInitData,
         beforePrint: function () {
            if ( window.DP_Themes.transparent ) {
-           	 DP_Theme_Print = Highcharts.merge(window.DP_Themes.Standard, window.DP_Themes.transparent);
+           	 let DP_Theme_Print = window.Highcharts.merge(window.DP_Themes.Standard, window.DP_Themes.transparent);
              this.update(DP_Theme_Print);
            }
         },
@@ -3489,41 +3614,41 @@ function chartSetOptions() {
       buttons: [{
         count: 30,
         type: 'minute',
-        text: ChhLanguage.default.highcharts.range30M,
+        text: window.ChhLanguage.default.highcharts.range30M,
         events: { click: function() { checkZeitraum(this); return true; } }
       }, {
         count: 1,
         type: 'hour',
-        text: ChhLanguage.default.highcharts.rangeH,
+        text: window.ChhLanguage.default.highcharts.rangeH,
         events: { click: function() { checkZeitraum(this); return true; } }
       }, {
         count: 6,
         type: 'hour',
-        text: ChhLanguage.default.highcharts.range6H,
+        text: window.ChhLanguage.default.highcharts.range6H,
         events: { click: function() { checkZeitraum(this); return true; } }
       }, {
         count: 1,
         type: 'day',
-        text: ChhLanguage.default.highcharts.rangeD,
+        text: window.ChhLanguage.default.highcharts.rangeD,
         events: { click: function() { checkZeitraum(this); return true; } }
       }, {
         count: 1,
         type: 'week',
-        text: ChhLanguage.default.highcharts.rangeW,
+        text: window.ChhLanguage.default.highcharts.rangeW,
         events: { click: function() { checkZeitraum(this); return true; } }
       }, {
         count: 1,
         type: 'month',
-        text: ChhLanguage.default.highcharts.rangeM,
+        text: window.ChhLanguage.default.highcharts.rangeM,
         events: { click: function() { checkZeitraum(this); return true; } }
       }, {
         count: 1,
         type: 'year',
-        text: ChhLanguage.default.highcharts.rangeY,
+        text: window.ChhLanguage.default.highcharts.rangeY,
         events: { click: function() { checkZeitraum(this); return true; } }
       }, {
         type: 'all',
-        text: ChhLanguage.default.highcharts.rangeALL,
+        text: window.ChhLanguage.default.highcharts.rangeALL,
         events: { click: function() { checkZeitraum(this); return true; } }
       }],
       allButtonsEnabled: true,
@@ -3563,32 +3688,31 @@ function chartSetOptions() {
           symbol: "menu",
           enabled: (DP_Navigator < 4) ? true : false,
           menuItems: [{
-            text: ChhLanguage.default.historian.settings,
+            text: window.ChhLanguage.default.historian.settings,
             onclick: function() {
               showDialogSettings();
             }
           }, {
-            text: (DP_Limit) ? ChhLanguage.default.highcharts.limitactive : ChhLanguage.default.highcharts.limitdeactive,
+            text: (DP_Limit) ? window.ChhLanguage.default.highcharts.limitactive : window.ChhLanguage.default.highcharts.limitdeactive,
             onclick: function() {
               if (DP_Limit) {
-                $('.highcharts-contextmenu')[0].children[0].children[1].innerHTML = ChhLanguage.default.highcharts.limitdeactive;
+                $('.highcharts-contextmenu')[0].children[0].children[1].innerHTML = window.ChhLanguage.default.highcharts.limitdeactive;
                 DP_Limit = false;
               } else {
-                $('.highcharts-contextmenu')[0].children[0].children[1].innerHTML = ChhLanguage.default.highcharts.limitactive;
+                $('.highcharts-contextmenu')[0].children[0].children[1].innerHTML = window.ChhLanguage.default.highcharts.limitactive;
                 DP_Limit = true;
               }
               changeEventRaumFilter();
               return true;
             },
           }, {
-            text: ChhLanguage.default.historian.buttonRefresh,
+            text: window.ChhLanguage.default.historian.buttonRefresh,
             onclick: function() {
-              Zeitraum_Ende = new Date(Date.now());
-              loadNewSerienData();
+              refreshClick();
               return true;
             },
           }, {
-            text: ChhLanguage.default.historian.buttonLink,
+            text: window.ChhLanguage.default.historian.buttonLink,
             onclick: function() {
               createUrl();
               return true;
@@ -3695,8 +3819,8 @@ function showAggrText() {
         var grouping = lserie.currentDataGrouping;
         if (grouping) {
           var text = grouping.unitName;
-          if (ChhLanguage.default.highcharts['aggr' + text]) {
-            text = ChhLanguage.default.highcharts['aggr' + text];
+          if (window.ChhLanguage.default.highcharts['aggr' + text]) {
+            text = window.ChhLanguage.default.highcharts['aggr' + text];
           }
           if (lserie.options.id) {
             attr = DP_attribute.findIndex(obj => obj.id === lserie.options.id.toString());
@@ -3707,24 +3831,24 @@ function showAggrText() {
           }
 
           if (aggrType === 1) {
-            document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt1 + ': ' + grouping.count + '/' + text;
+            document.getElementById('aggr_text').innerHTML = ' - ' + window.ChhLanguage.default.historian.aggrtxt1 + ': ' + grouping.count + '/' + text;
           } else if (aggrType === 2) {
-            document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt2 + ': ' + grouping.count + '/' + text;
+            document.getElementById('aggr_text').innerHTML = ' - ' + window.ChhLanguage.default.historian.aggrtxt2 + ': ' + grouping.count + '/' + text;
           } else if (aggrType === 3) {
-            document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt3 + ': ' + grouping.count + '/' + text;
+            document.getElementById('aggr_text').innerHTML = ' - ' + window.ChhLanguage.default.historian.aggrtxt3 + ': ' + grouping.count + '/' + text;
           } else if (aggrType === 4) {
-            document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt4 + ': ' + grouping.count + '/' + text;
+            document.getElementById('aggr_text').innerHTML = ' - ' + window.ChhLanguage.default.historian.aggrtxt4 + ': ' + grouping.count + '/' + text;
           } else if (aggrType === 5) {
-            document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt5 + ': ' + grouping.count + '/' + text;
+            document.getElementById('aggr_text').innerHTML = ' - ' + window.ChhLanguage.default.historian.aggrtxt5 + ': ' + grouping.count + '/' + text;
           } else if (aggrType === 6) {
-            document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt6;
+            document.getElementById('aggr_text').innerHTML = ' - ' + window.ChhLanguage.default.historian.aggrtxt6;
           } else if (aggrType === 7) {
-            document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt7 + ': ' + grouping.count + '/' + text;
+            document.getElementById('aggr_text').innerHTML = ' - ' + window.ChhLanguage.default.historian.aggrtxt7 + ': ' + grouping.count + '/' + text;
           } else {
-            document.getElementById('aggr_text').innerHTML = ' - ' + ChhLanguage.default.historian.aggrtxt1 + ': ' + grouping.count + '/' + text;
+            document.getElementById('aggr_text').innerHTML = ' - ' + window.ChhLanguage.default.historian.aggrtxt1 + ': ' + grouping.count + '/' + text;
           }
         } else {
-          document.getElementById('aggr_text').innerHTML = ' -  ' + ChhLanguage.default.historian.aggrtxt0;
+          document.getElementById('aggr_text').innerHTML = ' -  ' + window.ChhLanguage.default.historian.aggrtxt0;
         }
         break;
       }
@@ -3827,12 +3951,12 @@ function chartSetElements() {
   option = document.createElement("option");
   option.text = 'Theme';
   option.value = '0';
-  option.style.backgroundColor = Highcharts.defaultOptions.yAxis.lineColor;
+  option.style.backgroundColor = window.Highcharts.defaultOptions.yAxis.lineColor;
   select.add(option);
   option = document.createElement("option");
   option.text = '1.Serie';
   option.value = '1';
-  option.style.backgroundColor = Highcharts.defaultOptions.yAxis.lineColor;
+  option.style.backgroundColor = window.Highcharts.defaultOptions.yAxis.lineColor;
   select.add(option);
   for (i = 0; i < chart.options.colors.length; i++) {
     option = document.createElement("option");
@@ -3859,10 +3983,9 @@ function chartSetElements() {
   });
 
   // **********************
-  $('#refresh').click(function() {
-    Zeitraum_Ende = new Date(Date.now());
-    loadNewSerienData();
-    return true;
+  $('#refresh').click( function() {
+     refreshClick();
+     return true;
   });
 
   // **********************
@@ -3871,6 +3994,12 @@ function chartSetElements() {
     return true;
   });
 
+}
+
+function refreshClick() {
+  Zeitraum_Ende = new Date(Date.now());
+  loadNewSerienData();
+  return true;
 }
 
 // save to Local Browser Storage
@@ -3963,7 +4092,7 @@ function toolTipInfo(sobj) {
 
   let txta = "<span style='fill:" + sobj.color + "'>\u25CF </span>"
     + sobj.series.name + ": <b>"
-    + Highcharts.numberFormat(sobj.y, 2, ",", ".") + " "
+    + window.Highcharts.numberFormat(sobj.y, 2, ",", ".") + " "
     + sobj.series.tooltipOptions.valueSuffix + "</b><br/>";
 
   if (sobj.series.hasGroupedData) {
@@ -3982,21 +4111,21 @@ function toolTipInfo(sobj) {
       pointRange = sobj.series.currentDataGrouping.totalRange;
     }
 
-    let xEnde = Highcharts.dateFormat('%H:%M', xDate.getTime() + pointRange);
+    let xEnde = window.Highcharts.dateFormat('%H:%M', xDate.getTime() + pointRange);
     if (xEnde == '00:00') {
       xEnde = '24:00';
     }
 
     // get Timeframe text
     if (pointRange < 3600000) {
-      txta += "<b>" + Highcharts.dateFormat('%A, %e. %b %Y, %H:%M', xDate) + '-' + xEnde + "</b>";
+      txta += "<b>" + window.Highcharts.dateFormat('%A, %e. %b %Y, %H:%M', xDate) + '-' + xEnde + "</b>";
     } else if (pointRange < 86400000) {
-      txta += "<b>" + Highcharts.dateFormat('%A, %e. %b %Y, %H:%M', xDate) + '-' + xEnde + "</b>";
+      txta += "<b>" + window.Highcharts.dateFormat('%A, %e. %b %Y, %H:%M', xDate) + '-' + xEnde + "</b>";
     } else if (pointRange < 86400000 * 20) {
-      txta += "<b>" + Highcharts.dateFormat('%e. %b', xDate) + '-'
-        + Highcharts.dateFormat('%e. %b %Y', xDate.getTime() + pointRange - 86400000) + "</b>";
+      txta += "<b>" + window.Highcharts.dateFormat('%e. %b', xDate) + '-'
+        + window.Highcharts.dateFormat('%e. %b %Y', xDate.getTime() + pointRange - 86400000) + "</b>";
     } else {
-      txta += "<b>" + Highcharts.dateFormat('%b %Y', xDate) + "</b>";
+      txta += "<b>" + window.Highcharts.dateFormat('%b %Y', xDate) + "</b>";
     }
 
     // get Aggregation Symbol
@@ -4017,15 +4146,15 @@ function toolTipInfo(sobj) {
 
     if (sobj.series.currentDataGrouping) {
       let text = sobj.series.currentDataGrouping.unitName + ((sobj.series.currentDataGrouping.count > 1) ? '2' : '').toString();
-      if (ChhLanguage.default.highcharts['aggr' + text]) {
-        text = ChhLanguage.default.highcharts['aggr' + text];
+      if (window.ChhLanguage.default.highcharts['aggr' + text]) {
+        text = window.ChhLanguage.default.highcharts['aggr' + text];
       }
       txta += '</b> ' + sobj.series.currentDataGrouping.count + ' ' + text;
     }
     txta += ")</i><br/>";
 
   } else {
-    txta += "<b>" + Highcharts.dateFormat('%A, %b %e, %H:%M:%S', xDate) + "</b>";
+    txta += "<b>" + window.Highcharts.dateFormat('%A, %b %e, %H:%M:%S', xDate) + "</b>";
   }
   return txta;
 }
