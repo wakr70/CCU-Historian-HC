@@ -93,3 +93,13 @@
     font-size: 1.1em;
     font-weight: bold;
 }
+
+div.highcharts-toggle-toolbar.highcharts-arrow-left.highcharts-arrow-right {
+    width: 20px;
+    height: 20px;
+}
+
+div.highcharts-toggle-toolbar.highcharts-arrow-left {
+    width: 20px;
+    height: 20px;
+}
