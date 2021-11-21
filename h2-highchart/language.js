@@ -278,7 +278,7 @@ var ChhLanguage = {
           newPointAnnounceMultiple: 'New data point in chart {chartTitle}: {pointDesc}',
           newPointAnnounceSingle: 'New data point: {pointDesc}',
           newSeriesAnnounceMultiple: 'New data series in chart {chartTitle}: {seriesDesc}',
-          newSeriesAnnounceSingle: 'New data series: {seriesDesc}' 
+          newSeriesAnnounceSingle: 'New data series: {seriesDesc}'
         },
         axis: {
           rangeCategories: 'Range: {numCategories} categories.',
@@ -290,7 +290,7 @@ var ChhLanguage = {
           xAxisDescriptionPlural: 'The chart has {numAxes} X axes displaying {#each(names, -1), }and {names[-1]}.',
           xAxisDescriptionSingular: 'The chart has 1 X axis displaying {names[0]}. {ranges[0]}',
           yAxisDescriptionPlural: 'The chart has {numAxes} Y axes displaying {#each(names, -1), }and {names[-1]}.',
-          yAxisDescriptionSingular: 'The chart has 1 Y axis displaying {names[0]}. {ranges[0]}' 
+          yAxisDescriptionSingular: 'The chart has 1 Y axis displaying {names[0]}. {ranges[0]}'
         },
         chartContainerLabel: '{title}. Highcharts interactive chart.',
         chartTypes: {
@@ -385,7 +385,8 @@ var ChhLanguage = {
         seriesTypeDescriptions: {
           arearange: 'Arearange charts are line charts displaying a ' + 'range between a lower and higher value for each point.',
           areasplinerange: 'These charts are line charts displaying a ' + 'range between a lower and higher value for each point.',
-          boxplot: 'Box plot charts are typically used to display ' + 'groups of statistical data. Each data point in the ' + 'chart can have up to 5 values: minimum, lower quartile, ' + 'median, upper quartile, and maximum.',
+          boxplot: 'Box plot charts are typically used to display ' + 'groups of statistical data. Each data point in the ' +
+                   'chart can have up to 5 values: minimum, lower quartile, ' + 'median, upper quartile, and maximum.',
           bubble: 'Bubble charts are scatter charts where each data ' + 'point also has a size value.',
           columnrange: 'Columnrange charts are column charts ' + 'displaying a range between a lower and higher value for ' + 'each point.',
           errorbar: 'Errorbar series are used to display the ' + 'variability of the data.',
@@ -415,7 +416,7 @@ var ChhLanguage = {
       exportData: {
         annotationHeader: 'Annotations',
         categoryDatetimeHeader: 'DateTime',
-        categoryHeader: 'Category'  
+        categoryHeader: 'Category'
       },
       hideData: 'Daten-Tab. ausblenden',
       invalidDate: undefined,

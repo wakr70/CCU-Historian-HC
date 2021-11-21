@@ -3798,7 +3798,7 @@ function chartSetOptions() {
           click: function() {
             // skip if annotations are active ...
             let skip = false;
-            if (arguments[0] && arguments[0].activeAnnotation) { 
+            if (arguments[0] && arguments[0].activeAnnotation) {
               skip = true;
             }
             if (!skip)  {
@@ -3820,7 +3820,8 @@ function chartSetOptions() {
     stockTools: {
       gui: {
         iconsURL: 'stock-tools/stock-icons/',
-//        buttons: ["indicators", "separator", "simpleShapes", "lines", "crookedLines", "measure", "advanced", "toggleAnnotations", "separator", "verticalLabels", "flags", "separator", "zoomChange", "fullScreen", "typeChange", "separator", "currentPriceIndicator", "saveChart"],
+//        buttons: ["indicators", "separator", "simpleShapes", "lines", "crookedLines", "measure", "advanced", "toggleAnnotations", "separator",
+//        "verticalLabels", "flags", "separator", "zoomChange", "fullScreen", "typeChange", "separator", "currentPriceIndicator", "saveChart"],
         buttons: ["indicators", "separator", "simpleShapes", "lines", "measure", "toggleAnnotations", "separator", "verticalLabels", "separator", "zoomChange", "fullScreen"],
         definitions: {
           simpleShapes: {
