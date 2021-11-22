@@ -3673,12 +3673,6 @@ function chartSetOptions() {
       x: 0,
       y: 10,
     },
-
-    navigation: {
-      buttonOptions: {
-        enabled: (DP_Navigator < 4) ? true : false,
-      }
-    },
     navigator: {
       enabled: (DP_Navigator === 0 || DP_Navigator === 1) ? true : false,
     },
@@ -3817,20 +3811,32 @@ function chartSetOptions() {
       yAxis: 0,
       visible: false,
     }],
+    navigation: {
+      buttonOptions: {
+        enabled: (DP_Navigator < 4) ? true : false,
+      },
+      bindings: {
+        myText: Highcharts.getOptions().navigation.bindings.labelAnnotation
+      }
+    },
     stockTools: {
       gui: {
         iconsURL: 'stock-tools/stock-icons/',
 //        buttons: ["indicators", "separator", "simpleShapes", "lines", "crookedLines", "measure", "advanced", "toggleAnnotations", "separator",
 //        "verticalLabels", "flags", "separator", "zoomChange", "fullScreen", "typeChange", "separator", "currentPriceIndicator", "saveChart"],
-        buttons: ["indicators", "separator", "simpleShapes", "lines", "measure", "toggleAnnotations", "separator", "verticalLabels", "separator", "zoomChange", "fullScreen"],
+        buttons: ["indicators", "separator", "myText", "lines", "measure", "toggleAnnotations", "separator", "verticalLabels", "separator", "zoomChange", "fullScreen"],
         definitions: {
-          simpleShapes: {
+//          simpleShapes: {
 //          items: ["label", "circle", "ellipse", "rectangle"]
-            items: ["label"],
-          },
+//            items: ["label"],
+//          },
           zoomChange: {
             items: ["zoomXY", "zoomY", "zoomX" ],
           },
+          myText: {
+            className: "highcharts-label-annotation",
+            symbol: "label.svg"
+          }
         },
       }
     }

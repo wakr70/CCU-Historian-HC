@@ -458,6 +458,7 @@ var ChhLanguage = {
           circle: 'Circle',
           ellipse: 'Ellipse',
           label: 'Text',
+          myText: 'Text',
           rectangle: 'Rectangle',
           // Flags:
           flagCirclepin: 'Flag circle',
