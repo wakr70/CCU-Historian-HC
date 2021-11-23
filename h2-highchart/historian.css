@@ -103,3 +103,15 @@ div.highcharts-toggle-toolbar.highcharts-arrow-left {
     width: 20px;
     height: 20px;
 }
+
+div.highcharts-popup {
+	width: 100%;
+}
+
+div.highcharts-popup-lhs-col {
+	width: 40%;
+}
+
+div.highcharts-popup-rhs-col {
+    width: 60%;
+}
