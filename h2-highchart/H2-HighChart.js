@@ -2291,7 +2291,27 @@ $(document).ready(function() {
     });
   }(window.Highcharts));
 
+  setStockToolLang();
+
 });
+
+// *******************
+// Stock Tools translate Bug fix
+// *******************
+function setStockToolLang() {
+  for (let seriesType in window.Highcharts.seriesTypes) {
+    let objType = window.Highcharts.seriesTypes[seriesType];
+    if (objType.defaultOptions && objType.defaultOptions.params) {
+      if (objType.prototype && objType.prototype.type) {
+        if (window.Highcharts.defaultOptions.lang.navigation.popup.indicatorAliases) {
+          if (window.Highcharts.defaultOptions.lang.navigation.popup.indicatorAliases[objType.prototype.type]) {
+            objType.prototype.nameBase = window.Highcharts.defaultOptions.lang.navigation.popup.indicatorAliases[objType.prototype.type][0];
+          }
+        }
+      }
+    }
+  }
+}
 
 // *******************
 function changeEventRaumFilter() {
@@ -3816,7 +3836,7 @@ function chartSetOptions() {
         enabled: (DP_Navigator < 4) ? true : false,
       },
       bindings: {
-        myText: Highcharts.getOptions().navigation.bindings.labelAnnotation
+        myText: window.Highcharts.getOptions().navigation.bindings.labelAnnotation
       }
     },
     stockTools: {
