@@ -4310,9 +4310,10 @@ function chartSetFontSize() {
     labels: { style: { fontSize: Size_S } },
     rangeSelector: {
       buttonTheme: { // styles for the buttons
-        style: { fontSize: Size_S, width: 50, height: 50 }
+        style: { fontSize: Size_S } //width: (DP_FontSize*2+20).toString() + "px", height: (DP_FontSize+20).toString() + "px" }
       },
-      buttonSpacing: Math.round( DP_FontSize ),
+//      height: (DP_FontSize + 20).toString() + "px",
+      buttonSpacing: Math.round( DP_FontSize - 7 ),
     },
     navigator: { height: DP_FontSize * 3 },
     scrollbar: { height: DP_FontSize     },
@@ -4395,6 +4396,13 @@ function chartSetFontSize() {
                         '  background-color: ' + DP_Theme_Setting.background2 + ';\n'+
                         '  color: ' + DP_Theme_Setting.textColor + ';\n'+
                         '  border: 1px solid ' + DP_Theme_Setting.chart.borderColor + ';\n'+
+                        '}\n';
+// RangeSelektor Button selektionSize
+    dStyle.innerHTML += 'rect.highcharts-button-box {\n'+
+                        '  width: ' + (DP_FontSize + 20).toString() + 'px;\n'+
+                        '  height: ' + (DP_FontSize + 10).toString() + 'px;\n'+
+                        '  x: ' + Math.round((DP_FontSize - 14)/2*-1).toString() + 'px;\n'+
+                        '  y: ' + Math.round((DP_FontSize - 14)/2*-1).toString() + 'px;\n';
                         '}\n';
   }
 }

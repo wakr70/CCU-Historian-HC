@@ -247,7 +247,6 @@ var DP_Themes = {
         color: "#666666",
         display: 'none'
       }
-
     },
     navigator: {
       handles: {
