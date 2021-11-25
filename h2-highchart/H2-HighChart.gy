@@ -21,18 +21,17 @@ renderer.head={
   meta('http-equiv':'"expires" content="4500"') 
   link(rel: 'stylesheet', href: 'stock-tools/popup.css')
   link(rel: 'stylesheet', href: 'stock-tools/gui.css')
+  style "p {}"
 }
 
 renderer.content={
 
   div(id:'filter') {
-    select(id: "Select-Raum", class:"form-select-h2")  { }
-    select(id: "Select-Gewerk", class:"form-select-h2" )  { }
-    input id:"filterFeld", class:"form-select-h2", type:"text", placeholder:"Suchen.."
-    div(class:'btn-group', role:'group') {
-        button id:'refresh', class:'btn btn-default', 'Refresh'
-        button id:'createLink', class:'btn btn-default', 'Link erzeugen'
-    }
+    select(id: "Select-Raum", class:"form-select-h2 btn")  { }
+    select(id: "Select-Gewerk", class:"form-select-h2 btn" )  { }
+    input id:"filterFeld", class:"form-select-h2 btn", type:"text", placeholder:"Suchen.."
+    button id:'refresh', class:'btn btn-default', 'Refresh'
+    button id:'createLink', class:'btn btn-default', 'Link erzeugen'
    }
    div(id:'chart-container-outer') {
       style: "position:relative; flex-grow:1"
@@ -156,6 +155,10 @@ renderer.content={
                div(id:"theme") {
                   span id: "Text-Theme", class:"LinePopup-text", "Theme"
                   select(id: "Select-Theme", class:"form-select-h2")  { }
+               }
+               div(id:"fontsize") {
+                  span id: "Font-Size", class:"LinePopup-text", "Font-Size"
+                  select(id: "Select-FontSize", class:"form-select-h2")  { }
                }
                div(id:"refreshSec") {
                    span id: "Text-Refresh", class:"LinePopup-text", "Refresh in Sec." 

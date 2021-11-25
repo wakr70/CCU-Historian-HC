@@ -37,7 +37,9 @@ var DP_attribute = [];
 var DP_PopupID;
 var DP_PopupAxisObj;
 var DP_PopupAxisPos;
-var DP_Theme = 'Standard';
+var DP_Theme = 'standard';
+var DP_FontSize = 14;
+var DP_FontSizes = [8,10,12,14,16,18,20,24,30,40,50,60,70,80,100];
 var DP_Theme_Setting;
 var DP_DashType = ['Solid', 'Dash', 'DashDot', 'Dot', 'LongDash', 'LongDashDot', 'LongDashDotDot', 'ShortDash', 'ShortDashDot', 'ShortDashDotDot', 'ShortDot'];
 var DP_Queue = [];
@@ -231,11 +233,23 @@ var DP_yAxis = [{
 var DP_yAxis_default = JSON.parse(JSON.stringify(DP_yAxis));
 
 function createChart() {
-  if (DP_Theme !== 'Standard' && window.DP_Themes[DP_Theme]) {
-    DP_Theme_Setting = window.Highcharts.merge(window.DP_Themes.Standard, window.DP_Themes[DP_Theme]);
-  } else {
-    DP_Theme_Setting = window.Highcharts.merge(window.DP_Themes.Standard, {});
+  // Check DARK Mode
+  let l_theme = DP_Theme;
+  if (l_theme === 'standard') {
+     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+       l_theme = 'standard_dark';
+     } else {
+       l_theme = 'standard_light';
+     }
   }
+  if (l_theme !== 'standard_light' && window.DP_Themes[l_theme] && window.DP_Themes.standard_light) {
+    DP_Theme_Setting = window.Highcharts.merge(window.DP_Themes.standard_light, window.DP_Themes[l_theme]);
+  } else {
+    DP_Theme_Setting = window.DP_Themes.standard_light;
+  }
+
+  chartSetFontSize();
+
   window.Highcharts.setOptions(DP_Theme_Setting);
 
   chartSetOptions();
@@ -1511,6 +1525,15 @@ function parseSetting() {
           DP_DataPointFilter = parseInt(text2[k].substr(1, 2));
         } else if (text2[k].substr(0, 1) === 'B') {
           DP_Theme = text2[k].substr(1, 30);
+          if (DP_Theme === 'standard_groß') {    // check old version
+            DP_Theme = 'standard_light';
+            DP_FontSize = 20;
+          } else if (DP_Theme === 'standard_groesser') {     // check old version
+            DP_Theme = 'standard_light';
+            DP_FontSize = 30;
+          }
+        } else if (text2[k].substr(0, 1) === 'O') {
+          DP_FontSize = parseInt(text2[k].substr(1, 2));
         } else if (text2[k].substr(0, 1) === 'R') {
           H2_refreshSec = parseInt(text2[k].substr(1, 2));
         } else if (text2[k].substr(0, 1) === 'T') {
@@ -1583,6 +1606,15 @@ function readLinkData() {
         }
       } else if (nv[0].toLowerCase() === 'theme') {
         DP_Theme = decodeURIComponent(nv[1].toLowerCase());
+        if (DP_Theme === 'standard_groß') {      // check old version
+          DP_Theme = 'standard_light';
+          DP_FontSize = 20;
+        } else if (DP_Theme === 'standard_groesser') {      // check old version
+          DP_Theme = 'standard_light';
+          DP_FontSize = 30;
+        }
+      } else if (nv[0].toLowerCase() === 'fontsize') {
+        DP_FontSize = parseInt(decodeURIComponent(nv[1]));
       } else if (nv[0].toLowerCase() === 'dpfilter') {
         DP_DataPointFilter = parseInt(decodeURIComponent(nv[1]));
       } else if (nv[0].toLowerCase() === 'labels') {
@@ -2220,10 +2252,23 @@ $(document).ready(function() {
 
   // themes
   select = document.getElementById("Select-Theme");
+  option = document.createElement("option");
+  option.text = 'Standard hell/dunkel';
+  option.value = 'standard';
+  select.add(option);
   for (key in window.DP_Themes) {
     option = document.createElement("option");
     option.text = key;
     option.value = key;
+    select.add(option);
+  }
+
+  // FontSize options
+  select = document.getElementById("Select-FontSize");
+  for (key in window.DP_FontSizes) {
+    option = document.createElement("option");
+    option.text = window.ChhLanguage.default.historian.fontsize + "-" + DP_FontSizes[key].toString();
+    option.value = DP_FontSizes[key];
     select.add(option);
   }
 
@@ -2290,6 +2335,12 @@ $(document).ready(function() {
       });
     });
   }(window.Highcharts));
+
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+    if (DP_Theme === 'standard') {
+      createChart();
+    }
+  });
 
   setStockToolLang();
 
@@ -2725,10 +2776,14 @@ function createUrl() {
   }
 
   // Theme
-  if (DP_Theme !== '' && DP_Theme !== 'Standard') {
+  if (DP_Theme !== '' && DP_Theme !== 'standard') {
     url += '&theme=' + DP_Theme;
   }
 
+  // Font-Size
+  if (DP_FontSize !== '' && DP_FontSize !== 14) {
+    url += '&fontsize=' + DP_FontSize;
+  }
   // Title
   if (DP_Title !== '') {
     url += '&title=' + DP_Title.replaceAll("%", "§").replaceAll("&", "µ");
@@ -3111,6 +3166,7 @@ function showDialogSettings() {
   document.getElementById("Select-Content").value = DP_ShowFilter.toString();
   document.getElementById("Select-DataPoint").value = DP_DataPointFilter.toString();
   document.getElementById("Select-Theme").value = DP_Theme;
+  document.getElementById("Select-FontSize").value = DP_FontSize;
   document.getElementById("Line-Refresh").value = DP_AutoRefresh;
   document.getElementById("Line-Title").value = DP_Title;
   document.getElementById("Line-Subtitle").value = DP_Subtitle;
@@ -3144,6 +3200,7 @@ function saveSetting() {
   strCustom += '|F' + DP_ShowFilter.toString();
   strCustom += '|I' + DP_DataPointFilter.toString();
   strCustom += '|B' + DP_Theme;
+  strCustom += '|O' + DP_FontSize;
   strCustom += '|R' + DP_AutoRefresh;
   strCustom += '|T' + encodeURIComponent(DP_Title).replace(/'/g, '%27');
   strCustom += '|S' + encodeURIComponent(DP_Subtitle).replace(/'/g, '%27');
@@ -3204,6 +3261,7 @@ function getDialogSetting() {
   $("#SettingPopup").modal('hide');
 
   var filterrefresh = false;
+  var chartrefresh = false;
 
   // Legend
   if (DP_Legend.toString() !== document.getElementById("Select-Legend").value) {
@@ -3276,26 +3334,19 @@ function getDialogSetting() {
     filterrefresh = true;
   }
 
-
   // Theme
   if (DP_Theme !== document.getElementById("Select-Theme").value) {
     DP_Theme = document.getElementById("Select-Theme").value;
-    if (DP_Theme === 'Standard') {
-      window.Highcharts.setOptions(window.DP_Themes.Standard);
-      DP_Theme_Setting = window.DP_Themes.Standard;
-    } else {
-      if (window.DP_Themes[DP_Theme]) {
-        DP_Theme_Setting = window.Highcharts.merge(window.DP_Themes.Standard, window.DP_Themes[DP_Theme]);
-        window.Highcharts.setOptions(DP_Theme_Setting);
-      }
-    }
-
-    chartSetOptions();
-    chartSetElements();
-    filterrefresh = false;
+    chartrefresh = true;
   }
-  // AutoRefresh
 
+  // FontSize
+  if (DP_FontSize.toString() !== document.getElementById("Select-FontSize").value) {
+    DP_FontSize = parseInt(document.getElementById("Select-FontSize").value);
+    chartrefresh = true;
+  }
+
+  // AutoRefresh
   if (DP_AutoRefresh !== parseInt(document.getElementById("Line-Refresh").value)) {
     H2_refreshSec = parseInt(document.getElementById("Line-Refresh").value);
     AutoRefreshCount = H2_refreshSec;
@@ -3305,7 +3356,9 @@ function getDialogSetting() {
     DP_AutoRefresh = H2_refreshSec;
   }
 
-  if (filterrefresh) {
+  if (chartrefresh) {
+    createChart();
+  } else if (filterrefresh) {
     changeEventRaumFilter();
   }
 
@@ -3317,32 +3370,24 @@ $("#Dialog2BtnClose").click(function() {
 });
 
 function showFilterLine() {
-  var nav_height;
-  // check height of navigator+messages+range selector
-  if (DP_Navigator === 4 || DP_Navigator === 3) {
-    nav_height = 10;
-  } else {
-    nav_height = 55;
-  }
 
   // ajust height of content to screen height
   if (DP_ShowFilter === 0) {
-    document.getElementById("container").setAttribute("style", "height:" + ($(window).height() - nav_height - 0) + "px");
     document.getElementById("filter").style.display = "none";
     $('nav.navbar.navbar-default')[0].style.display = "none";
   } else if (DP_ShowFilter === 1) {
-    document.getElementById("container").setAttribute("style", "height:" + ($(window).height() - nav_height - 105) + "px");
     document.getElementById("filter").style.display = "block";
     $('nav.navbar.navbar-default')[0].style.display = "block";
   } else if (DP_ShowFilter === 2) {
-    document.getElementById("container").setAttribute("style", "height:" + ($(window).height() - nav_height - 35) + "px");
     document.getElementById("filter").style.display = "block";
     $('nav.navbar.navbar-default')[0].style.display = "none";
   } else if (DP_ShowFilter === 3) {
-    document.getElementById("container").setAttribute("style", "height:" + ($(window).height() - nav_height - 70) + "px");
     document.getElementById("filter").style.display = "none";
     $('nav.navbar.navbar-default')[0].style.display = "block";
   }
+
+  document.getElementById("container").setAttribute("style", "height:" + calcContSize().toString() + "px");
+
   if (chart) {
     chart.setSize(null, null, false);
   }
@@ -3608,7 +3653,7 @@ function chartSetOptions() {
         load: requestInitData,
         beforePrint: function () {
           if ( window.DP_Themes.transparent ) {
-            let DP_Theme_Print = window.Highcharts.merge(window.DP_Themes.Standard, window.DP_Themes.transparent);
+            let DP_Theme_Print = window.Highcharts.merge(window.DP_Themes.standard_light, window.DP_Themes.transparent);
             this.update(DP_Theme_Print);
           }
         },
@@ -3627,6 +3672,11 @@ function chartSetOptions() {
           y: 20,
         },
         relativeTo: 'plot',
+        theme: {
+          style: {
+            'font-size': DP_FontSize.toString() + "px"
+          },
+        },
       },
     },
 
@@ -4085,30 +4135,44 @@ function checkZeitraum(rangInfo) {
 }
 
 $(window).resize(function() {
-  var nav_height;
-  var char_height;
+
+  document.getElementById("container").setAttribute("style", "height:" + calcContSize().toString() + "px");
+
+  chart.legend.update(defineLegend());
+  chart.reflow();
+
+});
+
+function calcContSize() {
+  let nav_height;
+  let char_height;
+  let font_factor;
+  let cont_height;
+
+  font_factor = DP_FontSize / 14;
 
   if (DP_Navigator === 4 || DP_Navigator === 3) {
     nav_height = 10;
   } else {
     nav_height = 55;
   }
+  nav_height = Math.round(nav_height * font_factor);
+
   if (DP_ShowFilter === 0) {
-    char_height = $(window).height() - nav_height - 0;
+    char_height = 0;
   } else if (DP_ShowFilter === 1) {
-    char_height = $(window).height() - nav_height - 105;
+    char_height = 105;
   } else if (DP_ShowFilter === 2) {
-    char_height = $(window).height() - nav_height - 35;
+    char_height = 35;
   } else if (DP_ShowFilter === 3) {
-    char_height = $(window).height() - nav_height - 70;
+    char_height = 70;
   }
+  char_height = Math.round(char_height * font_factor);
 
-  document.getElementById("container").setAttribute("style", "height:" + (char_height) + "px");
+  cont_height = $(window).height() - nav_height - char_height;
+  return( cont_height );
 
-  chart.legend.update(defineLegend());
-  chart.reflow();
-
-});
+}
 
 function ajaxErrorOutput(xhr, status, error) {
   console.log('AXAJ-error:');
@@ -4211,4 +4275,126 @@ function toolTipInfo(sobj) {
     txta += "<b>" + window.Highcharts.dateFormat('%A, %b %e, %H:%M:%S', xDate) + "</b>";
   }
   return txta;
+}
+
+function chartSetFontSize() {
+
+  let Size_N = DP_FontSize.toString() + "px";
+  let Size_S = Math.round(DP_FontSize / 6 * 5).toString() + "px";
+  let Size_H = Math.round(DP_FontSize / 2).toString() + "px";
+
+  let Fontsize = {
+    title: { style: { "fontSize": Size_N } },
+    subtitle: { style: { "fontSize": Size_S } },
+    xAxis: {
+      labels: { style: { "fontSize": Size_N } },
+      title: { style: { "fontSize": Size_N } },
+    },
+    yAxis: {
+      labels: { style: { "fontSize": Size_N } },
+      title: { style: { "fontSize": Size_N } },
+    },
+    tooltip: {
+      headerFormat: "<span style=\"font-size: " + Size_N + "\">{point.key}</span><br/>",
+      style: { fontSize: Size_S }
+    },
+    legend: {
+      itemStyle: { fontSize: Size_S },
+      navigation: {
+        arrowSize: Math.round(DP_FontSize / 6 * 5),
+        style: { fontSize: Size_S }
+      },
+      title: { style: { fontSize: Size_N } }
+    },
+    credits: { style: { fontSize: Size_H } },
+    labels: { style: { fontSize: Size_S } },
+    rangeSelector: {
+      buttonTheme: { // styles for the buttons
+        style: { fontSize: Size_S, width: 50, height: 50 }
+      },
+      buttonSpacing: Math.round( DP_FontSize ),
+    },
+    navigator: { height: DP_FontSize * 3 },
+    scrollbar: { height: DP_FontSize     },
+    navigation: {
+//      annotationsOptions: { labelOptions: { style: { "font-size": Size_H } } },
+      buttonOptions: {
+        symbolSize: DP_FontSize,
+        height: DP_FontSize + 8,
+        width: DP_FontSize + 10
+      },
+      menuItemStyle: { "font-size": Size_S }
+    }
+  };
+
+  DP_Theme_Setting = window.Highcharts.merge(DP_Theme_Setting, Fontsize);
+
+
+// calculate Font Sizes from Setting
+  if (DP_FontSize) {
+    $('body').css('font-size', DP_FontSize.toString() + "px");
+    $('.form-select-h2').css('font-size', DP_FontSize.toString() + "px");
+    $('.form-input-h2').css('font-size', DP_FontSize.toString() + "px");
+    $('.modal-title').css('font-size', DP_FontSize.toString() + "px");
+    $('.modal-title2').css('font-size', DP_FontSize.toString() + "px");
+    $('.modal-title3').css('font-size', DP_FontSize.toString() + "px");
+    $('.btn-default').css('font-size', DP_FontSize.toString() + "px");
+    $('.LinePopup-text').css('width', 140 + (DP_FontSize * 6) + "px");
+    $('.modal-dialog').css('width', 400 + (DP_FontSize * 17) + "px");
+    $('.close').css('font-size', (DP_FontSize/2*3).toString() + "px");
+    $('.navbar-brand').css('font-size', (DP_FontSize + 4).toString() + "px");
+    $('.highcharts-button-box').css('height', (DP_FontSize + 4).toString() + "px");
+
+    let dStyle = document.querySelector('style');
+
+    dStyle.innerHTML =  '.highcharts-toggle-toolbar.highcharts-arrow-left  { \n'+
+                        '  width: ' + (DP_FontSize + 6).toString() + 'px;\n' +
+                        '  height: ' + (DP_FontSize + 6).toString() + 'px;\n' +
+                        '  background-color: ' + DP_Theme_Setting.background2 + ';\n' +
+                        '}\n' +
+                        '.highcharts-toggle-toolbar.highcharts-arrow-left.highcharts-arrow-right {\n' +
+                        '  width: ' + (DP_FontSize + 6).toString() + 'px;\n' +
+                        '  height: ' + (DP_FontSize + 6).toString() + 'px;\n' +
+                        '  background-color: ' + DP_Theme_Setting.background2 + ';\n' +
+                        '}\n' +
+                        'div.highcharts-bindings-wrapper li > span.highcharts-menu-item-btn { \n'+
+                        '  background-size: ' + (DP_FontSize + 20).toString() + 'px 100%;\n' +
+//                        '  filter: invert(100%);\n' +
+//                        '  -webkit-filter: invert(100%);\n' +
+                        '}\n';
+
+    dStyle.innerHTML += 'div.highcharts-menu-wrapper, div.highcharts-bindings-wrapper ul { \n'+
+                        '  width: ' + (DP_FontSize + 20).toString() + 'px;\n' +
+                        '}\n' +
+                        'li.highcharts-segment > ul.highcharts-submenu-wrapper { \n'+
+                        '  width: ' + (DP_FontSize + 20).toString() + 'px;\n' +
+                        '  background: ' + DP_Theme_Setting.background2 + ';\n' +
+                        '}\n' +
+                        'div.highcharts-bindings-wrapper .highcharts-stocktools-toolbar li { \n'+
+                        '  height: ' + (DP_FontSize + 20).toString() + 'px;\n' +
+                        '  background-color: ' + DP_Theme_Setting.background2 + ';\n' +
+                        '}\n';
+// Indicator Separator Height
+    dStyle.innerHTML += 'div.highcharts-bindings-wrapper .highcharts-stocktools-toolbar li.highcharts-separator {\n' +
+                        '  height: ' + (DP_FontSize).toString() + 'px;\n' +
+                        '}\n';
+
+    dStyle.innerHTML += 'div#filter select, div#filter input, div#filter button { \n'+
+                        '  height: ' + (34 / 14 * DP_FontSize).toString() + 'px;\n' +
+                        '}\n';
+// Indicator Popup Colors:
+    dStyle.innerHTML += '.highcharts-indicator-list {\n'+
+                        '  background: ' + DP_Theme_Setting.background2 + ';\n'+
+                        '  color: ' + DP_Theme_Setting.textColor + ';\n'+
+                        '}\n';
+    dStyle.innerHTML += '.highcharts-input-search-indicators-label {\n'+
+                        '  color: ' + DP_Theme_Setting.textColor + ';\n'+
+                        '  background: ' + DP_Theme_Setting.background2 + ';\n'+
+                        '}\n';
+    dStyle.innerHTML += '.highcharts-popup {\n'+
+                        '  background-color: ' + DP_Theme_Setting.background2 + ';\n'+
+                        '  color: ' + DP_Theme_Setting.textColor + ';\n'+
+                        '  border: 1px solid ' + DP_Theme_Setting.chart.borderColor + ';\n'+
+                        '}\n';
+  }
 }
