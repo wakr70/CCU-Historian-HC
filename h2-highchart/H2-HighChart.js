@@ -237,15 +237,15 @@ function createChart() {
   let l_theme = DP_Theme;
   if (l_theme === 'standard') {
      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-       l_theme = 'standard_dark';
+       l_theme = 'standard-dark';
      } else {
-       l_theme = 'standard_light';
+       l_theme = 'standard-light';
      }
   }
-  if (l_theme !== 'standard_light' && window.DP_Themes[l_theme] && window.DP_Themes.standard_light) {
-    DP_Theme_Setting = window.Highcharts.merge(window.DP_Themes.standard_light, window.DP_Themes[l_theme]);
+  if (l_theme !== 'standard-light' && window.DP_Themes[l_theme] && window.DP_Themes['standard-light']) {
+    DP_Theme_Setting = window.Highcharts.merge(window.DP_Themes['standard-light'], window.DP_Themes[l_theme]);
   } else {
-    DP_Theme_Setting = window.DP_Themes.standard_light;
+    DP_Theme_Setting = window.DP_Themes['standard-light'];
   }
 
   chartSetFontSize();
@@ -1526,10 +1526,10 @@ function parseSetting() {
         } else if (text2[k].substr(0, 1) === 'B') {
           DP_Theme = text2[k].substr(1, 30);
           if (DP_Theme === 'standard_groß') {    // check old version
-            DP_Theme = 'standard_light';
+            DP_Theme = 'standard-light';
             DP_FontSize = 20;
           } else if (DP_Theme === 'standard_groesser') {     // check old version
-            DP_Theme = 'standard_light';
+            DP_Theme = 'standard-light';
             DP_FontSize = 30;
           }
         } else if (text2[k].substr(0, 1) === 'O') {
@@ -1607,10 +1607,10 @@ function readLinkData() {
       } else if (nv[0].toLowerCase() === 'theme') {
         DP_Theme = decodeURIComponent(nv[1].toLowerCase());
         if (DP_Theme === 'standard_groß') {      // check old version
-          DP_Theme = 'standard_light';
+          DP_Theme = 'standard-light';
           DP_FontSize = 20;
         } else if (DP_Theme === 'standard_groesser') {      // check old version
-          DP_Theme = 'standard_light';
+          DP_Theme = 'standard-light';
           DP_FontSize = 30;
         }
       } else if (nv[0].toLowerCase() === 'fontsize') {
@@ -3653,7 +3653,7 @@ function chartSetOptions() {
         load: requestInitData,
         beforePrint: function () {
           if ( window.DP_Themes.transparent ) {
-            let DP_Theme_Print = window.Highcharts.merge(window.DP_Themes.standard_light, window.DP_Themes.transparent);
+            let DP_Theme_Print = window.Highcharts.merge(window.DP_Themes['standard-light'], window.DP_Themes.transparent);
             this.update(DP_Theme_Print);
           }
         },
