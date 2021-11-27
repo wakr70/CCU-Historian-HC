@@ -1478,14 +1478,8 @@ function parseSetting() {
               DP_yAxis[axis_id].type = 1;
             }
           } else if (text2[k].substr(0, 1) === 'A') {
-            if (text2[k].substr(1, 1) === '0') {
-              DP_yAxis[axis_id].limit = 0;
-            }
-            if (text2[k].substr(1, 1) === '1') {
-              DP_yAxis[axis_id].limit = 1;
-            }
-            if (text2[k].substr(1, 1) === '2') {
-              DP_yAxis[axis_id].limit = 2;
+            if (text2[k].substr(1, 1) >= '0' && text2[k].substr(1, 1) <= '2') {
+              DP_yAxis[axis_id].limit = parseInt(text2[k].substr(1, 1));
             }
           } else if (text2[k].substr(0, 1) === 'L') {
             DP_yAxis[axis_id].min = parseFloat(text2[k].substr(1, 15));
@@ -1589,20 +1583,8 @@ function readLinkData() {
         if (decodeURIComponent(nv[1].toLowerCase()) === 'false') {
           DP_Navigator = 3;
         }
-        if (decodeURIComponent(nv[1].toLowerCase()) === '0') {
-          DP_Navigator = 0;
-        }
-        if (decodeURIComponent(nv[1].toLowerCase()) === '1') {
-          DP_Navigator = 1;
-        }
-        if (decodeURIComponent(nv[1].toLowerCase()) === '2') {
-          DP_Navigator = 2;
-        }
-        if (decodeURIComponent(nv[1].toLowerCase()) === '3') {
-          DP_Navigator = 3;
-        }
-        if (decodeURIComponent(nv[1].toLowerCase()) === '4') {
-          DP_Navigator = 4;
+        if (decodeURIComponent(nv[1].toLowerCase()) >= '0' && decodeURIComponent(nv[1].toLowerCase()) <= '4') {
+          DP_Navigator = parseInt(decodeURIComponent(nv[1]));
         }
       } else if (nv[0].toLowerCase() === 'theme') {
         DP_Theme = decodeURIComponent(nv[1].toLowerCase());
@@ -1621,30 +1603,15 @@ function readLinkData() {
         if (decodeURIComponent(nv[1].toLowerCase()) === 'true') {
           DP_Labels = 1;
         }
-        if (decodeURIComponent(nv[1].toLowerCase()) === '0') {
-          DP_Labels = 0;
-        }
-        if (decodeURIComponent(nv[1].toLowerCase()) === '1') {
-          DP_Labels = 1;
-        }
-        if (decodeURIComponent(nv[1].toLowerCase()) === '2') {
-          DP_Labels = 2;
+        if (decodeURIComponent(nv[1].toLowerCase()) >= '0' && decodeURIComponent(nv[1].toLowerCase()) <= '2') {
+          DP_Labels = parseInt(decodeURIComponent(nv[1]));
         }
       } else if (nv[0].toLowerCase() === 'daylight') {
         if (decodeURIComponent(nv[1].toLowerCase()) === 'false') {
           DP_DayLight = 0;
         }
-        if (decodeURIComponent(nv[1].toLowerCase()) === '0') {
-          DP_DayLight = 0;
-        }
-        if (decodeURIComponent(nv[1].toLowerCase()) === '1') {
-          DP_DayLight = 1;
-        }
-        if (decodeURIComponent(nv[1].toLowerCase()) === '2') {
-          DP_DayLight = 2;
-        }
-        if (decodeURIComponent(nv[1].toLowerCase()) === '3') {
-          DP_DayLight = 3;
+        if (decodeURIComponent(nv[1].toLowerCase()) >= '0' && decodeURIComponent(nv[1].toLowerCase()) <= '3') {
+          DP_DayLight = parseInt(decodeURIComponent(nv[1]));
         }
       } else if (nv[0].toLowerCase() === 'grid') {
         DP_Grid = parseInt(decodeURIComponent(nv[1]));
@@ -4402,7 +4369,12 @@ function chartSetFontSize() {
                         '  width: ' + (DP_FontSize + 20).toString() + 'px;\n'+
                         '  height: ' + (DP_FontSize + 10).toString() + 'px;\n'+
                         '  x: ' + Math.round((DP_FontSize - 14)/2*-1).toString() + 'px;\n'+
-                        '  y: ' + Math.round((DP_FontSize - 14)/2*-1).toString() + 'px;\n';
+                        '  y: ' + Math.round((DP_FontSize - 14)/2*-1).toString() + 'px;\n'+
+                        '}\n';
+// Zoom text box
+    dStyle.innerHTML += '.highcharts-reset-zoom rect.highcharts-button-box {\n'+
+                        '  width: ' + (DP_FontSize + 135).toString() + 'px;\n'+
+                        '  height: ' + (DP_FontSize + 20).toString() + 'px;\n'+
                         '}\n';
   }
 }
