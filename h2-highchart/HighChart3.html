@@ -4,20 +4,20 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" sizes="192x192" href="http://10.0.0.250:8082/custom/h2-highchart/historian-196.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="http://10.0.0.250:8082/custom/h2-highchart/historian-180.png">
+    <link rel="icon" sizes="192x192" href="historian-196.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="historian-180.png">
     <title>CCU-historian: HighChart</title>
     <script> var apiKey=""</script>
     <link rel='stylesheet' href="/external/bootstrap/css/bootstrap.css"></link>
     <link rel='stylesheet' href="historian.css"></link>
-    <link rel='stylesheet' href='stock-tools/popup.css'></link>
-    <link rel='stylesheet' href='stock-tools/gui.css'></link>
     <style>p { border: 0px solid; }</style>
   </head>
   <body style="background-color: rgb(255, 255, 255);">
-    <nav class="navbar navbar-default" style="display: none;"></nav>
+    <div class="container-navbar" style="display: none">
+       <nav class="navbar navbar-default" style="display: none;"></nav>
+    </div>
     <div class="container-fluid" style="margin-top: 0.5em">
-      <div id="filter" style="display: block;">
+      <div id="filter" style="display: none;">
         <select id="Select-Raum" class="form-select-h2"></select>
         <select id="Select-Gewerk" class="form-select-h2"></select>
         <input id="filterFeld" class="form-select-h2" type="text" placeholder="Suchen ...">
@@ -26,7 +26,7 @@
         <select id="Select-Favorit" class="form-select-h2"></select>
       </div>
       <div id="container" style="height:200px" data-highcharts-chart="0"></div>
-      <div id="message" style="color: rgb(51, 51, 51);">
+      <div id="message" style="color: rgb(51, 51, 51);display: none;">
         <span id="count_val">0</span>
         <span id="count_text">Werte</span>
         <span id="aggr_text"></span>
@@ -222,21 +222,6 @@
     <script src='exporting.js'></script>
     <script src='offline-exporting.js'></script>
     <script src='modules/export-data.js'></script>
-    <script src='modules/debugger.js'></script>
-    <script src='modules/boost.js'></script>
-    <script src='stock-tools/indicators.js'></script>
-    <script src='stock-tools/acceleration-bands.js'></script>
-    <script src='stock-tools/bollinger-bands.js'></script>
-    <script src='stock-tools/dema.js'></script>
-    <script src='stock-tools/tema.js'></script>
-    <script src='stock-tools/wma.js'></script>
-    <script src='stock-tools/regressions.js'></script>
-    <script src='stock-tools/trendline.js'></script>
-    <script src='stock-tools/drag-panes.js'></script>
-    <script src='stock-tools/annotations-advanced.js'></script>
-    <script src='stock-tools/price-indicator.js'></script>
-    <script src='stock-tools/full-screen.js'></script>
-    <script src='stock-tools/stock-tools.js'></script>
     <script src='language.js'></script>
     <script src='themes.js'></script>
     <script src='H2-HighChart.js'></script>

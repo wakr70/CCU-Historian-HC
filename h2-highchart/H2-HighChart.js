@@ -2,6 +2,9 @@
  * HighChart javascripts by wak 2019-2021
  ************************************/
 
+// Version
+var H2_version = 'v5.4';
+
 /* define SLINT globals do avoid issues */
 /* global ChhLanguage:false, DP_Themes:false */
 /* eslint-env browser */
@@ -13,7 +16,7 @@ var H2_refreshSec = 60;
 // Refresh Time is enabled
 
 // declare global Variables
-var H2_version = 'v5.0';
+var cntrlIsPressed = false;
 var chart;
 var filter_feld = '';
 var DP_point = [];
@@ -2025,6 +2028,8 @@ $(document).ready(function() {
   document.getElementById('filterFeld').placeholder = window.ChhLanguage.default.historian.filterPlaceHolder;
   document.title = window.ChhLanguage.default.interface.pageTitle;
 
+  fillFavorites();
+
   // Define a custom symbol PLUS
   window.Highcharts.SVGRenderer.prototype.symbols.plus = function(x, y, w, h) {
     return ['M', x + w * 0.3, y,
@@ -2303,7 +2308,7 @@ $(document).ready(function() {
     });
   }(window.Highcharts));
 
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
     if (DP_Theme === 'standard') {
       createChart();
     }
@@ -2330,6 +2335,36 @@ function setStockToolLang() {
     }
   }
 }
+
+// *******************
+function fillFavorites() {
+  $("#Select-Favorit").empty();
+  let select = document.getElementById("Select-Favorit");
+  if (select) {
+    select.options[select.options.length] = new Option(window.ChhLanguage.default.historian.favoritTxt, '');
+    select.options[select.options.length] = new Option(window.ChhLanguage.default.historian.favoritNEW, '<New>');
+    if (DP_settings.Favorites) {
+      for (let DP_SET of DP_settings.Favorites) {
+        select.options[select.options.length] = new Option(decodeURIComponent(DP_SET.Name),
+                                                           decodeURIComponent(DP_SET.Url));
+      }
+    }
+  }
+};
+
+function deleteFav(favorit) {
+
+  if (DP_settings.Favorites[favorit]) {
+  // delete Favorite entry on position
+    DP_settings.Favorites.splice(favorit,1);
+  
+  // Save to H2 database
+    saveSettingsH2();
+  
+  // regenerate select-option on screen with less values
+    fillFavorites();
+  }
+};
 
 // *******************
 function changeEventRaumFilter() {
@@ -2564,7 +2599,7 @@ function loadNewAxisInfo() {
       }
 
       // set extrem if config HARD
-      if (DP_yAxis[axispos].limit === '2') {
+      if (DP_yAxis[axispos].limit === 2) {
         chart.yAxis[axispos].setExtremes(parseFloat(DP_yAxis[axispos].min), parseFloat(DP_yAxis[axispos].max));
       }
 
@@ -2665,7 +2700,17 @@ function createUrl() {
   var url = location.pathname + "?";
 
   // Add Periode Parameter
-  url += 'periode=' + (Math.round(((Zeitraum_Ende - Zeitraum_Start) / (60 * 60 * 1000)) * 100) / 100).toString();
+  url += generateUrl();
+
+  window.open(url, '_blank');
+  window.focus();
+  return true;
+}
+
+function generateUrl() {
+
+  // Add Periode Parameter
+  let url = 'periode=' + (Math.round(((Zeitraum_Ende - Zeitraum_Start) / (60 * 60 * 1000)) * 100) / 100).toString();
 
   var url2 = createUrlSerie();
   if (url2.length > 0) {
@@ -2761,9 +2806,7 @@ function createUrl() {
     url += '&subtitle=' + DP_Subtitle.replaceAll("%", "§").replaceAll("&", "µ");
   }
 
-  window.open(url, '_blank');
-  window.focus();
-  return true;
+  return url;
 }
 
 //********************
@@ -3331,6 +3374,51 @@ function getDialogSetting() {
 
 }
 
+// Show Dialog
+function showDialogFav() {
+
+  // set value on Popup
+  document.getElementsByClassName("modal-title4")[0].innerHTML = window.ChhLanguage.default.historian.favoritTitle;
+  document.getElementById("Line-Title4").value = '';
+
+  $("#FavPopup").modal();
+}
+
+// Close Dialog Settings
+$("#Dialog4BtnOK").click(function() {
+  getDialogFav();
+  document.getElementById("Line-Title4").value = '';
+  return true;
+});
+
+// Close Dialog Settings
+$("#Dialog4BtnClose").click(function() {
+  $("#FavPopup").modal('hide');
+  document.getElementById("Line-Title4").value = '';
+  return true;
+});
+
+
+function getDialogFav() {
+
+  $("#FavPopup").modal('hide');
+
+  // Favorite Title
+  if (document.getElementById("Line-Title4").value) {
+
+    if (!DP_settings.Favorites) {
+      DP_settings.Favorites = [];
+    }
+    DP_settings.Favorites.push({ Name: encodeURIComponent(document.getElementById("Line-Title4").value).replace(/'/g, '%27'), 
+                                 Url: encodeURIComponent(generateUrl()).replace(/'/g, '%27') });
+
+    saveSettingsH2();
+
+    fillFavorites();
+  }
+
+}
+
 // Close Dialog Settings
 $("#Dialog2BtnClose").click(function() {
   $("#SettingPopup").modal('hide');
@@ -3537,7 +3625,6 @@ function getDialogAxis() {
 
 }
 
-
 // Close Dialog Settings
 $("#Dialog3BtnClose").click(function() {
   $("#AxisPopup").modal('hide');
@@ -3557,7 +3644,7 @@ function defineYAxis() {
       },
       lineWidth: 2,
       // showEmpty: false,
-      opposite: (DP_yAxis[y].position === 1) ? true : false,
+      opposite: DP_yAxis[y].position,
       tickAmount: DP_yAxis[y].tick,
       min: (DP_yAxis[y].limit === 2) ? DP_yAxis[y].min : null,
       max: (DP_yAxis[y].limit === 2) ? DP_yAxis[y].max : null,
@@ -3581,7 +3668,6 @@ $("#Select-Color").on("change", function() {
 $("#Select-AxisColor").on("change", function() {
   showDialogYAxisUpdatColor();
 });
-
 
 function showDialogYAxisUpdatColor() {
   var colorPos = parseInt(document.getElementById("Select-AxisColor").value);
@@ -3612,6 +3698,11 @@ function getComparisionBackDay(str_compType) {
 }
 
 function chartSetOptions() {
+
+  let myText = '';
+  if (window.Highcharts.getOptions().navigation && window.Highcharts.getOptions().navigation.bindings && window.Highcharts.getOptions().navigation.bindings.labelAnnotation) {
+     myText = window.Highcharts.getOptions().navigation.bindings.labelAnnotation;
+  }
 
   window.Highcharts.stockChart('container', {
     lang: window.ChhLanguage.default.highcharts,
@@ -3853,7 +3944,7 @@ function chartSetOptions() {
         enabled: (DP_Navigator < 4) ? true : false,
       },
       bindings: {
-        myText: window.Highcharts.getOptions().navigation.bindings.labelAnnotation
+        myText: myText
       }
     },
     stockTools: {
@@ -4065,6 +4156,40 @@ function chartSetElements() {
     return true;
   });
 
+  // *** set function for Favorit Button
+  $("#Select-Favorit").on("change", function() {
+    let favorit = document.getElementById("Select-Favorit").value;
+    if (favorit === '<New>') {
+// add Favorit
+      showDialogFav();
+      document.getElementById("Select-Favorit").value = '';
+    } else {
+// on Shift delete Favorit
+      if (cntrlIsPressed) {
+        if (document.getElementById("Select-Favorit").selectedIndex > 1) {
+          deleteFav(document.getElementById("Select-Favorit").selectedIndex-2);
+        }
+      } else {
+// execute Favorit
+        var url = location.pathname + "?";
+        // Add Periode Parameter
+        url += favorit;
+        window.open(url,"_self");
+      }
+    }
+  });
+
+  // Check whether control button is pressed
+  $("body").on("keydown", function(event) {
+      if (event.which === 17) {
+          cntrlIsPressed = true;
+      }
+  });
+
+  // release all Buttons
+  $("body").on("keyup", function() {
+      cntrlIsPressed = false;
+  });
 }
 
 function refreshClick() {
@@ -4312,6 +4437,7 @@ function chartSetFontSize() {
     $('.close').css('font-size', (DP_FontSize/2*3).toString() + "px");
     $('.navbar-brand').css('font-size', (DP_FontSize + 4).toString() + "px");
     $('.highcharts-button-box').css('height', (DP_FontSize + 4).toString() + "px");
+    $('#Select-Favorit').css('width', 16 + (DP_FontSize * 6) + "px");
 
     let dStyle = document.querySelector('style');
 

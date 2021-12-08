@@ -53,6 +53,9 @@ var ChhLanguage = {
       roomALL: 'alle Räume',
       sysvarALL: 'Systemvariablen',
       functionALL: 'alle Gewerke',
+      favoritTxt: 'Favoriten',
+      favoritNEW: '<neuer Favorit>',
+      favoritTitle: 'Favorit anlegen',
 
       // Button and Screen text
       buttonDay: 'Tag',
