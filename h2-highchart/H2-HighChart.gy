@@ -32,7 +32,7 @@ renderer.content={
       input id:"filterFeld", class:"form-select-h2 btn", type:"text", placeholder:"Suchen.."
       button id:'refresh', class:'btn btn-default', 'Refresh'
       button id:'createLink', class:'btn btn-default', 'Link erzeugen'
-      select(id: "Select-Favorit", class:"form-select-h2 btn")  { }
+      button id:'bntFavorit', class:'btn btn-default', 'Favoriten'
    }
    div(id:'chart-container-outer') {
       style: "position:relative; flex-grow:1"
@@ -240,6 +240,9 @@ renderer.content={
                div(id:"title4") {
                    span id: "Text-Title4", class:"LinePopup-text", "Title" 
                    input(id: "Line-Title4", class:"form-input-h2") 
+                   button id:'favAdd', class:'btn btn-default', 'Add'
+               }
+               div(id:"favList") {
                }
             }
             div(class:"modal-footer") {

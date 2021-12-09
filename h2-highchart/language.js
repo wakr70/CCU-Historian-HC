@@ -54,8 +54,9 @@ var ChhLanguage = {
       sysvarALL: 'Systemvariablen',
       functionALL: 'alle Gewerke',
       favoritTxt: 'Favoriten',
-      favoritNEW: '<neuer Favorit>',
-      favoritTitle: 'Favorit anlegen',
+      favoritNEW: 'hinzufügen',
+      favoritTitle: 'Favorit wählen / anlegen',
+      favoritName: 'Neuer Favoriten Name',
 
       // Button and Screen text
       buttonDay: 'Tag',

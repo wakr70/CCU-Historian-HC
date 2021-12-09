@@ -2025,10 +2025,9 @@ $(document).ready(function() {
   // Translate to Language Set
   document.getElementById('refresh').innerHTML = window.ChhLanguage.default.historian.buttonRefresh;
   document.getElementById('createLink').innerHTML = window.ChhLanguage.default.historian.buttonLink;
+  document.getElementById('bntFavorit').innerHTML = window.ChhLanguage.default.historian.favoritTxt;
   document.getElementById('filterFeld').placeholder = window.ChhLanguage.default.historian.filterPlaceHolder;
   document.title = window.ChhLanguage.default.interface.pageTitle;
-
-  fillFavorites();
 
   // Define a custom symbol PLUS
   window.Highcharts.SVGRenderer.prototype.symbols.plus = function(x, y, w, h) {
@@ -2337,36 +2336,6 @@ function setStockToolLang() {
 }
 
 // *******************
-function fillFavorites() {
-  $("#Select-Favorit").empty();
-  let select = document.getElementById("Select-Favorit");
-  if (select) {
-    select.options[select.options.length] = new Option(window.ChhLanguage.default.historian.favoritTxt, '');
-    select.options[select.options.length] = new Option(window.ChhLanguage.default.historian.favoritNEW, '<New>');
-    if (DP_settings.Favorites) {
-      for (let DP_SET of DP_settings.Favorites) {
-        select.options[select.options.length] = new Option(decodeURIComponent(DP_SET.Name),
-                                                           decodeURIComponent(DP_SET.Url));
-      }
-    }
-  }
-};
-
-function deleteFav(favorit) {
-
-  if (DP_settings.Favorites[favorit]) {
-  // delete Favorite entry on position
-    DP_settings.Favorites.splice(favorit,1);
-  
-  // Save to H2 database
-    saveSettingsH2();
-  
-  // regenerate select-option on screen with less values
-    fillFavorites();
-  }
-};
-
-// *******************
 function changeEventRaumFilter() {
   var filter_raum = document.getElementById("Select-Raum").value;
   var filter_gewerk = document.getElementById("Select-Gewerk").value;
@@ -2598,8 +2567,10 @@ function loadNewAxisInfo() {
 
       }
 
-      // set extrem if config HARD
-      if (DP_yAxis[axispos].limit === 2) {
+      if (DP_yAxis[axispos].limit === 0 || DP_yAxis[axispos].limit === 1 ) {
+        chart.yAxis[axispos].setExtremes(null, null);
+      } else if (DP_yAxis[axispos].limit === 2) {
+        // set extrem if config Dynamic or HARD
         chart.yAxis[axispos].setExtremes(parseFloat(DP_yAxis[axispos].min), parseFloat(DP_yAxis[axispos].max));
       }
 
@@ -3381,11 +3352,69 @@ function showDialogFav() {
   document.getElementsByClassName("modal-title4")[0].innerHTML = window.ChhLanguage.default.historian.favoritTitle;
   document.getElementById("Line-Title4").value = '';
 
+  document.getElementById("Text-Title4").innerHTML = window.ChhLanguage.default.historian.favoritName;
+  document.getElementById("favAdd").innerHTML = window.ChhLanguage.default.historian.favoritNEW;
+
+// genearte Fav-List on Popup
+
+  if (DP_settings.Favorites) {
+    let favList = document.getElementById('favList');
+    if (favList.childNodes && favList.childNodes.length > 0) {
+      favList.removeChild(favList.childNodes[0]);
+    }
+
+    let mytable = document.createElement("table");
+    mytable.setAttribute("width","100%");
+    mytable.setAttribute("style","border: 0px; margin-top: 22px;");
+    let mytablebody = document.createElement("tbody");
+
+    for(let i = 0; i<DP_settings.Favorites.length;i++) {
+      let mycurrent_row = document.createElement("tr");
+
+      let mycurrent_cell1 = document.createElement("td");
+      mycurrent_cell1.setAttribute("style","border: 0px;");
+
+      let currenttext1 = document.createElement("button")
+      currenttext1.innerHTML = decodeURIComponent(DP_settings.Favorites[i].Name);
+      currenttext1.setAttribute("class","bnt btn-default");
+      currenttext1.setAttribute("onclick","executeFav("+i+");");
+      currenttext1.setAttribute("style","width: 90%;");
+
+      mycurrent_cell1.appendChild(currenttext1);
+      mycurrent_row.appendChild(mycurrent_cell1);
+
+      let mycurrent_cell2 = document.createElement("td");
+      mycurrent_cell2.setAttribute("style","border: 0px;");
+
+      let currenttext2 = document.createElement("button")
+      currenttext2.setAttribute("class","bnt btn-default");
+      currenttext2.setAttribute("onclick","deleteFav("+i+");");
+      currenttext2.setAttribute("style","font-size: 21px;");
+      currenttext2.textContent = 'x'
+
+      mycurrent_cell2.appendChild(currenttext2);
+      mycurrent_row.appendChild(mycurrent_cell2);
+
+      mytablebody.appendChild(mycurrent_row);
+    }
+
+    mytable.appendChild(mytablebody);
+    favList.appendChild(mytable);
+    mytable.setAttribute("border","2");
+  }
+
   $("#FavPopup").modal();
 }
 
 // Close Dialog Settings
 $("#Dialog4BtnOK").click(function() {
+  $("#FavPopup").modal('hide');
+  document.getElementById("Line-Title4").value = '';
+  return true;
+});
+
+// Close Dialog Settings
+$("#favAdd").click(function() {
   getDialogFav();
   document.getElementById("Line-Title4").value = '';
   return true;
@@ -3398,6 +3427,30 @@ $("#Dialog4BtnClose").click(function() {
   return true;
 });
 
+function deleteFav(favorit) {
+
+ $("#FavPopup").modal('hide');
+ 
+  if (DP_settings.Favorites[favorit]) {
+  // delete Favorite entry on position
+    DP_settings.Favorites.splice(favorit,1);
+  
+  // Save to H2 database
+    saveSettingsH2();
+  }
+};
+
+function executeFav(favorit) {
+ $("#FavPopup").modal('hide');
+ 
+  if (DP_settings.Favorites[favorit]) {
+
+// execute Favorit
+    var url = location.pathname + "?" + decodeURIComponent(DP_settings.Favorites[favorit].Url);
+    window.open(url,"_self");
+
+  }
+};
 
 function getDialogFav() {
 
@@ -3413,8 +3466,6 @@ function getDialogFav() {
                                  Url: encodeURIComponent(generateUrl()).replace(/'/g, '%27') });
 
     saveSettingsH2();
-
-    fillFavorites();
   }
 
 }
@@ -3581,7 +3632,7 @@ function getDialogAxis() {
   $("#AxisPopup").modal('hide');
 
   // Update YAxis parameter
-  chart.yAxis[DP_PopupAxisPos].update({
+  let newOptions = {
     title: {
       text: document.getElementById("Line-Title3").value
     },
@@ -3593,10 +3644,23 @@ function getDialogAxis() {
     max: (document.getElementById("Select-Limit").value === '2') ? parseFloat(document.getElementById("Line-Max").value) : null,
     softMin: (document.getElementById("Select-Limit").value === '1') ? parseFloat(document.getElementById("Line-Min").value) : null,
     softMax: (document.getElementById("Select-Limit").value === '1') ? parseFloat(document.getElementById("Line-Max").value) : null,
-    startOnTick: (document.getElementById("Select-Limit").value === '2') ? true : false,
-    endOnTick: (document.getElementById("Select-Limit").value === '2') ? true : false,
+    startOnTick: (document.getElementById("Select-Limit").value === '2') ? false : true,
+    endOnTick: (document.getElementById("Select-Limit").value === '2') ? false : true,
     allowDecimals: true,
-  });
+    tickPositioner: null,
+  };
+  if (document.getElementById("Select-Limit").value === '2') {  
+    newOptions.tickPositioner = function() {
+      const axis = this
+      return axis.tickPositions.map((pos) => {
+        if (pos <= axis.max && pos >= axis.min) return pos; // If between range
+        else if (pos > axis.max) return axis.max;
+        else if (pos < axis.min) return axis.min;
+      });
+    };
+  };
+
+  chart.yAxis[DP_PopupAxisPos].update(newOptions);
 
   DP_yAxis[DP_PopupAxisPos].text = document.getElementById("Line-Title3").value;
   DP_yAxis[DP_PopupAxisPos].position = (parseInt(document.getElementById("Select-Position").value) === 0) ? false : true;
@@ -3635,7 +3699,7 @@ $("#Dialog3BtnClose").click(function() {
 function defineYAxis() {
   var arr = [];
   for (var y = 0; y < DP_yAxis.length; y++) {
-    arr.push({
+    let newOptions = {
       id: 'AXISY' + y,
       className: 'axisy' + y,
       type: (DP_yAxis[y].type === 1) ? 'logarithmic' : 'linear',
@@ -3650,11 +3714,23 @@ function defineYAxis() {
       max: (DP_yAxis[y].limit === 2) ? DP_yAxis[y].max : null,
       softMin: (DP_yAxis[y].limit === 1) ? DP_yAxis[y].min : null,
       softMax: (DP_yAxis[y].limit === 1) ? DP_yAxis[y].max : null,
-      startOnTick: (DP_yAxis[y].limit === 2) ? true : false,
-      endOnTick: (DP_yAxis[y].limit === 2) ? true : false,
+      startOnTick: (DP_yAxis[y].limit === 2) ? false : true,
+      endOnTick: (DP_yAxis[y].limit === 2) ? false : true,
       allowDecimals: true,
       visible: false,
-    });
+      tickPositioner: null,
+    };
+    if (DP_yAxis[y].limit === 2) {  
+      newOptions.tickPositioner =  function() {
+        const axis = this
+        return axis.tickPositions.map((pos) => {
+          if (pos <= axis.max && pos >= axis.min) return pos // If between range
+          else if (pos > axis.max) return axis.max
+          else if (pos < axis.min) return axis.min
+        });
+      };
+    };
+    arr.push(newOptions);
   }
   return arr;
 }
@@ -4157,39 +4233,11 @@ function chartSetElements() {
   });
 
   // *** set function for Favorit Button
-  $("#Select-Favorit").on("change", function() {
-    let favorit = document.getElementById("Select-Favorit").value;
-    if (favorit === '<New>') {
-// add Favorit
-      showDialogFav();
-      document.getElementById("Select-Favorit").value = '';
-    } else {
-// on Shift delete Favorit
-      if (cntrlIsPressed) {
-        if (document.getElementById("Select-Favorit").selectedIndex > 1) {
-          deleteFav(document.getElementById("Select-Favorit").selectedIndex-2);
-        }
-      } else {
-// execute Favorit
-        var url = location.pathname + "?";
-        // Add Periode Parameter
-        url += favorit;
-        window.open(url,"_self");
-      }
-    }
+  $("#bntFavorit").click(function() {
+    showDialogFav();
+    return true;
   });
 
-  // Check whether control button is pressed
-  $("body").on("keydown", function(event) {
-      if (event.which === 17) {
-          cntrlIsPressed = true;
-      }
-  });
-
-  // release all Buttons
-  $("body").on("keyup", function() {
-      cntrlIsPressed = false;
-  });
 }
 
 function refreshClick() {
@@ -4217,13 +4265,13 @@ function getLocalData(cname) {
 // check if new data should be loaded
 function checkZeitraum(rangInfo) {
   var datNew = new Date(Zeitraum_Ende - (new Date(rangInfo._range)));
-  if (Zeitraum_Start > datNew) {
+//  if (Zeitraum_Start > datNew) {
     Zeitraum_Start = datNew;
     loadNewSerienData();
     DP_Button_Jump = true;
     return false;
-  }
-  return true;
+//  }
+//  return true;
 }
 
 $(window).resize(function() {
@@ -4437,7 +4485,7 @@ function chartSetFontSize() {
     $('.close').css('font-size', (DP_FontSize/2*3).toString() + "px");
     $('.navbar-brand').css('font-size', (DP_FontSize + 4).toString() + "px");
     $('.highcharts-button-box').css('height', (DP_FontSize + 4).toString() + "px");
-    $('#Select-Favorit').css('width', 16 + (DP_FontSize * 6) + "px");
+    $('#bntFavorit').css('width', 16 + (DP_FontSize * 6) + "px");
 
     let dStyle = document.querySelector('style');
 
