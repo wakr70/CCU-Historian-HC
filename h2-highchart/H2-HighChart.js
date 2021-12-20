@@ -4249,14 +4249,16 @@ function refreshClick() {
 // save to Local Browser Storage
 function setLocalData(cname, cvalue) {
   try {
-    localStorage.setItem(cname, cvalue);
+    let storage_name = H2_server + '_'+ H2_port + '_' + H2_version + '_' + cname; 
+    localStorage.setItem(storage_name, cvalue);
   } catch { }
 }
 
 // read Local Browser Storage to speed up 1 display
 function getLocalData(cname) {
   try {
-    return localStorage.getItem(cname);
+    let storage_name = H2_server + '_'+ H2_port + '_' + H2_version + '_' + cname; 
+    return localStorage.getItem(storage_name);
   } catch {
     return "";
   }
