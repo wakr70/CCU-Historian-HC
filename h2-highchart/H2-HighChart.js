@@ -3,7 +3,7 @@
  ************************************/
 
 // Version
-var H2_version = 'v5.4';
+var H2_version = 'v5.5';
 
 /* define SLINT globals do avoid issues */
 /* global ChhLanguage:false, DP_Themes:false */
@@ -3374,7 +3374,7 @@ function showDialogFav() {
       let mycurrent_cell1 = document.createElement("td");
       mycurrent_cell1.setAttribute("style","border: 0px;");
 
-      let currenttext1 = document.createElement("button")
+      let currenttext1 = document.createElement("button");
       currenttext1.innerHTML = decodeURIComponent(DP_settings.Favorites[i].Name);
       currenttext1.setAttribute("class","bnt btn-default");
       currenttext1.setAttribute("onclick","executeFav("+i+");");
@@ -3386,11 +3386,11 @@ function showDialogFav() {
       let mycurrent_cell2 = document.createElement("td");
       mycurrent_cell2.setAttribute("style","border: 0px;");
 
-      let currenttext2 = document.createElement("button")
+      let currenttext2 = document.createElement("button");
       currenttext2.setAttribute("class","bnt btn-default");
       currenttext2.setAttribute("onclick","deleteFav("+i+");");
       currenttext2.setAttribute("style","font-size: 21px;");
-      currenttext2.textContent = 'x'
+      currenttext2.textContent = 'x';
 
       mycurrent_cell2.appendChild(currenttext2);
       mycurrent_row.appendChild(mycurrent_cell2);
@@ -3422,27 +3422,27 @@ $("#favAdd").click(function() {
 
 // Close Dialog Settings
 $("#Dialog4BtnClose").click(function() {
-  $("#FavPopup").modal('hide');
   document.getElementById("Line-Title4").value = '';
+  $("#FavPopup").modal('hide');
   return true;
 });
 
 function deleteFav(favorit) {
 
  $("#FavPopup").modal('hide');
- 
+
   if (DP_settings.Favorites[favorit]) {
   // delete Favorite entry on position
     DP_settings.Favorites.splice(favorit,1);
-  
+
   // Save to H2 database
     saveSettingsH2();
   }
-};
+}
 
 function executeFav(favorit) {
  $("#FavPopup").modal('hide');
- 
+
   if (DP_settings.Favorites[favorit]) {
 
 // execute Favorit
@@ -3450,7 +3450,7 @@ function executeFav(favorit) {
     window.open(url,"_self");
 
   }
-};
+}
 
 function getDialogFav() {
 
@@ -3462,7 +3462,7 @@ function getDialogFav() {
     if (!DP_settings.Favorites) {
       DP_settings.Favorites = [];
     }
-    DP_settings.Favorites.push({ Name: encodeURIComponent(document.getElementById("Line-Title4").value).replace(/'/g, '%27'), 
+    DP_settings.Favorites.push({ Name: encodeURIComponent(document.getElementById("Line-Title4").value).replace(/'/g, '%27'),
                                  Url: encodeURIComponent(generateUrl()).replace(/'/g, '%27') });
 
     saveSettingsH2();
@@ -3649,16 +3649,12 @@ function getDialogAxis() {
     allowDecimals: true,
     tickPositioner: null,
   };
-  if (document.getElementById("Select-Limit").value === '2') {  
-    newOptions.tickPositioner = function() {
-      const axis = this
-      return axis.tickPositions.map((pos) => {
-        if (pos <= axis.max && pos >= axis.min) return pos; // If between range
-        else if (pos > axis.max) return axis.max;
-        else if (pos < axis.min) return axis.min;
-      });
+  if (document.getElementById("Select-Limit").value === '2') {
+    newOptions.tickPositioner =  function () {
+      const axis = this;
+      return axis.tickPositions.map((pos) => tickPos(axis,pos));
     };
-  };
+  }
 
   chart.yAxis[DP_PopupAxisPos].update(newOptions);
 
@@ -3720,19 +3716,25 @@ function defineYAxis() {
       visible: false,
       tickPositioner: null,
     };
-    if (DP_yAxis[y].limit === 2) {  
-      newOptions.tickPositioner =  function() {
-        const axis = this
-        return axis.tickPositions.map((pos) => {
-          if (pos <= axis.max && pos >= axis.min) return pos // If between range
-          else if (pos > axis.max) return axis.max
-          else if (pos < axis.min) return axis.min
-        });
+    if (DP_yAxis[y].limit === 2) {
+      newOptions.tickPositioner =  function () {
+        const axis = this;
+        return axis.tickPositions.map((pos) => tickPos(axis,pos));
       };
-    };
+    }
     arr.push(newOptions);
   }
   return arr;
+}
+
+function tickPos(axis,pos) {
+  let l_pos = pos;
+  if (l_pos > axis.max) {
+    l_pos = axis.max;
+  } else if (l_pos < axis.min) {
+    l_pos = axis.min;
+  }
+  return l_pos;
 }
 
 // *** update background color on Field Select-Color
@@ -4249,7 +4251,7 @@ function refreshClick() {
 // save to Local Browser Storage
 function setLocalData(cname, cvalue) {
   try {
-    let storage_name = H2_server + '_'+ H2_port + '_' + H2_version + '_' + cname; 
+    let storage_name = H2_server + '_'+ H2_port + '_' + H2_version + '_' + cname;
     localStorage.setItem(storage_name, cvalue);
   } catch { }
 }
@@ -4257,7 +4259,7 @@ function setLocalData(cname, cvalue) {
 // read Local Browser Storage to speed up 1 display
 function getLocalData(cname) {
   try {
-    let storage_name = H2_server + '_'+ H2_port + '_' + H2_version + '_' + cname; 
+    let storage_name = H2_server + '_'+ H2_port + '_' + H2_version + '_' + cname;
     return localStorage.getItem(storage_name);
   } catch {
     return "";
@@ -4267,13 +4269,13 @@ function getLocalData(cname) {
 // check if new data should be loaded
 function checkZeitraum(rangInfo) {
   var datNew = new Date(Zeitraum_Ende - (new Date(rangInfo._range)));
-//  if (Zeitraum_Start > datNew) {
+// Patch for remove zoom reset: if (Zeitraum_Start > datNew) {
     Zeitraum_Start = datNew;
     loadNewSerienData();
     DP_Button_Jump = true;
     return false;
-//  }
-//  return true;
+// Patch for remove zoom reset: }
+// Patch for remove zoom reset: return true;
 }
 
 $(window).resize(function() {
