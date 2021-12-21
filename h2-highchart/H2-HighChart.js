@@ -3,7 +3,7 @@
  ************************************/
 
 // Version
-var H2_version = 'v5.5';
+var H2_version = 'v5.6';
 
 /* define SLINT globals do avoid issues */
 /* global ChhLanguage:false, DP_Themes:false */
@@ -673,9 +673,16 @@ function defineDataLabels() {
         "color": null,
       },
       formatter: function() {
-        var last = this.series.data[this.series.data.length - 1];
-        if (this.point.category === last.category) {
-          return this.series.name;
+        let last;
+        if (this.series.data.length > 0) {
+         last = this.series.data[this.series.data.length - 1];
+        } else if (this.series.points.length > 0) {
+         last = this.series.points[this.series.points.length - 1];
+        }
+        if (last && last.category) {
+          if (this.point.category === last.category) {
+            return this.series.name;
+          }
         }
         return "";
       }
@@ -1567,6 +1574,8 @@ function readLinkData() {
       } else if ((nv[0].toLowerCase() === 'periode') || (nv[0].toLowerCase() === 'period')) {
         Zeitraum_Start = new Date(Zeitraum_Ende - (new Date(3600 * 1000 * parseInt(nv[1]))));
         // parameter Data Point
+      } else if (nv[0].toLowerCase() === 'setting') {
+        readLinkDataSetting(nv[1]);
       } else if (nv[0].toLowerCase() === 'filterkey') {
         filter_feld = decodeURIComponent(nv[1].toLowerCase());
       } else if (nv[0].toLowerCase() === 'title') {
@@ -1637,6 +1646,66 @@ function readLinkData() {
 
 }
 
+function readLinkDataSetting(text) {
+  if (text) {
+    let text2 = text.split('|');
+    for (let setting of text2) {
+      switch (setting.substr(0, 1)) {
+      case 'L':
+        DP_Legend = parseInt(setting.substr(1, 2));
+        break;
+      case 'N':
+        DP_Navigator = parseInt(setting.substr(1, 2));
+        break;
+      case 'P':
+        DP_Labels = parseInt(setting.substr(1, 2));
+        break;
+      case 'D':
+        DP_DayLight = parseInt(setting.substr(1, 2));
+        break;
+      case 'G':
+        DP_Grid = parseInt(setting.substr(1, 2));
+        break;
+      case 'F':
+        DP_ShowFilter = parseInt(setting.substr(1, 2));
+        break;
+      case 'I':
+        DP_DataPointFilter = parseInt(setting.substr(1, 2));
+        break;
+      case 'B':
+        DP_Theme = setting.substr(1, 30);
+        if (DP_Theme === 'standard_groß') {    // check old version
+          DP_Theme = 'standard-light';
+          DP_FontSize = 20;
+        } else if (DP_Theme === 'standard_groesser') {     // check old version
+          DP_Theme = 'standard-light';
+          DP_FontSize = 30;
+        }
+        break;
+      case 'O':
+        DP_FontSize = parseInt(setting.substr(1, 2));
+        break;
+      case 'R':
+        H2_refreshSec = parseInt(setting.substr(1, 2));
+        break;
+      case 'T':
+        try {
+          DP_Title = decodeURIComponent(setting.substr(1, 50));
+        } catch {
+          DP_Title = setting.substr(1, 50);
+        }
+        break;
+      case 'S':
+        try {
+          DP_Subtitle = decodeURIComponent(setting.substr(1, 60));
+        } catch {
+          DP_Subtitle = setting.substr(1, 60);
+        }
+        break;
+      }
+    }
+  }
+}
 
 /**
 * Request data from the server, add it to the graph and set a timeout
@@ -2694,6 +2763,20 @@ function generateUrl() {
     url += '&yaxis=' + url2.substring(0, url2.length - 1);
   }
 
+  url += '&setting=';
+  url += 'L' + DP_Legend.toString();
+  url += '|N' + DP_Navigator.toString();
+  url += '|P' + DP_Labels.toString();
+  url += '|D' + DP_DayLight.toString();
+  url += '|G' + DP_Grid.toString();
+  url += '|F' + DP_ShowFilter.toString();
+  url += '|I' + DP_DataPointFilter.toString();
+  url += '|B' + DP_Theme;
+  url += '|O' + DP_FontSize;
+  url += '|R' + DP_AutoRefresh;
+  url += '|T' + encodeURIComponent(DP_Title).replace(/'/g, '%27');
+  url += '|S' + encodeURIComponent(DP_Subtitle).replace(/'/g, '%27');
+
   // Add Room to Link if needed
   var filter_raum = document.getElementById("Select-Raum").value;
   if (filter_raum !== 'ALLES') {
@@ -2717,66 +2800,6 @@ function generateUrl() {
     url += '&zoom=' + (Math.round(((extremes.max - extremes.min) / (60 * 60 * 1000)) * 100) / 100).toString();
   }
 
-  // Legend not show
-  if (DP_Legend !== 1) {
-    url += '&legend=' + DP_Legend;
-  }
-
-  // Navigator not show
-  if (DP_Navigator !== 0) {
-    url += '&navigator=' + DP_Navigator.toString();
-  }
-
-  // Labels show
-  if (DP_Labels !== 0) {
-    url += '&labels=' + DP_Labels;
-  }
-
-  // DayLight show
-  if (DP_DayLight !== 1) {
-    url += '&daylight=' + DP_DayLight;
-  }
-
-  // Grid show
-  if (DP_Grid !== 2) {
-    url += '&grid=' + DP_Grid;
-  }
-  // AutoRefresh
-  if (DP_AutoRefresh !== 0) {
-    url += '&refresh=' + (DP_AutoRefresh === 60 ? true : DP_AutoRefresh);
-  }
-
-  // showFilterLine()
-  if (DP_ShowFilter === 0) {
-    url += '&filterline=false';
-  } else if (DP_ShowFilter !== 1) {
-    url += '&filterline=' + DP_ShowFilter;
-  }
-
-  // showFilterLine()
-  if (DP_DataPointFilter !== 0) {
-    url += '&dpfilter=' + DP_DataPointFilter;
-  }
-
-  // Theme
-  if (DP_Theme !== '' && DP_Theme !== 'standard') {
-    url += '&theme=' + DP_Theme;
-  }
-
-  // Font-Size
-  if (DP_FontSize !== '' && DP_FontSize !== 14) {
-    url += '&fontsize=' + DP_FontSize;
-  }
-  // Title
-  if (DP_Title !== '') {
-    url += '&title=' + DP_Title.replaceAll("%", "§").replaceAll("&", "µ");
-  }
-
-  // Subtitle
-  if (DP_Subtitle !== '') {
-    url += '&subtitle=' + DP_Subtitle.replaceAll("%", "§").replaceAll("&", "µ");
-  }
-
   return url;
 }
 
@@ -2792,19 +2815,18 @@ function createUrlSerie() {
       if (attr !== -1) {
         if (DP_attribute[attr].visible === 2 || (DP_attribute[attr].visible === 1 && DP_Limit)) {
           url2 += lserie.options.id;
-          url2 += (DP_attribute[attr].aggr === 'A0') ? '' : '|' + DP_attribute[attr].aggr;
-          url2 += (DP_attribute[attr].atime === 'T1') ? '' : '|' + DP_attribute[attr].atime;
-          url2 += (DP_attribute[attr].yaxis === 'Y0') ? '' : '|' + DP_attribute[attr].yaxis;
-          url2 += (DP_attribute[attr].line === 'L0') ? '' : '|' + DP_attribute[attr].line;
-          url2 += (DP_attribute[attr].color === 'F0') ? '' : '|' + DP_attribute[attr].color;
-          url2 += (DP_attribute[attr].comp === 'C0') ? '' : '|' + DP_attribute[attr].comp;
-          url2 += (DP_attribute[attr].mark === 'M0') ? '' : '|' + DP_attribute[attr].mark;
-          url2 += (DP_attribute[attr].dash === 'D0') ? '' : '|' + DP_attribute[attr].dash;
-          url2 += (DP_attribute[attr].width === 'W2') ? '' : '|' + DP_attribute[attr].width;
-          url2 += (DP_attribute[attr].stack === 0) ? '' : '|S' + DP_attribute[attr].stack;
-          url2 += (DP_attribute[attr].factor === 1) ? '' : '|X' + DP_attribute[attr].factor;
-          url2 += (DP_attribute[attr].offset === 0) ? '' : '|O' + DP_attribute[attr].offset;
-
+          url2 += '|' + DP_attribute[attr].aggr;
+          url2 += '|' + DP_attribute[attr].atime;
+          url2 += '|' + DP_attribute[attr].yaxis;
+          url2 += '|' + DP_attribute[attr].line;
+          url2 += '|' + DP_attribute[attr].color;
+          url2 += '|' + DP_attribute[attr].comp;
+          url2 += '|' + DP_attribute[attr].mark;
+          url2 += '|' + DP_attribute[attr].dash;
+          url2 += '|' + DP_attribute[attr].width;
+          url2 += '|S' + DP_attribute[attr].stack;
+          url2 += '|X' + DP_attribute[attr].factor;
+          url2 += '|O' + DP_attribute[attr].offset;
           // check if still default unit, otherwise add to url
           if (lserie.options.id.substr(0, 1) === 'C') {
             DP_pos = DP_point.findIndex(obj => obj.idx.toString() === lserie.options.id.split('_')[1].toString());
@@ -2812,10 +2834,10 @@ function createUrlSerie() {
             DP_pos = DP_point.findIndex(obj => obj.idx.toString() === lserie.options.id.toString());
           }
           if (DP_pos === -1 || DP_point[DP_pos].attributes.unit !== DP_attribute[attr].unit) {
-            url2 += (DP_attribute[attr].unit === 'xx') ? '' : '|U' + DP_attribute[attr].unit.replaceAll("%", "§").replaceAll('&', 'µ');
+            url2 += '|U' + DP_attribute[attr].unit.replaceAll("%", "§").replaceAll('&', 'µ');
           }
 
-          url2 += (DP_attribute[attr].visible === 2) ? '' : '|V' + DP_attribute[attr].visible;
+          url2 += '|V' + DP_attribute[attr].visible;
           url2 += ',';
         }
       }
@@ -2830,21 +2852,20 @@ function createUrlAxis() {
   let url2 = '';
   for (let axispos = 0; axispos < DP_yAxis.length; axispos++) {
     if (chart.yAxis[axispos].visible && chart.yAxis[axispos].hasVisibleSeries) {
-      if (JSON.stringify(DP_yAxis[axispos]) !== JSON.stringify(DP_yAxis_default[axispos])) {
-
-        let lText = ((DP_yAxis[axispos].position) ? '1' : '0');
-
-        url2 += 'Y' + axispos;
-        url2 += (DP_yAxis[axispos].position === DP_yAxis_default[axispos].position) ? '' : '|P' + lText;
-        url2 += (DP_yAxis[axispos].type === DP_yAxis_default[axispos].type) ? '' : '|C' + DP_yAxis[axispos].type;
-        url2 += (DP_yAxis[axispos].limit === DP_yAxis_default[axispos].limit) ? '' : '|A' + DP_yAxis[axispos].limit;
-        url2 += (DP_yAxis[axispos].min === DP_yAxis_default[axispos].min) ? '' : '|L' + DP_yAxis[axispos].min;
-        url2 += (DP_yAxis[axispos].max === DP_yAxis_default[axispos].max) ? '' : '|H' + DP_yAxis[axispos].max;
-        url2 += (DP_yAxis[axispos].tick === DP_yAxis_default[axispos].tick) ? '' : '|G' + DP_yAxis[axispos].tick;
-        url2 += (DP_yAxis[axispos].color === DP_yAxis_default[axispos].color) ? '' : '|F' + DP_yAxis[axispos].color;
-        url2 += (DP_yAxis[axispos].text === DP_yAxis_default[axispos].text) ? '' : '|T' + DP_yAxis[axispos].text.replaceAll("%", "§").replaceAll('&', 'µ');
-        url2 += ',';
+      url2 += 'Y' + axispos;
+      url2 += '|P' + ((DP_yAxis[axispos].position) ? '1' : '0');
+      url2 += '|C' + DP_yAxis[axispos].type;
+      url2 += '|A' + DP_yAxis[axispos].limit;
+      url2 += '|L' + DP_yAxis[axispos].min;
+      url2 += '|H' + DP_yAxis[axispos].max;
+      url2 += '|G' + DP_yAxis[axispos].tick;
+      url2 += '|F' + DP_yAxis[axispos].color;
+      if (DP_yAxis[axispos].text) {
+        url2 += '|T' + DP_yAxis[axispos].text.replaceAll("%", "§").replaceAll('&', 'µ');
+      }else {
+        url2 += '|T';
       }
+      url2 += ',';
     }
   }
   return url2;
