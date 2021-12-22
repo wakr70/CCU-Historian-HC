@@ -3,7 +3,7 @@
  ************************************/
 
 // Version
-var H2_version = 'v5.6';
+var H2_version = 'v5.7';
 
 /* define SLINT globals do avoid issues */
 /* global ChhLanguage:false, DP_Themes:false */
@@ -4049,14 +4049,8 @@ function chartSetOptions() {
     stockTools: {
       gui: {
         iconsURL: 'stock-tools/stock-icons/',
-//        buttons: ["indicators", "separator", "simpleShapes", "lines", "crookedLines", "measure", "advanced", "toggleAnnotations", "separator",
-//        "verticalLabels", "flags", "separator", "zoomChange", "fullScreen", "typeChange", "separator", "currentPriceIndicator", "saveChart"],
         buttons: ["indicators", "separator", "myText", "lines", "measure", "toggleAnnotations", "separator", "verticalLabels", "separator", "zoomChange", "fullScreen"],
         definitions: {
-//          simpleShapes: {
-//          items: ["label", "circle", "ellipse", "rectangle"]
-//            items: ["label"],
-//          },
           zoomChange: {
             items: ["zoomXY", "zoomY", "zoomX" ],
           },
@@ -4260,6 +4254,13 @@ function chartSetElements() {
     showDialogFav();
     return true;
   });
+
+// disable StockTools Button on hide Menue-Buttons
+  if (DP_Navigator < 4) {
+    $(".highcharts-stocktools-wrapper").css("display", "block")
+  } else {
+    $(".highcharts-stocktools-wrapper").css("display", "none")
+  }
 
 }
 
