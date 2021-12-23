@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="de"><head>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" sizes="192x192" href="historian-196.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="historian-180.png">
+<html lang="de">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" sizes="192x192" href="historian-196.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="historian-180.png" />
     <title>CCU-historian: HighChart</title>
     <script> var apiKey=""</script>
-    <link rel='stylesheet' href="/external/bootstrap/css/bootstrap.css"></link>
-    <link rel='stylesheet' href="historian.css"></link>
+    <link rel='stylesheet' href="/external/bootstrap/css/bootstrap.css" />
+    <link rel='stylesheet' href="historian.css" />
     <style>p { border: 0px solid; }</style>
   </head>
   <body style="background-color: rgb(255, 255, 255);">
@@ -145,16 +145,16 @@
                 <span id="Font-Size" class="LinePopup-text">Font-Size</span>
                 <select id="Select-FontSize" class="form-select-h2"></select>
               </div>
-              <div id="refresh">
-                <span id="Text-Refresh" class="LinePopup-text">Refresh in Sec.</span>
-                <input id="Line-Refresh" type="number" step="0" class="form-input-h2">
+              <div id="autoRefresh">
+                <span id="Text-autoRefresh" class="LinePopup-text">Refresh in Sec.</span>
+                <input id="Line-Refresh" type="number" step="any" class="form-input-h2">
               </div>
               <div id="title">
-                <span id="Text-Refresh" class="LinePopup-text">Title</span>
+                <span id="ChartTitle" class="LinePopup-text">Title</span>
                 <input id="Line-Title" class="form-input-h2">
               </div>
               <div id="subtitle">
-                <span id="Text-Refresh" class="LinePopup-text">Subtitle</span>
+                <span id="ChartSubTitle" class="LinePopup-text">Subtitle</span>
                 <input id="Line-Subtitle" class="form-input-h2">
               </div>
             </div>
@@ -173,8 +173,8 @@
               <h4 class="modal-title3">Modal Header</h4>
             </div>
             <div class="modal-body">
-              <div id="title">
-                <span id="Text-Refresh" class="LinePopup-text">Title</span>
+              <div id="axisTitle">
+                <span id="Text-axisTitle" class="LinePopup-text">Title</span>
                 <input id="Line-Title3" class="form-input-h2">
               </div>
               <div id="position">
@@ -203,7 +203,7 @@
               </div>
               <div id="tickamount">
                 <span id="Text-TickAmount" class="LinePopup-text">Teilung</span>
-                <input id="Line-TickAmount" type="number" step="0" class="form-input-h2">
+                <input id="Line-TickAmount" type="number" step="any" class="form-input-h2">
               </div>
             </div>
             <div class="modal-footer">
@@ -223,7 +223,7 @@
             <div class='modal-body'>
               <div id='title4'>
                 <span id='Text-Title4' class='LinePopup-text'>Title</span>
-                <input id='Line-Title4' class='form-input-h2'></input>
+                <input id='Line-Title4' class='form-input-h2'>
                 <button id='favAdd' class='btn btn-default'>Add</button>
               </div>
               <div id='favList'></div>

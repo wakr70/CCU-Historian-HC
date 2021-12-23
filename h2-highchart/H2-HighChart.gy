@@ -163,7 +163,7 @@ renderer.content={
                }
                div(id:"refreshSec") {
                    span id: "Text-Refresh", class:"LinePopup-text", "Refresh in Sec." 
-                   input(id: "Line-Refresh", type:"number", step: "0", class:"form-input-h2") 
+                   input(id: "Line-Refresh", type:"number", step: "any", class:"form-input-h2") 
                }
                div(id:"title") {
                    span id: "Text-Title", class:"LinePopup-text", "Title" 
@@ -219,7 +219,7 @@ renderer.content={
                }
                div(id:"tickamount") {
                   span id: "Text-TickAmount", class:"LinePopup-text", "Teilung" 
-                  input(id: "Line-TickAmount", type:"number", step: "0", class:"form-input-h2") 
+                  input(id: "Line-TickAmount", type:"number", step: "any", class:"form-input-h2") 
                }
             }
             div(class:"modal-footer") {
