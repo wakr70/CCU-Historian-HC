@@ -330,7 +330,7 @@ var DP_Themes = {
     },
     tooltip: {
       backgroundColor: "rgba(0, 0, 0, 0.75)",
-      style: { color: "#333333" }
+      style: { color: "#888" }
     },
     toolbar: { itemStyle: { color: 'silver' } }, 
     plotOptions: {
