@@ -1313,7 +1313,9 @@ function getDataH2(p_series, p_attrID, p_attr, datStart, datEnd) {
   });
 }
 
-
+/**
+* Request default settings from the server and check local storage
+*/
 function requestInitData() {
 
   if (DP_Navigator < 3) {
@@ -1324,12 +1326,14 @@ function requestInitData() {
     document.getElementById('count_text').innerHTML = "";
   }
 
+// set default global chart object
+  chart = $('#container').highcharts();
+
   // get LocalData DataPoints
   var loc_dataPoints = getLocalData('DataPoints');
   if (loc_dataPoints) {
 
     // speed up with local data and read actual one later
-    chart = $('#container').highcharts();
 
     try {
       DP_point = JSON.parse(loc_dataPoints);
@@ -2411,7 +2415,6 @@ function changeEventRaumFilter() {
   var save_active_found = false;
   var attr2;
 
-  chart = $('#container').highcharts();
   var series;
 
   // remove all old series
@@ -3758,16 +3761,6 @@ function tickPos(axis,pos) {
   return l_pos;
 }
 
-// *** update background color on Field Select-Color
-$("#Select-Color").on("change", function() {
-  document.getElementById("Select-Color").style.backgroundColor = chart.options.colors[parseInt(document.getElementById("Select-Color").value.substr(1, 2))];
-});
-
-//*** update background color on Field Select-Color
-$("#Select-AxisColor").on("change", function() {
-  showDialogYAxisUpdatColor();
-});
-
 function showDialogYAxisUpdatColor() {
   var colorPos = parseInt(document.getElementById("Select-AxisColor").value);
   if (colorPos === 0 || colorPos === 1) {
@@ -3803,7 +3796,7 @@ function chartSetOptions() {
      myText = window.Highcharts.getOptions().navigation.bindings.labelAnnotation;
   }
 
-  window.Highcharts.stockChart('container', {
+  let options = {
     lang: window.ChhLanguage.default.highcharts,
     chart: {
       events: {
@@ -4061,8 +4054,12 @@ function chartSetOptions() {
         },
       }
     }
-  });
+  };
 
+  chart = window.Highcharts.stockChart('container', options );
+  if (!chart) {
+    alert( 'HighChart Option error!');
+  }
 }
 
 function showAggrText() {
@@ -4114,8 +4111,6 @@ function showAggrText() {
 }
 
 function chartSetElements() {
-
-  chart = $('#container').highcharts();
 
   // dark themes need black borders, update to like chart background
   if ((typeof chart.options.chart.backgroundColor) === 'string') {
@@ -4255,12 +4250,31 @@ function chartSetElements() {
     return true;
   });
 
+  // *** update background color on Field Select-Color
+  $("#Select-Color").on("change", function() {
+    document.getElementById("Select-Color").style.backgroundColor = chart.options.colors[parseInt(document.getElementById("Select-Color").value.substr(1, 2))];
+  });
+
+  //*** update background color on Field Select-Color
+  $("#Select-AxisColor").on("change", function() {
+    showDialogYAxisUpdatColor();
+  });
+
 // disable StockTools Button on hide Menue-Buttons
   if (DP_Navigator < 4) {
-    $(".highcharts-stocktools-wrapper").css("display", "block")
+    $(".highcharts-stocktools-wrapper").css("display", "block");
   } else {
-    $(".highcharts-stocktools-wrapper").css("display", "none")
+    $(".highcharts-stocktools-wrapper").css("display", "none");
   }
+
+  $(window).resize(function() {
+
+    document.getElementById("container").setAttribute("style", "height:" + calcContSize().toString() + "px");
+
+    chart.legend.update(defineLegend());
+    chart.reflow();
+
+  });
 
 }
 
@@ -4299,15 +4313,6 @@ function checkZeitraum(rangInfo) {
 // Patch for remove zoom reset: }
 // Patch for remove zoom reset: return true;
 }
-
-$(window).resize(function() {
-
-  document.getElementById("container").setAttribute("style", "height:" + calcContSize().toString() + "px");
-
-  chart.legend.update(defineLegend());
-  chart.reflow();
-
-});
 
 function calcContSize() {
   let nav_height;
