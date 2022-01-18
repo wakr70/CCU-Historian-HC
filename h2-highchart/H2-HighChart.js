@@ -4581,5 +4581,11 @@ function chartSetFontSize() {
                         '  width: ' + (DP_FontSize + 135).toString() + 'px;\n'+
                         '  height: ' + (DP_FontSize + 20).toString() + 'px;\n'+
                         '}\n';
+// Bug Menue Button hide footer
+                        
+    dStyle.innerHTML += 'div#container{\n'+
+                        '  z-index: auto !important;\n'+
+                        '  overflow: visible!important;\n'+
+                        '}\n';
   }
 }

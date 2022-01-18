@@ -100,7 +100,3 @@ div.highcharts-popup-rhs-col {
     width: 60%;
 }
 
-div#container{
-  z-index: auto !important; 
-  overflow: visible!important;
-}
