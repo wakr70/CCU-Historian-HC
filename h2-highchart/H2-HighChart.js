@@ -2678,9 +2678,18 @@ function loadNewPlotBand() {
   var start;
   var id = 1;
 
+  // Define whole workarea ...
+  let minDate = chart.xAxis.reduce((a,b)=>a.min>b.min?a:b).min;
+  let maxDate = chart.xAxis.reduce((a,b)=>a.max>b.max?a:b).max;
+  if (!minDate || minDate > Zeitraum_Start.getTime()) {
+    minDate = Zeitraum_Start.getTime();
+  }
+  if (!maxDate || maxDate < Zeitraum_Ende.getTime()) {
+    maxDate = Zeitraum_Ende.getTime();
+  }
   // gray in night, day yellow
   if (DP_DayLight === 1) {
-    for (loopDate = Zeitraum_Start.getTime(); loopDate <= Zeitraum_Ende.getTime(); loopDate += 86400000) {
+    for (loopDate = minDate; loopDate <= maxDate; loopDate += 86400000) {
       start = new Date(loopDate);
       chart.xAxis[0].addPlotBand({
         color: 'rgba(239,232,231,0.5)',
@@ -2707,7 +2716,7 @@ function loadNewPlotBand() {
     }
     // only line at 06:00 and 20:00
   } else if (DP_DayLight === 2) {
-    for (loopDate = Zeitraum_Start.getTime(); loopDate <= Zeitraum_Ende.getTime(); loopDate += 86400000) {
+    for (loopDate = minDate; loopDate <= maxDate; loopDate += 86400000) {
       start = new Date(loopDate);
       chart.xAxis[0].addPlotLine({
         color: '#EFE8E7',
@@ -2725,7 +2734,7 @@ function loadNewPlotBand() {
     }
     // only line at 00:00
   } else if (DP_DayLight === 3) {
-    for (loopDate = Zeitraum_Start.getTime(); loopDate <= Zeitraum_Ende.getTime(); loopDate += 86400000) {
+    for (loopDate = minDate; loopDate <= maxDate; loopDate += 86400000) {
       start = new Date(loopDate);
       chart.xAxis[0].addPlotLine({
         color: '#EFE8E7',
@@ -4582,7 +4591,6 @@ function chartSetFontSize() {
                         '  height: ' + (DP_FontSize + 20).toString() + 'px;\n'+
                         '}\n';
 // Bug Menue Button hide footer
-                        
     dStyle.innerHTML += 'div#container{\n'+
                         '  z-index: auto !important;\n'+
                         '  overflow: visible!important;\n'+
