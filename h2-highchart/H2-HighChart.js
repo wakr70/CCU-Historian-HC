@@ -3,7 +3,7 @@
  ************************************/
 
 // Version
-var H2_version = 'v5.8';
+var H2_version = 'v5.9';
 
 /* define SLINT globals do avoid issues */
 /* global ChhLanguage:false, DP_Themes:false */
@@ -283,6 +283,7 @@ function defaultAttrib(DP, colorNr, idx) {
     factor: 1,
     offset: 0,
     unit: '',
+    shortname: '',
     buffer_data: {
       timestamps: [],
       values: [],
@@ -404,6 +405,12 @@ function defaultAttrib(DP, colorNr, idx) {
             } catch (err) {
               attr.unit = l_text.substr(1, 20);
             }
+          } else if (l_text.substr(0, 1) === 'N') {
+            try {
+              attr.shortname = decodeURIComponent(l_text.substr(1, 40));
+            } catch (err) {
+              attr.shortname = l_text.substr(1, 40);
+            }
           } else if (l_text.substr(0, 1) === 'X') {
             attr.factor = parseFloat(l_text.substr(1, 10));
           } else if (l_text.substr(0, 1) === 'O') {
@@ -424,6 +431,7 @@ function defaultAttrib(DP, colorNr, idx) {
 function addSerie(DP, DP_type) {
 
   var unit;
+  var shortname;
   var yAxis;
   var dp_vis;
   var type;
@@ -457,6 +465,7 @@ function addSerie(DP, DP_type) {
   lineType = parseInt(DP_attribute[attr].line.substr(1, 2));
   dp_vis = DP_attribute[attr].visible;
   unit = DP_attribute[attr].unit;
+  shortname = DP_attribute[attr].shortname;
 
   stacking = DP_attribute[attr].stack;
 
@@ -616,7 +625,9 @@ function addSerie(DP, DP_type) {
 
   pointFormater = function() { return toolTipInfo(this); };
 
-  if (DP_type.substr(0, 1) === 'C') {
+  if (shortname != '') {
+    serienName = shortname;
+  } else if (DP_type.substr(0, 1) === 'C') {
     serienName = (DP.id.interfaceId === "SysVar")
       ? (DP.attributes.displayName)
       : (DP.attributes.displayName + '.' + DP.id.identifier) + '(' + window.ChhLanguage.default.historian['comptype' + DP_type] + ')';
@@ -1997,6 +2008,8 @@ function parseDataPointsDP(text,nv) {
           DP_attribute[attrpos].visible = parseInt(text2[k].substr(1, 1));
         } else if (text2[k].substr(0, 1) === 'U') {
           DP_attribute[attrpos].unit = decodeURIComponent(nv[1]).split(',')[j].split('|')[k].substr(1, 20).replaceAll("§", "%").replaceAll('µ', '&');
+        } else if (text2[k].substr(0, 1) === 'N') {
+          DP_attribute[attrpos].shortname = decodeURIComponent(nv[1]).split(',')[j].split('|')[k].substr(1, 40).replaceAll("§", "%").replaceAll('µ', '&');
         } else if (text2[k].substr(0, 1) === 'X') {
           DP_attribute[attrpos].factor = parseFloat(text2[k].substr(1, 10));
         } else if (text2[k].substr(0, 1) === 'O') {
@@ -2848,6 +2861,9 @@ function createUrlSerie() {
           if (DP_pos === -1 || DP_point[DP_pos].attributes.unit !== DP_attribute[attr].unit) {
             url2 += '|U' + DP_attribute[attr].unit.replaceAll("%", "§").replaceAll('&', 'µ');
           }
+          if (DP_attribute[attr].shortname !== '') {
+            url2 += '|N' + DP_attribute[attr].shortname.replaceAll("%", "§").replaceAll('&', 'µ');
+          }
 
           url2 += '|V' + DP_attribute[attr].visible;
           url2 += ',';
@@ -3028,6 +3044,7 @@ function showDialogLine(serieObj) {
     document.getElementById("Line-Factor").value = DP_attribute[attr].factor;
     document.getElementById("Line-OffSet").value = DP_attribute[attr].offset;
     document.getElementById("Line-Unit").value = DP_attribute[attr].unit;
+    document.getElementById("Line-ShortName").value = DP_attribute[attr].shortname;
 
     document.getElementById("Select-Color").style.backgroundColor = chart.options.colors[parseInt(document.getElementById("Select-Color").value.substr(1, 2))];
 
@@ -3069,6 +3086,7 @@ function saveLine() {
   strCustom += '|X' + DP_attribute[attr].factor;
   strCustom += '|O' + DP_attribute[attr].offset;
   strCustom += '|U' + encodeURIComponent(DP_attribute[attr].unit).replace(/'/g, '%27');
+  strCustom += '|N' + encodeURIComponent(DP_attribute[attr].shortname).replace(/'/g, '%27');
 
   var DP_pos = DP_point.findIndex(obj => obj.idx.toString() === DP_PopupID);
   var key = 'POINT' + DP_PopupID;
@@ -3156,6 +3174,7 @@ function getDialogLine() {
   DP_attribute[attr].factor = parseFloat(document.getElementById("Line-Factor").value);
   DP_attribute[attr].offset = parseFloat(document.getElementById("Line-OffSet").value);
   DP_attribute[attr].unit = document.getElementById("Line-Unit").value;
+  DP_attribute[attr].shortname = document.getElementById("Line-ShortName").value;
 
   // ignor 0 values for faktor
   if (isNaN(DP_attribute[attr].factor) || DP_attribute[attr].factor === 0.0) {
