@@ -625,7 +625,7 @@ function addSerie(DP, DP_type) {
 
   pointFormater = function() { return toolTipInfo(this); };
 
-  if (shortname != '') {
+  if (shortname !== '') {
     serienName = shortname;
   } else if (DP_type.substr(0, 1) === 'C') {
     serienName = (DP.id.interfaceId === "SysVar")
