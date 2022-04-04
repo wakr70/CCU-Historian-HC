@@ -3939,6 +3939,11 @@ function chartSetOptions() {
           symbol: "menu",
           enabled: (DP_Navigator < 4) ? true : false,
           menuItems: [{
+            text: window.ChhLanguage.default.historian.favoritTxt,
+            onclick: function() {
+              showDialogFav();
+            }
+          }, {
             text: window.ChhLanguage.default.historian.settings,
             onclick: function() {
               showDialogSettings();
