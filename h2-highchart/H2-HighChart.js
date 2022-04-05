@@ -3,7 +3,7 @@
  ************************************/
 
 // Version
-var H2_version = 'v5.9';
+var H2_version = 'v5.10';
 
 /* define SLINT globals do avoid issues */
 /* global ChhLanguage:false, DP_Themes:false */
@@ -1813,7 +1813,7 @@ function parseDataPoints() {
   }
 
   // Sort on Rooms
-  DP_rooms.sort(function(a, b) { sortLowercase(a, b); });
+  DP_rooms.sort( sortLowercase );
 
   var text = '';
   var select = document.getElementById("Select-Raum");
@@ -1830,7 +1830,7 @@ function parseDataPoints() {
   }
 
   // Sort on Gewerk
-  DP_gewerk.sort(function(a, b) { sortLowercase(a, b); });
+  DP_gewerk.sort( sortLowercase );
 
   select = document.getElementById("Select-Gewerk");
   select.options[select.options.length] = new Option(window.ChhLanguage.default.historian.functionALL, 'ALLES');
@@ -4386,8 +4386,8 @@ function ajaxErrorOutput(xhr, status, error) {
 }
 
 function sortLowercase(a, b) {
-  var x = a.toLowerCase();
-  var y = b.toLowerCase();
+  let x = a.toLowerCase();
+  let y = b.toLowerCase();
   if (x < y) {
     return -1;
   }
