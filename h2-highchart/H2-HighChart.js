@@ -1,9 +1,9 @@
 /* *********************************
- * HighChart javascripts by wak 2019-2021
+ * HighChart javascripts by wak 2019-2022
  ************************************/
 
 // Version
-var H2_version = 'v5.10';
+var H2_version = 'v5.11';
 
 /* define SLINT globals do avoid issues */
 /* global ChhLanguage:false, DP_Themes:false */
@@ -2668,8 +2668,11 @@ function loadNewAxisInfo() {
   chart.redraw();
 
   // Reset Axis Click Event
-  $('.highcharts-axis').click(function() { clickShowDialogYAxis(this); });
-  $('.highcharts-axis-labels').click(function() { clickShowDialogYAxis(this); });
+  $('.highcharts-yaxis').off("click", function() { clickShowDialogYAxis(this); });
+  $('.highcharts-yaxis').on("click", function() { clickShowDialogYAxis(this); });
+
+  $('.highcharts-yaxis-labels').off("click", function() { clickShowDialogYAxis(this); });
+  $('.highcharts-yaxis-labels').on("click", function() { clickShowDialogYAxis(this); });
 
 }
 
@@ -3299,39 +3302,25 @@ function getDialogSetting() {
   // Legend
   if (DP_Legend.toString() !== document.getElementById("Select-Legend").value) {
     DP_Legend = parseInt(document.getElementById("Select-Legend").value);
-    chart.legend.update(defineLegend());
-    if (DP_Legend === 3 || DP_Legend === 4 || DP_Legend === 5 || DP_Legend === 6) {
-      if (!DP_Limit) {
-        DP_Limit = true;
-        filterrefresh = true;
-        $('.highcharts-contextmenu')[0].children[0].children[1].innerHTML = window.ChhLanguage.default.historian.limitactive;
-      }
-    }
+    chartrefresh = true;
   }
 
   // Navigator
   if (DP_Navigator.toString() !== document.getElementById("Select-Navigator").value) {
     DP_Navigator = parseInt(document.getElementById("Select-Navigator").value);
-
-    chartSetOptions();
-    chartSetElements();
-    filterrefresh = false;
+    chartrefresh = true;
   }
 
   // Title
   if (DP_Title !== document.getElementById("Line-Title").value) {
     DP_Title = document.getElementById("Line-Title").value;
-    chart.title.update({
-      text: DP_Title
-    });
+    chartrefresh = true;
   }
 
   // Subtitle
   if (DP_Subtitle !== document.getElementById("Line-Subtitle").value) {
     DP_Subtitle = document.getElementById("Line-Subtitle").value;
-    chart.subtitle.update({
-      text: DP_Subtitle
-    });
+    chartrefresh = true;
   }
 
   // Labels
@@ -3574,7 +3563,7 @@ function defineLegend() {
       align: 'center',
       verticalAlign: 'top',
       floating: true,
-      y: 25,
+      y: 10 + (DP_Title === '' ? 0 : DP_FontSize + 20) + (DP_Subtitle === '' ? 0 : (DP_FontSize/6+5) + 15),
       maxHeight: 200
     };
   } else if (DP_Legend === 4) {
@@ -3584,7 +3573,7 @@ function defineLegend() {
       align: 'center',
       verticalAlign: 'bottom',
       floating: true,
-      y: (DP_Navigator === 1) ? -50 : -70,
+      y: -30 - DP_FontSize - ( DP_Navigator === 0 ? 20+DP_FontSize*4.5 : 0 ) - ( DP_Navigator === 1 ? 15+DP_FontSize*3.5 : 0 ) - ( DP_Navigator === 2 ? 11+DP_FontSize*2 : 0 )  ,
       maxHeight: 200
     };
   } else if (DP_Legend === 5) {
@@ -4249,49 +4238,6 @@ function chartSetElements() {
     select.add(option);
   }
 
-  // *** set function for Filter_Feld
-  $("#filterFeld").on("keyup", function() {
-    filter_feld = $(this).val().toLowerCase();
-    changeEventRaumFilter();
-  });
-
-  // *** set function for Filter Room
-  $("#Select-Raum").on("change", function() {
-    changeEventRaumFilter();
-  });
-
-  // *** set function for Filter Room
-  $("#Select-Gewerk").on("change", function() {
-    changeEventRaumFilter();
-  });
-
-  // **********************
-  $('#refresh').click( function() {
-     refreshClick();
-     return true;
-  });
-
-  // **********************
-  $('#createLink').click(function() {
-    createUrl();
-    return true;
-  });
-
-  // *** set function for Favorit Button
-  $("#bntFavorit").click(function() {
-    showDialogFav();
-    return true;
-  });
-
-  // *** update background color on Field Select-Color
-  $("#Select-Color").on("change", function() {
-    document.getElementById("Select-Color").style.backgroundColor = chart.options.colors[parseInt(document.getElementById("Select-Color").value.substr(1, 2))];
-  });
-
-  //*** update background color on Field Select-Color
-  $("#Select-AxisColor").on("change", function() {
-    showDialogYAxisUpdatColor();
-  });
 
 // disable StockTools Button on hide Menue-Buttons
   if (DP_Navigator < 4) {
@@ -4310,6 +4256,60 @@ function chartSetElements() {
   });
 
 }
+
+// avoid double register same event
+function eventSingleRegister(el_name,ev_name,ev_func) {
+  if (undefined != jQuery._data( $(el_name)[0], "events" )) {
+    if (undefined != jQuery._data( $(el_name)[0], "events" )[ev_name]) {
+      return false;
+    }
+  }
+  $(el_name).on(ev_name, ev_func);
+}
+
+// *** set function for Filter_Feld
+eventSingleRegister("#filterFeld", "keyup", function() {
+  filter_feld = $(this).val().toLowerCase();
+  changeEventRaumFilter();
+});
+
+// *** set function for Filter Room
+eventSingleRegister("#Select-Raum", "change", function() {
+  changeEventRaumFilter();
+});
+
+// *** set function for Filter Room
+eventSingleRegister("#Select-Gewerk", "change", function() {
+  changeEventRaumFilter();
+});
+
+// **********************
+eventSingleRegister("#refresh", "click", function() {
+   refreshClick();
+   return true;
+});
+
+// **********************
+eventSingleRegister("#createLink", "click", function() {
+  createUrl();
+  return true;
+});
+
+// *** set function for Favorit Button
+eventSingleRegister("#bntFavorit", "click", function() {
+  showDialogFav();
+  return true;
+});
+
+// *** update background color on Field Select-Color
+eventSingleRegister("#Select-Color", "change", function() {
+  document.getElementById("Select-Color").style.backgroundColor = chart.options.colors[parseInt(document.getElementById("Select-Color").value.substr(1, 2))];
+});
+
+//*** update background color on Field Select-Color
+eventSingleRegister("#Select-AxisColor", "change", function() {
+  showDialogYAxisUpdatColor();
+});
 
 function refreshClick() {
   Zeitraum_Ende = new Date(Date.now());
