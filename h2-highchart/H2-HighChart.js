@@ -1770,44 +1770,48 @@ function parseDataPoints() {
   var DP_gewerk = [];
   var t;
   var i;
-  var c;
+  var text = '';
   var text2;
   var attr;
   DP_attribute = [];
 
   // Alle Serien aufbauen und Räume & Gewerke sammeln nur für anzeigbare
-  for (i = 0; i < DP_point.length; i++) {
+  for (let dp of DP_point) {
 
-    // Räme sammeln
-    if (DP_point[i].attributes.room !== null) {
-      t = DP_point[i].attributes.room.split(',');
-      for (c = 0; c < t.length; c++) {
-        if (t[c] !== '') {
-          if (DP_rooms.indexOf(t[c].trim()) === -1) {
-            DP_rooms.push(t[c].trim());
+// nur valide DPs
+   if (checkFilter("ALLES", "ALLES", "", null, dp)) {
+
+      // Räme sammeln
+      if (dp.attributes.room !== null) {
+        t = dp.attributes.room.split(',');
+        for (let c of t) {
+          if (c !== '') {
+            if (DP_rooms.indexOf(c.trim()) === -1) {
+              DP_rooms.push(c.trim());
+            }
           }
         }
       }
-    }
-    // Gewerke sammeln
-    if (DP_point[i].attributes.function !== null) {
-      t = DP_point[i].attributes.function.split(',');
-      for (c = 0; c < t.length; c++) {
-        if (t[c] !== '') {
-          if (DP_gewerk.indexOf(t[c].trim()) === -1) {
-            DP_gewerk.push(t[c].trim());
+
+      // Gewerke sammeln
+      if (dp.attributes.function !== null) {
+        t = dp.attributes.function.split(',');
+        for (let c of t) {
+          if (c !== '') {
+            if (DP_gewerk.indexOf(c.trim()) === -1) {
+              DP_gewerk.push(c.trim());
+            }
           }
         }
       }
-    }
 
-
-    // take default values from database
-    if (DP_point[i].attributes.custom && DP_point[i].attributes.custom.HighChart) {
-      text2 = DP_point[i].attributes.custom.HighChart.split('|');
-      if (text2.length > 0) {
-        attr = defaultAttrib(DP_point[i], i, DP_point[i].idx.toString());
-        DP_attribute.push(attr);
+      // take default values from database
+      if (dp.attributes.custom && dp.attributes.custom.HighChart) {
+        text2 = dp.attributes.custom.HighChart.split('|');
+        if (text2.length > 0) {
+          attr = defaultAttrib(dp, i, dp.idx.toString());
+          DP_attribute.push(attr);
+        }
       }
     }
   }
@@ -1815,31 +1819,32 @@ function parseDataPoints() {
   // Sort on Rooms
   DP_rooms.sort( sortLowercase );
 
-  var text = '';
+  $("#Select-Raum").empty();
   var select = document.getElementById("Select-Raum");
 
   // add default all and sysvar
   select.options[select.options.length] = new Option(window.ChhLanguage.default.historian.roomALL, 'ALLES');
   select.options[select.options.length] = new Option(window.ChhLanguage.default.historian.sysvarALL, 'SYSVAR');
-  for (i = 0; i < DP_rooms.length; i++) {
-    text = DP_rooms[i];
-    if (window.ChhLanguage.default.historian[text]) {
-      text = window.ChhLanguage.default.historian[text];
+  for (let c of DP_rooms) {
+    text2 = c;
+    if (window.ChhLanguage.default.historian[c]) {
+      text2 = window.ChhLanguage.default.historian[c];
     }
-    select.options[select.options.length] = new Option(text, DP_rooms[i]);
+    select.options[select.options.length] = new Option(text2, c);
   }
 
   // Sort on Gewerk
   DP_gewerk.sort( sortLowercase );
 
+  $("#Select-Gewerk").empty();
   select = document.getElementById("Select-Gewerk");
   select.options[select.options.length] = new Option(window.ChhLanguage.default.historian.functionALL, 'ALLES');
-  for (i = 0; i < DP_gewerk.length; i++) {
-    text = DP_gewerk[i];
-    if (window.ChhLanguage.default.historian[text]) {
-      text = window.ChhLanguage.default.historian[text];
+  for (let c of DP_gewerk) {
+    text2 = c;
+    if (window.ChhLanguage.default.historian[c]) {
+      text2 = window.ChhLanguage.default.historian[c];
     }
-    select.options[select.options.length] = new Option(text, DP_gewerk[i]);
+    select.options[select.options.length] = new Option(text2, c);
   }
 
   // Set start parameter
@@ -1880,7 +1885,7 @@ function parseDataPoints() {
         var DP_start_func = decodeURIComponent(nv[1].toLowerCase());
         select = document.getElementById("Select-Gewerk");
         for (let l_opt of select.options) {
-          if (l_opt.label.toLowerCase() === DP_start_func.toLowerCase()) {
+          if (l_opt.label.toLowerCase() === DP_start_func.toLowerCase() || l_opt.value.toLowerCase() === DP_start_func.toLowerCase()) {
             select.value = l_opt.value;
             break;
           }
@@ -2437,7 +2442,7 @@ function changeEventRaumFilter() {
 
   // add new series which are in filter
   for (let dppoint of DP_point) {
-    if (checkFilter(filter_raum, filter_gewerk, dppoint)) {
+    if (checkFilter(filter_raum, filter_gewerk, filter_feld, DP_Limit, dppoint)) {
 
       addSerie(dppoint, '');
       series = chart.get(dppoint.idx.toString());
@@ -2515,7 +2520,7 @@ function changeEventRaumFilter() {
 }
 
 //*******
-function checkFilter(p_raum, p_gewerk, p_dp) {
+function checkFilter(p_raum, p_gewerk, p_textfilter, p_limit, p_dp) {
 
   // Generell Filter
   if (p_dp.historyDisabled && (DP_DataPointFilter === 0 || DP_DataPointFilter === 2)) {
@@ -2551,8 +2556,8 @@ function checkFilter(p_raum, p_gewerk, p_dp) {
   }
 
   // Description Filter
-  if (filter_feld !== '') {
-    var ft = filter_feld.split(' ');
+  if (p_textfilter !== '') {
+    var ft = p_textfilter.split(' ');
     for (let fi of ft) {
       if ((p_dp.displayName + "/" + p_dp.id.address + "/ID:" + p_dp.idx).toLowerCase().indexOf(fi) === -1) {
         return false;
@@ -2561,7 +2566,7 @@ function checkFilter(p_raum, p_gewerk, p_dp) {
   }
 
   // only marked series are needed ?
-  if (DP_Limit) {
+  if (p_limit) {
     var attr = DP_attribute.findIndex(obj => obj.id === p_dp.idx.toString());
     if (attr === -1) {
       return false;
@@ -3353,7 +3358,7 @@ function getDialogSetting() {
   // DataPointFilter
   if (DP_DataPointFilter.toString() !== document.getElementById("Select-DataPoint").value) {
     DP_DataPointFilter = parseInt(document.getElementById("Select-DataPoint").value);
-    filterrefresh = true;
+    chartrefresh = true;
   }
 
   // Theme
@@ -4259,12 +4264,13 @@ function chartSetElements() {
 
 // avoid double register same event
 function eventSingleRegister(el_name,ev_name,ev_func) {
-  if (undefined != jQuery._data( $(el_name)[0], "events" )) {
-    if (undefined != jQuery._data( $(el_name)[0], "events" )[ev_name]) {
+  if (undefined !== jQuery._data( $(el_name)[0], "events" )) {
+    if (undefined !== jQuery._data( $(el_name)[0], "events" )[ev_name]) {
       return false;
     }
   }
   $(el_name).on(ev_name, ev_func);
+  return true;
 }
 
 // *** set function for Filter_Feld
