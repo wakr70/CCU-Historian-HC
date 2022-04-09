@@ -1766,92 +1766,17 @@ function requestData2(TXT_JSON) {
 
 
 function parseDataPoints() {
-  var DP_rooms = [];
-  var DP_gewerk = [];
-  var t;
   var i;
   var text = '';
-  var text2;
-  var attr;
   DP_attribute = [];
 
+
   // Alle Serien aufbauen und Räume & Gewerke sammeln nur für anzeigbare
-  for (let dp of DP_point) {
-
-// nur valide DPs
-   if (checkFilter("ALLES", "ALLES", "", null, dp)) {
-
-      // Räme sammeln
-      if (dp.attributes.room !== null) {
-        t = dp.attributes.room.split(',');
-        for (let c of t) {
-          if (c !== '') {
-            if (DP_rooms.indexOf(c.trim()) === -1) {
-              DP_rooms.push(c.trim());
-            }
-          }
-        }
-      }
-
-      // Gewerke sammeln
-      if (dp.attributes.function !== null) {
-        t = dp.attributes.function.split(',');
-        for (let c of t) {
-          if (c !== '') {
-            if (DP_gewerk.indexOf(c.trim()) === -1) {
-              DP_gewerk.push(c.trim());
-            }
-          }
-        }
-      }
-
-      // take default values from database
-      if (dp.attributes.custom && dp.attributes.custom.HighChart) {
-        text2 = dp.attributes.custom.HighChart.split('|');
-        if (text2.length > 0) {
-          attr = defaultAttrib(dp, i, dp.idx.toString());
-          DP_attribute.push(attr);
-        }
-      }
-    }
-  }
-
-  // Sort on Rooms
-  DP_rooms.sort( sortLowercase );
-
-  $("#Select-Raum").empty();
-  var select = document.getElementById("Select-Raum");
-
-  // add default all and sysvar
-  select.options[select.options.length] = new Option(window.ChhLanguage.default.historian.roomALL, 'ALLES');
-  select.options[select.options.length] = new Option(window.ChhLanguage.default.historian.sysvarALL, 'SYSVAR');
-  for (let c of DP_rooms) {
-    text2 = c;
-    if (window.ChhLanguage.default.historian[c]) {
-      text2 = window.ChhLanguage.default.historian[c];
-    }
-    select.options[select.options.length] = new Option(text2, c);
-  }
-
-  // Sort on Gewerk
-  DP_gewerk.sort( sortLowercase );
-
-  $("#Select-Gewerk").empty();
-  select = document.getElementById("Select-Gewerk");
-  select.options[select.options.length] = new Option(window.ChhLanguage.default.historian.functionALL, 'ALLES');
-  for (let c of DP_gewerk) {
-    text2 = c;
-    if (window.ChhLanguage.default.historian[c]) {
-      text2 = window.ChhLanguage.default.historian[c];
-    }
-    select.options[select.options.length] = new Option(text2, c);
-  }
-
-  // Set start parameter
-  document.getElementById("filterFeld").value = filter_feld;
+  parseDataPointFill();
 
   var nv;
   var parts;
+  var select;
   // check parameter from get-link
   if (location.search) {
     parts = decodeURIComponent(location.search.substring(1)).split('&');
@@ -1941,6 +1866,93 @@ function parseDataPoints() {
   // check parameter Zoom from get-link
   parseDataPointsZoom();
 
+}
+
+function parseDataPointFill() {
+  var DP_rooms = [];
+  var DP_gewerk = [];
+  var t;
+  var text2;
+  var attr;
+
+  // reset DP attributes
+  DP_attribute = [];
+  DP_ColorNext = 0;
+
+  // Alle Serien aufbauen und Räume & Gewerke sammeln nur für anzeigbare
+  for (let dp of DP_point) {
+
+// nur valide DPs
+   if (checkFilter("ALLES", "ALLES", "", null, dp)) {
+
+      // Räme sammeln
+      if (dp.attributes.room !== null) {
+        t = dp.attributes.room.split(',');
+        for (let c of t) {
+          if (c !== '') {
+            if (DP_rooms.indexOf(c.trim()) === -1) {
+              DP_rooms.push(c.trim());
+            }
+          }
+        }
+      }
+
+      // Gewerke sammeln
+      if (dp.attributes.function !== null) {
+        t = dp.attributes.function.split(',');
+        for (let c of t) {
+          if (c !== '') {
+            if (DP_gewerk.indexOf(c.trim()) === -1) {
+              DP_gewerk.push(c.trim());
+            }
+          }
+        }
+      }
+
+      // take default values from database
+      if (dp.attributes.custom && dp.attributes.custom.HighChart) {
+        text2 = dp.attributes.custom.HighChart.split('|');
+        if (text2.length > 0) {
+          attr = defaultAttrib(dp, -1, dp.idx.toString());
+          DP_attribute.push(attr);
+        }
+      }
+    }
+  }
+
+  // Sort on Rooms
+  DP_rooms.sort( sortLowercase );
+
+  $("#Select-Raum").empty();
+  var select = document.getElementById("Select-Raum");
+
+  // add default all and sysvar
+  select.options[select.options.length] = new Option(window.ChhLanguage.default.historian.roomALL, 'ALLES');
+  select.options[select.options.length] = new Option(window.ChhLanguage.default.historian.sysvarALL, 'SYSVAR');
+  for (let c of DP_rooms) {
+    text2 = c;
+    if (window.ChhLanguage.default.historian[c]) {
+      text2 = window.ChhLanguage.default.historian[c];
+    }
+    select.options[select.options.length] = new Option(text2, c);
+  }
+
+  // Sort on Gewerk
+  DP_gewerk.sort( sortLowercase );
+
+  $("#Select-Gewerk").empty();
+  select = document.getElementById("Select-Gewerk");
+  select.options[select.options.length] = new Option(window.ChhLanguage.default.historian.functionALL, 'ALLES');
+  for (let c of DP_gewerk) {
+    text2 = c;
+    if (window.ChhLanguage.default.historian[c]) {
+      text2 = window.ChhLanguage.default.historian[c];
+    }
+    select.options[select.options.length] = new Option(text2, c);
+  }
+
+  // Set start parameter
+  document.getElementById("filterFeld").value = filter_feld;
 }
 
 /*****/

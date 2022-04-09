@@ -1,5 +1,5 @@
 /**
- * @license Highcharts JS v9.3.1 (2021-11-05)
+ * @license Highcharts JS v10.0.0 (2022-03-07)
  *
  * Exporting module
  *
@@ -7,7 +7,6 @@
  *
  * License: www.highcharts.com/license
  */
-'use strict';
 (function (factory) {
     if (typeof module === 'object' && module.exports) {
         factory['default'] = factory;
@@ -22,10 +21,20 @@
         factory(typeof Highcharts !== 'undefined' ? Highcharts : undefined);
     }
 }(function (Highcharts) {
+    'use strict';
     var _modules = Highcharts ? Highcharts._modules : {};
     function _registerModule(obj, path, args, fn) {
         if (!obj.hasOwnProperty(path)) {
             obj[path] = fn.apply(null, args);
+
+            if (typeof CustomEvent === 'function') {
+                window.dispatchEvent(
+                    new CustomEvent(
+                        'HighchartsModuleLoaded',
+                        { detail: { path: path, module: obj[path] }
+                    })
+                );
+            }
         }
     }
     _registerModule(_modules, 'Extensions/FullScreen.js', [_modules['Core/Chart/Chart.js'], _modules['Core/Globals.js'], _modules['Core/Renderer/HTML/AST.js'], _modules['Core/Utilities.js']], function (Chart, H, AST, U) {
@@ -137,7 +146,8 @@
                 }
                 // Unbind event as it's necessary only before exiting from fullscreen.
                 if (fullscreen.unbindFullscreenEvent) {
-                    fullscreen.unbindFullscreenEvent = fullscreen.unbindFullscreenEvent();
+                    fullscreen.unbindFullscreenEvent = fullscreen
+                        .unbindFullscreenEvent();
                 }
                 chart.setSize(fullscreen.origWidth, fullscreen.origHeight, false);
                 fullscreen.origWidth = void 0;
@@ -212,7 +222,6 @@
              * @since 8.0.1
              *
              * @requires modules/full-screen
-             * @return {void}
              */
             Fullscreen.prototype.setButtonText = function () {
                 var chart = this.chart,
@@ -232,7 +241,8 @@
                     var exportDivElement = exportDivElements[menuItems.indexOf('viewFullscreen')];
                     if (exportDivElement) {
                         AST.setElementHTML(exportDivElement, !this.isOpen ?
-                            (exportingOptions.menuItemDefinitions.viewFullscreen.text ||
+                            (exportingOptions.menuItemDefinitions.viewFullscreen
+                                .text ||
                                 lang.viewFullscreen) : lang.exitFullscreen);
                     }
                 }
@@ -502,7 +512,7 @@
                  * Path where Highcharts will look for export module dependencies to
                  * load on demand if they don't already exist on `window`. Should currently
                  * point to location of [CanVG](https://github.com/canvg/canvg) library,
-                 * [jsPDF](https://github.com/yWorks/jsPDF) and
+                 * [jsPDF](https://github.com/parallax/jsPDF) and
                  * [svg2pdf.js](https://github.com/yWorks/svg2pdf.js), required for client
                  * side export in certain browsers.
                  *
@@ -566,6 +576,54 @@
                  * @since 2.0
                  */
                 url: 'https://export.highcharts.com/',
+                /**
+                 * Settings for a custom font for the exported PDF, when using the
+                 * `offline-exporting` module. This is used for languages containing
+                 * non-ASCII characters, like Chinese, Russian, Japanese etc.
+                 *
+                 * As described in the [jsPDF
+                 * docs](https://github.com/parallax/jsPDF#use-of-unicode-characters--utf-8),
+                 * the 14 standard fonts in PDF are limited to the ASCII-codepage.
+                 * Therefore, in order to support other text in the exported PDF, one or
+                 * more TTF font files have to be passed on to the exporting module.
+                 *
+                 * See more in [the
+                 * docs](https://www.highcharts.com/docs/export-module/client-side-export).
+                 *
+                 * @sample {highcharts} highcharts/exporting/offline-download-pdffont/
+                 *         Download PDF in a language containing non-Latin characters.
+                 *
+                 * @since 10.0.0
+                 * @requires modules/offline-exporting
+                 */
+                pdfFont: {
+                    /**
+                     * The TTF font file for normal `font-style`. If font variations like
+                     * `bold` or `italic` are not defined, the `normal` font will be used
+                     * for those too.
+                     *
+                     * @type string|undefined
+                     */
+                    normal: void 0,
+                    /**
+                     * The TTF font file for bold text.
+                     *
+                     * @type string|undefined
+                     */
+                    bold: void 0,
+                    /**
+                     * The TTF font file for bold and italic text.
+                     *
+                     * @type string|undefined
+                     */
+                    bolditalic: void 0,
+                    /**
+                     * The TTF font file for italic text.
+                     *
+                     * @type string|undefined
+                     */
+                    italic: void 0
+                },
                 /**
                  * When printing the chart from the menu item in the burger menu, if
                  * the on-screen chart exceeds this width, it is resized. After printing
@@ -1299,9 +1357,10 @@
                 r = new XMLHttpRequest();
             /**
              * @private
-             * @param {XMLHttpRequest} xhr - Internal request object.
-             * @param {string|Error} err - Occured error.
-             * @return {void}
+             * @param {XMLHttpRequest} xhr
+             * Internal request object.
+             * @param {string|Error} err
+             * Occured error.
              */
             function handleError(xhr, err) {
                 if (options.error) {
@@ -1321,21 +1380,26 @@
             objectEach(options.headers, function (val, key) {
                 r.setRequestHeader(key, val);
             });
+            if (options.responseType) {
+                r.responseType = options.responseType;
+            }
             // @todo lacking timeout handling
             r.onreadystatechange = function () {
                 var res;
                 if (r.readyState === 4) {
                     if (r.status === 200) {
-                        res = r.responseText;
-                        if (options.dataType === 'json') {
-                            try {
-                                res = JSON.parse(res);
-                            }
-                            catch (e) {
-                                return handleError(r, e);
+                        if (options.responseType !== 'blob') {
+                            res = r.responseText;
+                            if (options.dataType === 'json') {
+                                try {
+                                    res = JSON.parse(res);
+                                }
+                                catch (e) {
+                                    return handleError(r, e);
+                                }
                             }
                         }
-                        return options.success && options.success(res);
+                        return options.success && options.success(res, r);
                     }
                     handleError(r, r.responseText);
                 }
@@ -1379,7 +1443,7 @@
          * @param {string} url
          * Post URL
          *
-         * @param {object} data
+         * @param {Object} data
          * Post data
          *
          * @param {Highcharts.Dictionary<string>} [formAttributes]
@@ -1549,7 +1613,6 @@
              * @private
              * @function Highcharts.Chart#addButton
              * @param {Highcharts.NavigationButtonOptions} options
-             * @return {void}
              * @requires modules/exporting
              */
             function addButton(options) {
@@ -1667,9 +1730,8 @@
              *
              * @param {Highcharts.Chart} chart
              *        Chart that was (or suppose to be) printed
-             * @return {void}
              *
-             * @fires Highcharts.Chart#event:afterPrint
+             * @emits Highcharts.Chart#event:afterPrint
              */
             function afterPrint() {
                 var chart = this;
@@ -1704,9 +1766,8 @@
              *
              * @private
              *
-             * @return {void}
              *
-             * @fires Highcharts.Chart#event:beforePrint
+             * @emits Highcharts.Chart#event:beforePrint
              */
             function beforePrint() {
                 var chart = this,
@@ -1721,7 +1782,8 @@
                 chart.pointer.reset(null, 0);
                 fireEvent(chart, 'beforePrint');
                 // Handle printMaxWidth
-                var handleMaxWidth = printMaxWidth && chart.chartWidth > printMaxWidth;
+                var handleMaxWidth = printMaxWidth &&
+                        chart.chartWidth > printMaxWidth;
                 if (handleMaxWidth) {
                     printReverseInfo.resetParams = [
                         chart.options.chart.width,
@@ -1844,7 +1906,6 @@
              *        The width of the opener button
              * @param {number} height
              *        The height of the opener button
-             * @return {void}
              * @requires modules/exporting
              */
             function contextMenu(className, items, x, y, width, height, button) {
@@ -1924,9 +1985,10 @@
                                 element = createElement('hr', void 0, void 0, innerMenu);
                             }
                             else {
-                                // When chart initialized with the table,
-                                // wrong button text displayed, #14352.
-                                if (item.textKey === 'viewData' && chart.isDataTableVisible) {
+                                // When chart initialized with the table, wrong button
+                                // text displayed, #14352.
+                                if (item.textKey === 'viewData' &&
+                                    chart.isDataTableVisible) {
                                     item.textKey = 'hideData';
                                 }
                                 element = createElement('li', {
@@ -1953,7 +2015,7 @@
                                     };
                                     css(element, extend({
                                         cursor: 'pointer'
-                                    }, navOptions.menuItemStyle));
+                                    }, navOptions.menuItemStyle || {}));
                                 }
                             }
                             // Keep references to menu divs to be able to destroy them
@@ -1994,7 +2056,6 @@
              * @private
              * @function Highcharts.Chart#destroyExport
              * @param {global.Event} [e]
-             * @return {void}
              * @requires modules/exporting
              */
             function destroyExport(e) {
@@ -2101,8 +2162,8 @@
              *
              * @function Highcharts.Chart#getChartHTML
              *
-             * @returns {string}
-             *          The unfiltered SVG of the chart.
+             * @return {string}
+             * The unfiltered SVG of the chart.
              *
              * @requires modules/exporting
              */
@@ -2161,7 +2222,7 @@
              * @return {string}
              *         The SVG representation of the rendered chart.
              *
-             * @fires Highcharts.Chart#event:getSVG
+             * @emits Highcharts.Chart#event:getSVG
              *
              * @requires modules/exporting
              */
@@ -2278,10 +2339,6 @@
             /**
              * @private
              * @function Highcharts.Chart#getSVGForExport
-             * @param {Highcharts.ExportingOptions} options
-             * @param {Highcharts.Options} chartOptions
-             * @return {string}
-             * @requires modules/exporting
              */
             function getSVGForExport(options, chartOptions) {
                 var chartExportingOptions = this.options.exporting;
@@ -2298,9 +2355,9 @@
              * Make hyphenated property names out of camelCase
              * @private
              * @param {string} prop
-             *        Property name in camelCase
+             * Property name in camelCase
              * @return {string}
-             *         Hyphenated property name
+             * Hyphenated property name
              */
             function hyphenate(prop) {
                 return prop.replace(/([A-Z])/g, function (a, b) {
@@ -2312,11 +2369,11 @@
              *
              * @private
              * @function Highcharts.Chart#inlineStyles
-             * @return {void}
              *
-             * @todo: What are the border styles for text about? In general, text has a
-             * lot of properties.
-             * @todo: Make it work with IE9 and IE10.
+             * @todo What are the border styles for text about? In general, text has a
+             *       lot of properties.
+             *
+             * @todo Make it work with IE9 and IE10.
              *
              * @requires modules/exporting
              */
@@ -2343,8 +2400,7 @@
                  * @private
                  * @param {Highcharts.HTMLDOMElement} node
                  *        Element child
-                 * @return {void}
-                 */
+                     */
                 function recurse(node) {
                     var styles,
                         parentStyles,
@@ -2362,8 +2418,7 @@
                      *        Style value
                      * @param {string} prop
                      *        Style property name
-                     * @return {void}
-                     */
+                             */
                     function filterStyles(val, prop) {
                         // Check against whitelist & blacklist
                         blacklisted = whitelisted = false;
@@ -2435,14 +2490,16 @@
                             dummySVG.removeChild(dummy);
                         }
                         // Loop through all styles and add them inline if they are ok
-                        if (G.isFirefox || G.isMS) {
-                            // Some browsers put lots of styles on the prototype
-                            for (var p in styles) { // eslint-disable-line guard-for-in
+                        for (var p in styles) {
+                            if (
+                            // Some browsers put lots of styles on the prototype...
+                            G.isFirefox ||
+                                G.isMS ||
+                                G.isSafari || // #16902
+                                // ... Chrome puts them on the instance
+                                Object.hasOwnProperty.call(styles, p)) {
                                 filterStyles(styles[p], p);
                             }
-                        }
-                        else {
-                            objectEach(styles, filterStyles);
                         }
                         // Apply styles
                         if (cssText) {
@@ -2463,8 +2520,7 @@
                 /**
                  * Remove the dummy objects used to get defaults
                  * @private
-                 * @return {void}
-                 */
+                     */
                 function tearDown() {
                     dummySVG.parentNode.removeChild(dummySVG);
                     // Remove trash from DOM that stayed after each exporting
@@ -2482,7 +2538,6 @@
              *
              * @param {Highcharts.HTMLDOMElement} moveTo
              *        Move target
-             * @return {void}
              */
             function moveContainers(moveTo) {
                 var chart = this;
@@ -2509,8 +2564,7 @@
                      *        Options to update
                      * @param {boolean} [redraw=true]
                      *        Whether to redraw
-                     * @return {void}
-                     */
+                             */
                     update = function (prop,
                     options,
                     redraw) {
@@ -2545,10 +2599,9 @@
              *
              * @function Highcharts.Chart#print
              *
-             * @return {void}
              *
-             * @fires Highcharts.Chart#event:beforePrint
-             * @fires Highcharts.Chart#event:afterPrint
+             * @emits Highcharts.Chart#event:beforePrint
+             * @emits Highcharts.Chart#event:afterPrint
              *
              * @requires modules/exporting
              */
@@ -2578,7 +2631,6 @@
              * Add the buttons on chart load
              * @private
              * @function Highcharts.Chart#renderExporting
-             * @return {void}
              * @requires modules/exporting
              */
             function renderExporting() {

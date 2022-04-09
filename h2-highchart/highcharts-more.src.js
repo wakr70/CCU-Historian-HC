@@ -1,11 +1,10 @@
 /**
- * @license Highcharts JS v9.3.1 (2021-11-05)
+ * @license Highcharts JS v10.0.0 (2022-03-07)
  *
  * (c) 2009-2021 Torstein Honsi
  *
  * License: www.highcharts.com/license
  */
-'use strict';
 (function (factory) {
     if (typeof module === 'object' && module.exports) {
         factory['default'] = factory;
@@ -20,10 +19,20 @@
         factory(typeof Highcharts !== 'undefined' ? Highcharts : undefined);
     }
 }(function (Highcharts) {
+    'use strict';
     var _modules = Highcharts ? Highcharts._modules : {};
     function _registerModule(obj, path, args, fn) {
         if (!obj.hasOwnProperty(path)) {
             obj[path] = fn.apply(null, args);
+
+            if (typeof CustomEvent === 'function') {
+                window.dispatchEvent(
+                    new CustomEvent(
+                        'HighchartsModuleLoaded',
+                        { detail: { path: path, module: obj[path] }
+                    })
+                );
+            }
         }
     }
     _registerModule(_modules, 'Extensions/Pane.js', [_modules['Core/Chart/Chart.js'], _modules['Series/CenteredUtilities.js'], _modules['Core/Globals.js'], _modules['Core/Pointer.js'], _modules['Core/Utilities.js']], function (Chart, CU, H, Pointer, U) {
@@ -329,7 +338,6 @@
              * @private
              * @function Highcharts.Pane#updateCenter
              * @param {Highcharts.Axis} [axis]
-             * @return {void}
              */
             Pane.prototype.updateCenter = function (axis) {
                 this.center = (axis ||
@@ -360,7 +368,6 @@
              * @param {Highcharts.PaneOptions} options
              *        New pane options
              * @param {boolean} [redraw]
-             * @return {void}
              */
             Pane.prototype.update = function (options, redraw) {
                 merge(true, this.options, options);
@@ -378,10 +385,12 @@
         /**
          * Check whether element is inside or outside pane.
          * @private
-         * @param  {number} x Element's x coordinate
-         * @param  {number} y Element's y coordinate
-         * @param  {Array<number>} center Pane's center (x, y) and diameter
-         * @return {boolean}
+         * @param  {number} x
+         * Element's x coordinate
+         * @param  {number} y
+         * Element's y coordinate
+         * @param  {Array<number>} center
+         * Pane's center (x, y) and diameter
          */
         function isInsidePane(x, y, center) {
             return Math.sqrt(Math.pow(x - center[0], 2) + Math.pow(y - center[1], 2)) <= center[2] / 2;
@@ -645,8 +654,6 @@
              * anti-collision.
              *
              * @private
-             *
-             * @return {Highcharts.ChartLabelCollectorFunction}
              */
             function createLabelCollector() {
                 var _this = this;
@@ -724,17 +731,12 @@
              * getPlotLinePath method.
              *
              * @private
-             *
              * @param {number} _lineWidth
              * Line width is not used.
-             *
              * @param {number} [radius]
              * Radius of radial path.
-             *
              * @param {number} [innerRadius]
              * Inner radius of radial path.
-             *
-             * @return {Highcharts.RadialAxisPath}
              */
             function getLinePath(_lineWidth, radius, innerRadius) {
                 var center = this.pane.center,
@@ -767,7 +769,11 @@
                 else {
                     end = this.postTranslate(this.angleRad, r);
                     path = [
-                        ['M', this.center[0] + chart.plotLeft, this.center[1] + chart.plotTop],
+                        [
+                            'M',
+                            this.center[0] + chart.plotLeft,
+                            this.center[1] + chart.plotTop
+                        ],
                         ['L', end.x, end.y]
                     ];
                 }
@@ -789,17 +795,6 @@
              * Find the path for plot bands along the radial axis.
              *
              * @private
-             *
-             * @param {number} from
-             * From value.
-             *
-             * @param {number} to
-             * To value.
-             *
-             * @param {Highcharts.AxisPlotBandsOptions} options
-             * Band options.
-             *
-             * @return {Highcharts.RadialAxisPath}
              */
             function getPlotBandPath(from, to, options) {
                 var chart = this.chart,
@@ -994,14 +989,10 @@
              * distance from center.
              *
              * @private
-             *
              * @param {number} value
              * Point value.
-             *
              * @param {number} [length]
              * Distance from center.
-             *
-             * @return {Highcharts.PositionObject}
              */
             function getPosition(value, length) {
                 var translatedVal = this.translate(value);
@@ -1162,7 +1153,8 @@
                             AxisDefaults.defaultYAxisOptions, defaultRadialOptions);
                     // Apply the stack labels for yAxis in case of inverted chart
                     if (inverted && coll === 'yAxis') {
-                        this.defaultPolarOptions.stackLabels = AxisDefaults.defaultYAxisOptions.stackLabels;
+                        this.defaultPolarOptions.stackLabels = AxisDefaults
+                            .defaultYAxisOptions.stackLabels;
                         this.defaultPolarOptions.reversedStacks = true;
                     }
                 }
@@ -1336,14 +1328,10 @@
              * to final chart coordinates.
              *
              * @private
-             *
              * @param {number} angle
              * Translation angle.
-             *
              * @param {number} radius
              * Translation radius.
-             *
-             * @return {Highcharts.PositionObject}
              */
             function postTranslate(angle, radius) {
                 var chart = this.chart,
@@ -1825,11 +1813,17 @@
                 // Create a line on both top and bottom of the range
                 linePath = []
                     .concat(lowerPath, higherPath);
-                // For the area path, we need to change the 'move' statement
-                // into 'lineTo'
-                if (!this.chart.polar && higherAreaPath[0] && higherAreaPath[0][0] === 'M') {
+                // For the area path, we need to change the 'move' statement into
+                // 'lineTo'
+                if (!this.chart.polar &&
+                    higherAreaPath[0] &&
+                    higherAreaPath[0][0] === 'M') {
                     // This probably doesn't work for spline
-                    higherAreaPath[0] = ['L', higherAreaPath[0][1], higherAreaPath[0][2]];
+                    higherAreaPath[0] = [
+                        'L',
+                        higherAreaPath[0][1],
+                        higherAreaPath[0][2]
+                    ];
                 }
                 this.graphPath = linePath;
                 this.areaPath = lowerPath.concat(higherAreaPath);
@@ -1861,13 +1855,17 @@
                     //
                     // TODO: We want to change this and allow multiple labels for both
                     // upper and lower values in the future - introducing some options
-                    // for which point value to use as Y for the dataLabel, so that
-                    // this could be handled in Series.drawDataLabels. This would also
-                    // improve performance since we now have to loop over all the
-                    // points multiple times to work around the data label logic.
+                    // for which point value to use as Y for the dataLabel, so that this
+                    // could be handled in Series.drawDataLabels. This would also
+                    // improve performance since we now have to loop over all the points
+                    // multiple times to work around the data label logic.
                     if (isArray(dataLabelOptions)) {
-                        upperDataLabelOptions = dataLabelOptions[0] || { enabled: false };
-                        lowerDataLabelOptions = dataLabelOptions[1] || { enabled: false };
+                        upperDataLabelOptions = dataLabelOptions[0] || {
+                            enabled: false
+                        };
+                        lowerDataLabelOptions = dataLabelOptions[1] || {
+                            enabled: false
+                        };
                     }
                     else {
                         // Make copies
@@ -1900,7 +1898,8 @@
                                 point.below = up;
                                 if (inverted) {
                                     if (!upperDataLabelOptions.align) {
-                                        upperDataLabelOptions.align = up ? 'right' : 'left';
+                                        upperDataLabelOptions.align = up ?
+                                            'right' : 'left';
                                     }
                                 }
                                 else {
@@ -1945,7 +1944,8 @@
                                 point.below = !up;
                                 if (inverted) {
                                     if (!lowerDataLabelOptions.align) {
-                                        lowerDataLabelOptions.align = up ? 'left' : 'right';
+                                        lowerDataLabelOptions.align = up ?
+                                            'left' : 'right';
                                     }
                                 }
                                 else {
@@ -3565,7 +3565,6 @@
              *        Bubble legend options
              * @param {Highcharts.Legend} legend
              *        Legend
-             * @return {void}
              */
             BubbleLegendItem.prototype.init = function (options, legend) {
                 this.options = options;
@@ -3578,9 +3577,8 @@
              *
              * @private
              * @function Highcharts.BubbleLegend#addToLegend
-             * @param {Array<(Highcharts.Point|Highcharts.Series)>}
-             *        All legend items
-             * @return {void}
+             * @param {Array<(Highcharts.Point|Highcharts.Series)>} items
+             * All legend items
              */
             BubbleLegendItem.prototype.addToLegend = function (items) {
                 // Insert bubbleLegend into legend items
@@ -3594,7 +3592,6 @@
              * @function Highcharts.BubbleLegend#drawLegendSymbol
              * @param {Highcharts.Legend} legend
              *        Legend instance
-             * @return {void}
              */
             BubbleLegendItem.prototype.drawLegendSymbol = function (legend) {
                 var chart = this.chart,
@@ -3637,7 +3634,6 @@
              *
              * @private
              * @function Highcharts.BubbleLegend#setOptions
-             * @return {void}
              */
             BubbleLegendItem.prototype.setOptions = function () {
                 var ranges = this.ranges,
@@ -3710,7 +3706,6 @@
              *
              * @private
              * @function Highcharts.BubbleLegend#render
-             * @return {void}
              */
             BubbleLegendItem.prototype.render = function () {
                 var renderer = this.chart.renderer,
@@ -3745,7 +3740,6 @@
              * @function Highcharts.BubbleLegend#renderRange
              * @param {Highcharts.LegendBubbleLegendRangesOptions} range
              *        Range options
-             * @return {void}
              */
             BubbleLegendItem.prototype.renderRange = function (range) {
                 var mainRange = this.ranges[0],
@@ -3827,7 +3821,6 @@
              *
              * @private
              * @function Highcharts.BubbleLegend#getMaxLabelSize
-             * @return {Highcharts.BBoxObject}
              */
             BubbleLegendItem.prototype.getMaxLabelSize = function () {
                 var labels = this.symbols.labels;
@@ -3870,7 +3863,6 @@
              *
              * @private
              * @function Highcharts.BubbleLegend#hideOverlappingLabels
-             * @return {void}
              */
             BubbleLegendItem.prototype.hideOverlappingLabels = function () {
                 var chart = this.chart,
@@ -3991,7 +3983,6 @@
              * @function Highcharts.BubbleLegend#updateRanges
              * @param {number} min
              * @param {number} max
-             * @return {void}
              */
             BubbleLegendItem.prototype.updateRanges = function (min, max) {
                 var bubbleLegendOptions = this.legend.options.bubbleLegend;
@@ -4006,7 +3997,6 @@
              *
              * @private
              * @function Highcharts.BubbleLegend#correctSizes
-             * @return {void}
              */
             BubbleLegendItem.prototype.correctSizes = function () {
                 var legend = this.legend,
@@ -5308,7 +5298,8 @@
              *
              * */
             ColumnRangeSeries.prototype.setOptions = function () {
-                merge(true, arguments[0], { stacking: void 0 }); // #14359 Prevent side-effect from stacking.
+                // #14359 Prevent side-effect from stacking.
+                merge(true, arguments[0], { stacking: void 0 });
                 return arearangeProto.setOptions.apply(this, arguments);
             };
             // eslint-disable-next-line valid-jsdoc
@@ -5686,9 +5677,12 @@
                     // topXwidth and bottomXwidth = width of lines from the center
                     // calculated from tanges proportion.
                     // Can not be a NaN #12514
-                    topXwidth = stackHeight ? (barW * (barY - topPointY)) / stackHeight : 0;
+                    topXwidth = stackHeight ?
+                        (barW * (barY - topPointY)) / stackHeight : 0;
                     // like topXwidth, but with height of point
-                    bottomXwidth = stackHeight ? (barW * (barY + barH - topPointY)) / stackHeight : 0;
+                    bottomXwidth = stackHeight ?
+                        (barW * (barY + barH - topPointY)) / stackHeight :
+                        0;
                     /*
                             /\
                            /  \
@@ -6851,7 +6845,7 @@
                     seriesOptions = series.options;
                 if (this.isParentNode && seriesOptions.parentNode) {
                     var temp = seriesOptions.allowPointSelect;
-                    seriesOptions.allowPointSelect = seriesOptions.parentNode.allowPointSelect;
+                    seriesOptions.allowPointSelect = (seriesOptions.parentNode.allowPointSelect);
                     Point.prototype.firePointEvent.apply(this, arguments);
                     seriesOptions.allowPointSelect = temp;
                 }
@@ -6903,7 +6897,6 @@
              * @private
              * @param {Highcharts.Point} point The point that event occured.
              * @param {Highcharts.PointerEventObject} event Browser event, before normalization.
-             * @return {void}
              */
             onMouseDown: function (point, event) {
                 var normalizedEvent = this.chart.pointer.normalize(event);
@@ -6923,7 +6916,6 @@
              * @param {global.Event} event Browser event, before normalization.
              * @param {Highcharts.Point} point The point that event occured.
              *
-             * @return {void}
              */
             onMouseMove: function (point, event) {
                 if (point.fixedPosition && point.inDragMode) {
@@ -6956,7 +6948,6 @@
              *
              * @private
              * @param {Highcharts.Point} point The point that event occured.
-             * @return {void}
              */
             onMouseUp: function (point, event) {
                 if (point.fixedPosition) {
@@ -6980,7 +6971,6 @@
              *
              * @private
              * @param {Highcharts.Point} point The point that should show halo.
-             * @return {void}
              */
             redrawHalo: function (point) {
                 if (point && this.halo) {
@@ -7076,8 +7066,7 @@
                  * `plotX` and `plotY` position.
                  *
                  * @private
-                 * @return {void}
-                 */
+                     */
                 barycenter: function () {
                     var gravitationalConstant = this.options.gravitationalConstant,
                         xFactor = this.barycenter.xFactor,
@@ -7109,8 +7098,7 @@
                  *        Force calcualated in `repulsiveForceFunction`
                  * @param {Highcharts.PositionObject} distance
                  *        Distance between two nodes e.g. `{x, y}`
-                 * @return {void}
-                 */
+                     */
                 repulsive: function (node, force, distanceXY) {
                     var factor = force * this.diffTemperature / node.mass / node.degree;
                     if (!node.fixedPosition) {
@@ -7131,8 +7119,7 @@
                  *        Force calcualated in `repulsiveForceFunction`
                  * @param {Highcharts.PositionObject} distance
                  *        Distance between two nodes e.g. `{x, y}`
-                 * @return {void}
-                 */
+                     */
                 attractive: function (link, force, distanceXY) {
                     var massFactor = link.getMass(),
                         translatedX = -distanceXY.x * force * this.diffTemperature,
@@ -7180,8 +7167,7 @@
                  * @private
                  * @param {Highcharts.NetworkgraphLayout} layout layout object
                  * @param {Highcharts.Point} node node that should be translated
-                 * @return {void}
-                 */
+                     */
                 integrate: function (layout, node) {
                     var friction = -layout.options.friction,
                         maxSpeed = layout.options.maxSpeed,
@@ -7212,10 +7198,7 @@
                 /**
                  * Estiamte the best possible distance between two nodes, making graph
                  * readable.
-                 *
                  * @private
-                 * @param {Highcharts.NetworkgraphLayout} layout layout object
-                 * @return {number}
                  */
                 getK: function (layout) {
                     return Math.pow(layout.box.width * layout.box.height / layout.nodes.length, 0.5);
@@ -7270,8 +7253,7 @@
                  * position. Later, in `integrate()` forces are applied on nodes.
                  *
                  * @private
-                 * @return {void}
-                 */
+                     */
                 barycenter: function () {
                     var gravitationalConstant = this.options.gravitationalConstant,
                         xFactor = this.barycenter.xFactor,
@@ -7299,8 +7281,7 @@
                  *        Force calcualated in `repulsiveForceFunction`
                  * @param {Highcharts.PositionObject} distanceXY
                  *        Distance between two nodes e.g. `{x, y}`
-                 * @return {void}
-                 */
+                     */
                 repulsive: function (node, force, distanceXY, distanceR) {
                     node.dispX +=
                         (distanceXY.x / distanceR) * force / node.degree;
@@ -7321,8 +7302,7 @@
                  * @param {Highcharts.PositionObject} distanceXY
                  *        Distance between two nodes e.g. `{x, y}`
                  * @param {number} distanceR
-                 * @return {void}
-                 */
+                     */
                 attractive: function (link, force, distanceXY, distanceR) {
                     var massFactor = link.getMass(),
                         translatedX = (distanceXY.x / distanceR) * force,
@@ -7371,8 +7351,7 @@
                  *        Layout object
                  * @param {Highcharts.Point} node
                  *        Node that should be translated
-                 * @return {void}
-                 */
+                     */
                 integrate: function (layout, node) {
                     var distanceR;
                     node.dispX +=
@@ -7393,10 +7372,7 @@
                 /**
                  * Estiamte the best possible distance between two nodes, making graph
                  * readable.
-                 *
                  * @private
-                 * @param {object} layout layout object
-                 * @return {number}
                  */
                 getK: function (layout) {
                     return Math.pow(layout.box.width * layout.box.height / layout.nodes.length, 0.3);
@@ -7626,9 +7602,7 @@
             /**
              * Determine which of the quadrants should be used when placing node in
              * the QuadTree. Returned index is always in range `< 0 , 3 >`.
-             *
-             * @param {Highcharts.Point} point
-             * @return {number}
+             * @private
              */
             getBoxPosition: function (point) {
                 var left = point.plotX < this.box.left + this.box.width / 2,
@@ -8438,6 +8412,7 @@
                     });
                 }
             },
+            // #14439, new stable check.
             isStable: function () {
                 var tempDiff = Math.abs(this.prevSystemTemperature -
                         this.systemTemperature);
@@ -8772,9 +8747,6 @@
             /**
              * Check if two bubbles overlaps.
              * @private
-             * @param {Array} first bubble
-             * @param {Array} second bubble
-             * @return {Boolean} overlap or not
              */
             PackedBubbleSeries.prototype.checkOverlap = function (bubble1, bubble2) {
                 var diffX = bubble1[0] - bubble2[0], // diff of X center values
@@ -8917,7 +8889,8 @@
                     parentAttribs = {},
                     nodeMarker = this.layout.options.parentNodeOptions.marker,
                     parentOptions = {
-                        fill: nodeMarker.fillColor || color(series.color).brighten(0.4).get(),
+                        fill: (nodeMarker.fillColor ||
+                            color(series.color).brighten(0.4).get()),
                         opacity: nodeMarker.fillOpacity,
                         stroke: nodeMarker.lineColor || series.color,
                         'stroke-width': pick(nodeMarker.lineWidth,
@@ -10207,7 +10180,7 @@
                 Composition.prototype.renderStackTotals = function () {
                     var yAxis = this.axis,
                         waterfallStacks = yAxis.waterfall.stacks,
-                        stackTotalGroup = yAxis.stacking && yAxis.stacking.stackTotalGroup,
+                        stackTotalGroup = (yAxis.stacking && yAxis.stacking.stackTotalGroup),
                         dummyStackItem = new StackItem(yAxis,
                         yAxis.options.stackLabels,
                         false, 0,
@@ -10416,9 +10389,12 @@
         /**
          * Returns true if the key is a direct property of the object.
          * @private
-         * @param {*} obj - Object with property to test
-         * @param {string} key - Property key to test
-         * @return {boolean} - Whether it is a direct property
+         * @param {*} obj
+         * Object with property to test
+         * @param {string} key
+         * Property key to test
+         * @return {boolean}
+         * Whether it is a direct property
          */
         function ownProp(obj, key) {
             return Object.hasOwnProperty.call(obj, key);
@@ -10662,6 +10638,8 @@
                             point.tooltipPos[1] = tooltipY;
                         }
                     }
+                    // Check point position after recalculation (#16788)
+                    point.isInside = this.isPointInside(point);
                 }
             };
             // Call default processData then override yData to reflect waterfall's
@@ -11387,8 +11365,10 @@
                     }
                     else { // curve from last point to this
                         connectors = this.getConnectors(segment, i, true, this.connectEnds);
-                        var rightContX = connectors.prevPointCont && connectors.prevPointCont.rightContX;
-                        var rightContY = connectors.prevPointCont && connectors.prevPointCont.rightContY;
+                        var rightContX = connectors.prevPointCont &&
+                                connectors.prevPointCont.rightContX;
+                        var rightContY = connectors.prevPointCont &&
+                                connectors.prevPointCont.rightContY;
                         ret = [
                             'C',
                             isNumber(rightContX) ? rightContX : connectors.plotX,
@@ -11412,7 +11392,8 @@
             // #6430 Areasplinerange series use unwrapped getPointSpline method, so
             // we need to set this method again.
             if (seriesTypes.areasplinerange) {
-                seriesTypes.areasplinerange.prototype.getPointSpline = seriesTypes.spline.prototype.getPointSpline;
+                seriesTypes.areasplinerange.prototype
+                    .getPointSpline = seriesTypes.spline.prototype.getPointSpline;
             }
         }
         /**

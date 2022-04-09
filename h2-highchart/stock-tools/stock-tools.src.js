@@ -1,5 +1,5 @@
 /**
- * @license Highstock JS v9.3.1 (2021-11-05)
+ * @license Highstock JS v10.0.0 (2022-03-07)
  *
  * Advanced Highcharts Stock tools
  *
@@ -8,7 +8,6 @@
  *
  * License: www.highcharts.com/license
  */
-'use strict';
 (function (factory) {
     if (typeof module === 'object' && module.exports) {
         factory['default'] = factory;
@@ -23,10 +22,20 @@
         factory(typeof Highcharts !== 'undefined' ? Highcharts : undefined);
     }
 }(function (Highcharts) {
+    'use strict';
     var _modules = Highcharts ? Highcharts._modules : {};
     function _registerModule(obj, path, args, fn) {
         if (!obj.hasOwnProperty(path)) {
             obj[path] = fn.apply(null, args);
+
+            if (typeof CustomEvent === 'function') {
+                window.dispatchEvent(
+                    new CustomEvent(
+                        'HighchartsModuleLoaded',
+                        { detail: { path: path, module: obj[path] }
+                    })
+                );
+            }
         }
     }
     _registerModule(_modules, 'Extensions/Annotations/Mixins/EventEmitterMixin.js', [_modules['Core/Globals.js'], _modules['Core/Utilities.js']], function (H, U) {
@@ -50,7 +59,6 @@
          *
          * @private
          * @mixin
-         * @memberOf Annotation
          */
         var eventEmitterMixin = {
                 /**
@@ -362,7 +370,6 @@
              * @param {boolean} visible
              * Visibility of the control point.
              *
-             * @return {void}
              */
             ControlPoint.prototype.setVisibility = function (visible) {
                 this.graphic.attr('visibility', visible ? 'visible' : 'hidden');
@@ -412,7 +419,6 @@
              * @param {Partial<Highcharts.AnnotationControlPointOptionsObject>} userOptions
              * New options for the control point.
              *
-             * @return {void}
              */
             ControlPoint.prototype.update = function (userOptions) {
                 var chart = this.chart,
@@ -775,7 +781,7 @@
                     this.plotX = xAxis.toPixels(options.x, true);
                 }
                 else {
-                    this.x = null;
+                    this.x = void 0;
                     this.plotX = options.x;
                 }
                 if (yAxis) {
@@ -967,7 +973,8 @@
              */
             getPointsOptions: function () {
                 var options = this.options;
-                return (options.points || (options.point && splat(options.point)));
+                return (options.points ||
+                    (options.point && splat(options.point)));
             },
             /**
              * Utility function for mapping item's options
@@ -1206,8 +1213,10 @@
                 // Options stored in:
                 // - chart (for exporting)
                 // - current config (for redraws)
-                chartOptions[this.collection][this.index].point = this.options.point;
-                shapeOptions[this.collection][this.index].point = this.options.point;
+                chartOptions[this.collection][this.index]
+                    .point = this.options.point;
+                shapeOptions[this.collection][this.index]
+                    .point = this.options.point;
             },
             /**
              * Rotate a controllable.
@@ -1425,13 +1434,13 @@
             fill = itemOptions.fill,
             color = defined(fill) && fill !== 'none' ?
                         fill :
-                        itemOptions.stroke,
-            setMarker = function (markerType) {
+                        itemOptions.stroke;
+                var setMarker = function (markerType) {
                         var markerId = itemOptions[markerType],
-            def,
-            predefinedMarker,
-            key,
-            marker;
+                    def,
+                    predefinedMarker,
+                    key,
+                    marker;
                     if (markerId) {
                         for (key in defs) { // eslint-disable-line guard-for-in
                             def = defs[key];
@@ -1446,13 +1455,13 @@
                         }
                         if (predefinedMarker) {
                             marker = item[markerType] = chart.renderer
-                                .addMarker((itemOptions.id || uniqueKey()) + '-' +
-                                markerId, merge(predefinedMarker, { color: color }));
+                                .addMarker((itemOptions.id || uniqueKey()) + '-' + markerId, merge(predefinedMarker, { color: color }));
                             item.attr(markerType, marker.getAttribute('id'));
                         }
                     }
                 };
-                ['markerStart', 'markerEnd'].forEach(setMarker);
+                ['markerStart', 'markerEnd']
+                    .forEach(setMarker);
             }
         };
         addEvent(Chart, 'afterGetContainer', function () {
@@ -1523,7 +1532,7 @@
                 this.point = ControllableMixin.point;
                 this.rotate = ControllableMixin.rotate;
                 this.scale = ControllableMixin.scale;
-                this.setControlPointsVisibility = ControllableMixin.setControlPointsVisibility;
+                this.setControlPointsVisibility = (ControllableMixin.setControlPointsVisibility);
                 this.setMarkers = MarkerMixin.setItemMarkers;
                 this.transform = ControllableMixin.transform;
                 this.transformPoint = ControllableMixin.transformPoint;
@@ -1587,7 +1596,8 @@
                     null;
             };
             ControllablePath.prototype.shouldBeDrawn = function () {
-                return (ControllableMixin.shouldBeDrawn.call(this) || Boolean(this.options.d));
+                return (ControllableMixin.shouldBeDrawn.call(this) ||
+                    Boolean(this.options.d));
             };
             ControllablePath.prototype.render = function (parent) {
                 var options = this.options,
@@ -1714,7 +1724,7 @@
                 this.point = ControllableMixin.point;
                 this.rotate = ControllableMixin.rotate;
                 this.scale = ControllableMixin.scale;
-                this.setControlPointsVisibility = ControllableMixin.setControlPointsVisibility;
+                this.setControlPointsVisibility = (ControllableMixin.setControlPointsVisibility);
                 this.shouldBeDrawn = ControllableMixin.shouldBeDrawn;
                 this.transform = ControllableMixin.transform;
                 this.transformPoint = ControllableMixin.transformPoint;
@@ -1824,7 +1834,7 @@
                 this.point = ControllableMixin.point;
                 this.rotate = ControllableMixin.rotate;
                 this.scale = ControllableMixin.scale;
-                this.setControlPointsVisibility = ControllableMixin.setControlPointsVisibility;
+                this.setControlPointsVisibility = (ControllableMixin.setControlPointsVisibility);
                 this.shouldBeDrawn = ControllableMixin.shouldBeDrawn;
                 this.transform = ControllableMixin.transform;
                 this.transformPoint = ControllableMixin.transformPoint;
@@ -1940,7 +1950,7 @@
                 this.linkPoints = ControllableMixin.linkPoints;
                 this.point = ControllableMixin.point;
                 this.scale = ControllableMixin.scale;
-                this.setControlPointsVisibility = ControllableMixin.setControlPointsVisibility;
+                this.setControlPointsVisibility = (ControllableMixin.setControlPointsVisibility);
                 this.shouldBeDrawn = ControllableMixin.shouldBeDrawn;
                 this.transform = ControllableMixin.transform;
                 this.translatePoint = ControllableMixin.translatePoint;
@@ -2160,7 +2170,7 @@
                 this.point = ControllableMixin.point;
                 this.rotate = ControllableMixin.rotate;
                 this.scale = ControllableMixin.scale;
-                this.setControlPointsVisibility = ControllableMixin.setControlPointsVisibility;
+                this.setControlPointsVisibility = (ControllableMixin.setControlPointsVisibility);
                 this.shouldBeDrawn = ControllableMixin.shouldBeDrawn;
                 this.transform = ControllableMixin.transform;
                 this.transformPoint = ControllableMixin.transformPoint;
@@ -2393,10 +2403,6 @@
             };
             /**
              * Returns the label position relative to its anchor.
-             *
-             * @param {Highcharts.AnnotationAnchorObject} anchor
-             *
-             * @return {Highcharts.PositionObject|null}
              */
             ControllableLabel.prototype.position = function (anchor) {
                 var item = this.graphic,
@@ -2425,7 +2431,8 @@
                             plotY: anchorRelativePosition.y,
                             negative: point.negative,
                             ttBelow: point.ttBelow,
-                            h: (anchorRelativePosition.height || anchorRelativePosition.width)
+                            h: (anchorRelativePosition.height ||
+                                anchorRelativePosition.width)
                         });
                     }
                     else if (itemOptions.positioner) {
@@ -2573,7 +2580,7 @@
                 this.point = ControllableMixin.point;
                 this.rotate = ControllableMixin.rotate;
                 this.scale = ControllableMixin.scale;
-                this.setControlPointsVisibility = ControllableMixin.setControlPointsVisibility;
+                this.setControlPointsVisibility = (ControllableMixin.setControlPointsVisibility);
                 this.shouldBeDrawn = ControllableMixin.shouldBeDrawn;
                 this.transform = ControllableMixin.transform;
                 this.transformPoint = ControllableMixin.transformPoint;
@@ -3055,7 +3062,6 @@
              * @param {Partial<Highcharts.AnnotationsOptions>} userOptions
              * New user options for the annotation.
              *
-             * @return {void}
              */
             Annotation.prototype.update = function (userOptions, redraw) {
                 var chart = this.chart,
@@ -3085,10 +3091,11 @@
             /**
              * Initialisation of a single shape
              * @private
-             * @param {Object} shapeOptions - a confg object for a single shape
-             * @param {number} index - annotation may have many shapes,
-             * this is the shape's index saved in shapes.index.
-
+             * @param {Object} shapeOptions
+             * a confg object for a single shape
+             * @param {number} index
+             * annotation may have many shapes, this is the shape's index saved in
+             * shapes.index.
              */
             Annotation.prototype.initShape = function (shapeOptions, index) {
                 var options = merge(this.options.shapeOptions, {
@@ -3801,6 +3808,13 @@
                  * @apioption annotations.events.afterUpdate
                  */
                 /**
+                 * Fires when the annotation is clicked.
+                 *
+                 * @type      {Highcharts.EventCallbackFunction<Highcharts.Annotation>}
+                 * @since     7.1.0
+                 * @apioption annotations.events.click
+                 */
+                /**
                  * Event callback when annotation is removed from the chart.
                  *
                  * @type      {Highcharts.EventCallbackFunction<Highcharts.Annotation>}
@@ -3831,7 +3845,8 @@
          ******************************************************************** */
         extend(chartProto, /** @lends Highcharts.Chart# */ {
             initAnnotation: function (userOptions) {
-                var Constructor = Annotation.types[userOptions.type] || Annotation,
+                var Constructor = Annotation
+                        .types[userOptions.type] || Annotation,
                     annotation = new Constructor(this,
                     userOptions);
                 this.annotations.push(annotation);
@@ -3866,7 +3881,7 @@
              */
             removeAnnotation: function (idOrAnnotation) {
                 var annotations = this.annotations,
-                    annotation = idOrAnnotation.coll === 'annotations' ?
+                    annotation = (idOrAnnotation.coll === 'annotations') ?
                         idOrAnnotation :
                         find(annotations,
                     function (annotation) {
@@ -3985,15 +4000,15 @@
                                     // Annotation placed on a exported data point
                                     // - add new column
                                     if (!wasAdded) {
-                                        event.dataRows.forEach(function (row, rowIndex) {
+                                        event.dataRows.forEach(function (row) {
                                             if (!wasAdded &&
                                                 row.xValues &&
                                                 xAxisIndex !== void 0 &&
                                                 annotationX === row.xValues[xAxisIndex]) {
                                                 if (joinAnnotations &&
                                                     row.length > startRowLength) {
-                                                    row[row.length - 1] +=
-                                                        annotationSeparator + annotationText_1;
+                                                    row[row.length - 1] += (annotationSeparator +
+                                                        annotationText_1);
                                                 }
                                                 else {
                                                     row.push(annotationText_1);
@@ -4426,7 +4441,9 @@
                     navigation.eventsToUnbind.push(addEvent(subContainer, 'click', function (event) {
                         var bindings = navigation.getButtonEvents(subContainer,
                             event);
-                        if (bindings && bindings.button.className.indexOf('highcharts-disabled-btn') === -1) {
+                        if (bindings &&
+                            bindings.button.className
+                                .indexOf('highcharts-disabled-btn') === -1) {
                             navigation.bindingsButtonClick(bindings.button, bindings.events, event);
                         }
                     }));
@@ -4472,7 +4489,7 @@
              * @param {Highcharts.HTMLDOMElement} [button]
              *        Clicked button
              *
-             * @param {object} events
+             * @param {Object} events
              *        Events passed down from bindings (`init`, `start`, `step`, `end`)
              *
              * @param {Highcharts.PointerEventObject} clickEvent
@@ -4585,8 +4602,7 @@
                         navigation.stepIndex++;
                         if (selectedButton.steps[navigation.stepIndex]) {
                             // If we have more steps, bind them one by one:
-                            navigation.mouseMoveEvent = navigation.nextEvent =
-                                selectedButton.steps[navigation.stepIndex];
+                            navigation.mouseMoveEvent = navigation.nextEvent = selectedButton.steps[navigation.stepIndex];
                         }
                         else {
                             fireEvent(navigation, 'deselectButton', { button: navigation.selectedButtonElement });
@@ -4720,10 +4736,10 @@
                  * @param {string} key
                  *        Option name, for example "visible" or "x", "y"
                  *
-                 * @param {object} parentEditables
+                 * @param {Object} parentEditables
                  *        Editables from NavigationBindings.annotationsEditable
                  *
-                 * @param {object} parent
+                 * @param {Object} parent
                  *        Where new options will be assigned
                  */
                 function traverse(option, key, parentEditables, parent) {
@@ -4764,7 +4780,9 @@
                                 parent[key] = nextParent;
                             }
                             objectEach(option, function (nestedOption, nestedKey) {
-                                traverse(nestedOption, nestedKey, key === 0 ? parentEditables : nestedEditables[key], nextParent);
+                                traverse(nestedOption, nestedKey, key === 0 ?
+                                    parentEditables :
+                                    nestedEditables[key], nextParent);
                             });
                         }
                         else {
@@ -4803,14 +4821,14 @@
              *
              * @function Highcharts.NavigationBindings#getClickedClassNames
              *
-             * @param {Highcharts.HTMLDOMElement}
-             *        Container that event is bound to.
+             * @param {Highcharts.HTMLDOMElement} container
+             * Container that event is bound to.
              *
              * @param {global.Event} event
-             *        Browser's event.
+             * Browser's event.
              *
              * @return {Array<Array<string, Highcharts.HTMLDOMElement>>}
-             *         Array of class names with corresponding elements
+             * Array of class names with corresponding elements
              */
             NavigationBindings.prototype.getClickedClassNames = function (container, event) {
                 var element = event.target,
@@ -4848,7 +4866,7 @@
              * @param {global.Event} event
              *        Browser's event.
              *
-             * @return {object}
+             * @return {Object}
              *         Object with events (init, start, steps, and end)
              */
             NavigationBindings.prototype.getButtonEvents = function (container, event) {
@@ -5015,10 +5033,10 @@
                                 if (annotation.options.type === 'measure') {
                                     // Manually disable crooshars according to
                                     // stroke width of the shape:
-                                    typeOptions.crosshairY.enabled =
-                                        typeOptions.crosshairY.strokeWidth !== 0;
-                                    typeOptions.crosshairX.enabled =
-                                        typeOptions.crosshairX.strokeWidth !== 0;
+                                    typeOptions.crosshairY.enabled = (typeOptions.crosshairY
+                                        .strokeWidth !== 0);
+                                    typeOptions.crosshairX.enabled = (typeOptions.crosshairX
+                                        .strokeWidth !== 0);
                                 }
                                 annotation.update(config);
                             }
@@ -5175,7 +5193,8 @@
                                         },
                                         r: 5
                                     }]
-                            }, navigation.annotationsOptions, navigation.bindings.circleAnnotation.annotationsOptions));
+                            }, navigation.annotationsOptions, navigation.bindings.circleAnnotation
+                                .annotationsOptions));
                         },
                         /** @ignore-option */
                         steps: [
@@ -5229,7 +5248,8 @@
                                         ry: 1
                                     }
                                 ]
-                            }, navigation.annotationsOptions, navigation.bindings.ellipseAnnotation.annotationOptions));
+                            }, navigation.annotationsOptions, navigation.bindings.ellipseAnnotation
+                                .annotationOptions));
                         },
                         steps: [
                             function (e, annotation) {
@@ -5372,7 +5392,7 @@
                  * from a different server.
                  *
                  * @type      {string}
-                 * @default   https://code.highcharts.com/9.3.1/gfx/stock-icons/
+                 * @default   https://code.highcharts.com/10.0.0/gfx/stock-icons/
                  * @since     7.1.3
                  * @apioption navigation.iconsURL
                  */
@@ -5455,28 +5475,29 @@
                     if (chart.navigationBindings &&
                         chart.navigationBindings.container &&
                         chart.navigationBindings.container[0]) {
-                        // Get the HTML element coresponding to the
-                        // className taken from StockToolsBindings.
-                        var buttonNode = chart.navigationBindings.container[0].querySelectorAll('.' + key);
+                        // Get the HTML element coresponding to the className taken
+                        // from StockToolsBindings.
+                        var buttonNode = chart.navigationBindings.container[0]
+                                .querySelectorAll('.' + key);
                         if (buttonNode) {
                             for (var i = 0; i < buttonNode.length; i++) {
-                                var button = buttonNode[i];
+                                var button = buttonNode[i],
+                                    cls = button.className;
                                 if (value.noDataState === 'normal') {
-                                    // If button has noDataState: 'normal',
-                                    // and has disabledClassName,
-                                    // remove this className.
-                                    if (button.className.indexOf(disabledClassName) !== -1) {
+                                    // If button has noDataState: 'normal', and has
+                                    // disabledClassName, remove this className.
+                                    if (cls.indexOf(disabledClassName) !== -1) {
                                         button.classList.remove(disabledClassName);
                                     }
                                 }
                                 else if (!buttonsEnabled_1) {
-                                    if (button.className.indexOf(disabledClassName) === -1) {
+                                    if (cls.indexOf(disabledClassName) === -1) {
                                         button.className += ' ' + disabledClassName;
                                     }
                                 }
                                 else {
                                     // Enable all buttons by deleting the className.
-                                    if (button.className.indexOf(disabledClassName) !== -1) {
+                                    if (cls.indexOf(disabledClassName) !== -1) {
                                         button.classList.remove(disabledClassName);
                                     }
                                 }
@@ -5828,7 +5849,7 @@
          * @private
          * @function bindingsUtils.isLastPriceEnabled
          *
-         * @param {array} series
+         * @param {Array} series
          *        Array of series.
          *
          * @return {boolean}
@@ -5926,7 +5947,8 @@
                         if (!isNumber(height)) {
                             // Check if the previous axis is the
                             // indicator axis (every indicator inherits from sma)
-                            height = yAxes[index - 1].series.every(function (s) { return s.is('sma'); }) ?
+                            height = yAxes[index - 1].series
+                                .every(function (s) { return s.is('sma'); }) ?
                                 previousAxisHeight : defaultHeight / 100;
                         }
                         if (!isNumber(top)) {
@@ -6354,7 +6376,8 @@
                                     y: coordsY.value
                                 }]
                         }
-                    }, navigation.annotationsOptions, navigation.bindings.arrowInfinityLine.annotationsOptions);
+                    }, navigation.annotationsOptions, navigation.bindings.arrowInfinityLine
+                        .annotationsOptions);
                     return this.chart.addAnnotation(options);
                 },
                 /** @ignore-option */
@@ -6952,7 +6975,8 @@
                             }
                         },
                         navigation.annotationsOptions,
-                        navigation.bindings.parallelChannel.annotationsOptions);
+                        navigation.bindings.parallelChannel
+                            .annotationsOptions);
                     return this.chart.addAnnotation(options);
                 },
                 /** @ignore-option */
@@ -7251,7 +7275,8 @@
                             }
                         },
                         navigation.annotationsOptions,
-                        navigation.bindings.fibonacciTimeZones.annotationsOptions);
+                        navigation.bindings.fibonacciTimeZones
+                            .annotationsOptions);
                     return this.chart.addAnnotation(options);
                 },
                 /** @ignore-option */
@@ -7559,7 +7584,10 @@
                         series.forEach(function (series) {
                             series.update({
                                 lastPrice: { enabled: !priceIndicatorEnabled },
-                                lastVisiblePrice: { enabled: !priceIndicatorEnabled, label: { enabled: true } }
+                                lastVisiblePrice: {
+                                    enabled: !priceIndicatorEnabled,
+                                    label: { enabled: true }
+                                }
                             }, false);
                         });
                         chart.redraw();
@@ -8323,7 +8351,7 @@
                              * A collection of strings pointing to config options for
                              * the items.
                              *
-                             * @type {array}
+                             * @type {Array}
                              * @default [
                              *   'label',
                              *   'circle',
@@ -8380,7 +8408,7 @@
                              * A collection of strings pointing to config options for
                              * the items.
                              *
-                             * @type {array}
+                             * @type {Array}
                              * @default [
                              *   'flagCirclepin',
                              *   'flagDiamondpin',
@@ -8435,7 +8463,7 @@
                              * A collection of strings pointing to config options for
                              * the items.
                              *
-                             * @type {array}
+                             * @type {Array}
                              * @default [
                              *   'segment',
                              *   'arrowSegment',
@@ -8527,7 +8555,7 @@
                              * A collection of strings pointing to config options for
                              * the items.
                              *
-                             * @type {array}
+                             * @type {Array}
                              * @default [
                              *   'elliott3',
                              *   'elliott5',
@@ -8580,7 +8608,7 @@
                              * A collection of strings pointing to config options for
                              * the items.
                              *
-                             * @type {array}
+                             * @type {Array}
                              * @default [
                              *   'verticalCounter',
                              *   'verticalLabel',
@@ -8622,7 +8650,7 @@
                              * A collection of strings pointing to config options for
                              * the items.
                              *
-                             * @type {array}
+                             * @type {Array}
                              * @default [
                              *   'fibonacci',
                              *   'fibonacciTimeZones',
@@ -8684,7 +8712,7 @@
                              * A collection of strings pointing to config options for
                              * the items.
                              *
-                             * @type {array}
+                             * @type {Array}
                              * @default [
                              *   'measureXY',
                              *   'measureX',
@@ -8750,7 +8778,7 @@
                              * A collection of strings pointing to config options for
                              * the items.
                              *
-                             * @type {array}
+                             * @type {Array}
                              * @default [
                              *   'zoomX',
                              *   'zoomY',
@@ -8792,7 +8820,7 @@
                              * A collection of strings pointing to config options for
                              * the items.
                              *
-                             * @type {array}
+                             * @type {Array}
                              * @default [
                              *   'typeOHLC',
                              *   'typeLine',
@@ -8936,9 +8964,11 @@
         /**
          * Toolbar Class
          * @private
-         * @constructor
-         * @param {Object} - options of toolbar
-         * @param {Chart} - Reference to chart
+         * @class
+         * @param {Object}
+         * Options of toolbar
+         * @param {Highcharts.Chart}
+         * Reference to chart
          */
         var Toolbar = /** @class */ (function () {
                 function Toolbar(options, langOptions, chart) {
@@ -8998,11 +9028,14 @@
             /**
              * Create submenu (list of buttons) for the option. In example main button
              * is Line, in submenu will be buttons with types of lines.
+             *
              * @private
-             * @param {Highcharts.Dictionary<Highcharts.HTMLDOMElement>}
-             * button which has submenu
-             * @param {Highcharts.StockToolsGuiDefinitionsButtonsOptions}
-             * list of all buttons
+             *
+             * @param {Highcharts.Dictionary<Highcharts.HTMLDOMElement>} parentBtn
+             * Button which has submenu
+             *
+             * @param {Highcharts.StockToolsGuiDefinitionsButtonsOptions} button
+             * List of all buttons
              */
             Toolbar.prototype.addSubmenu = function (parentBtn, button) {
                 var _self = this,
@@ -9064,12 +9097,14 @@
             };
             /**
              * Create buttons in submenu
-             * @private
-             * @param {Highcharts.HTMLDOMElement}
-             * button where submenu is placed
-             * @param {Highcharts.StockToolsGuiDefinitionsButtonsOptions}
-             * list of all buttons options
              *
+             * @private
+             *
+             * @param {Highcharts.HTMLDOMElement} buttonWrapper
+             * Button where submenu is placed
+             *
+             * @param {Highcharts.StockToolsGuiDefinitionsButtonsOptions} button
+             * List of all buttons options
              */
             Toolbar.prototype.addSubmenuItems = function (buttonWrapper, button) {
                 var _self = this,
@@ -9437,7 +9472,7 @@
             Toolbar.prototype.getIconsURL = function () {
                 return this.chart.options.navigation.iconsURL ||
                     this.options.iconsURL ||
-                    'https://code.highcharts.com/9.3.1/gfx/stock-icons/';
+                    'https://code.highcharts.com/10.0.0/gfx/stock-icons/';
             };
             return Toolbar;
         }());
@@ -9547,8 +9582,12 @@
                     stockTools.toolbar &&
                     stockTools.toolbar.querySelector('.highcharts-current-price-indicator');
             // Change the initial button background.
-            if (stockTools && chart.navigationBindings && chart.options.series && button) {
-                if (chart.navigationBindings.constructor.prototype.utils.isPriceIndicatorEnabled(chart.series)) {
+            if (stockTools &&
+                chart.navigationBindings &&
+                chart.options.series &&
+                button) {
+                if (chart.navigationBindings.constructor.prototype.utils
+                    .isPriceIndicatorEnabled(chart.series)) {
                     button.firstChild.style['background-image'] =
                         'url("' + stockTools.getIconsURL() + 'current-price-hide.svg")';
                 }
