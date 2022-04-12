@@ -3958,10 +3958,10 @@ function chartSetOptions() {
             text: (DP_Limit) ? window.ChhLanguage.default.historian.limitactive : window.ChhLanguage.default.historian.limitdeactive,
             onclick: function() {
               if (DP_Limit) {
-                $('.highcharts-contextmenu')[0].children[0].children[1].innerHTML = window.ChhLanguage.default.historian.limitdeactive;
+                $('.highcharts-contextmenu')[0].children[0].children[2].innerHTML = window.ChhLanguage.default.historian.limitdeactive;
                 DP_Limit = false;
               } else {
-                $('.highcharts-contextmenu')[0].children[0].children[1].innerHTML = window.ChhLanguage.default.historian.limitactive;
+                $('.highcharts-contextmenu')[0].children[0].children[2].innerHTML = window.ChhLanguage.default.historian.limitactive;
                 DP_Limit = true;
               }
               changeEventRaumFilter();
