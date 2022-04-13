@@ -1015,11 +1015,13 @@ function setSerienDataAggr0(p_attr, datStart, datEnd, backSec) {
   let arrEnd;
   arrEnd = sortedIndex(buffer.timestamps, datEnd);
 
-  if (arrStart > 0 && datStart !== buffer.timestamps[arrStart]) {
-    arr.push([datStart - backSec, (buffer.values[arrStart - 1] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
-  }
-  for (let i = arrStart; i <= arrEnd; i++) {
-    arr.push([buffer.timestamps[i] - backSec, (buffer.values[i] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
+  if (datStart <= buffer.timestamps[arrEnd]) {
+    if (arrStart > 0 && datStart !== buffer.timestamps[arrStart]) {
+      arr.push([datStart - backSec, (buffer.values[arrStart - 1] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
+    }
+    for (let i = arrStart; i <= arrEnd; i++) {
+      arr.push([buffer.timestamps[i] - backSec, (buffer.values[i] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
+    }
   }
 
   return arr;
@@ -1189,11 +1191,14 @@ function setSerienDataAggr6(p_attr, datStart, datEnd, backSec) {
   let arrEnd;
   arrEnd = sortedIndex(buffer.timestamps, datEnd);
 
-  for (let i = arrStart; i <= arrEnd; i++) {
+  if (datStart <= buffer.timestamps[arrEnd]) {
 
-    let timestamprounded = Math.round((buffer.timestamps[i] - backSec) / 60000) * 60000;
-    arr.push([timestamprounded, (buffer.values[i] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
-
+    for (let i = arrStart; i <= arrEnd; i++) {
+  
+      let timestamprounded = Math.round((buffer.timestamps[i] - backSec) / 60000) * 60000;
+      arr.push([timestamprounded, (buffer.values[i] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
+  
+    }
   }
 
   return arr;
