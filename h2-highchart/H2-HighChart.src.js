@@ -3,7 +3,7 @@
  ************************************/
 
 // Version
-var H2_version = 'v6.1';
+var H2_version = 'v6.2';
 
 /* define SLINT globals do avoid issues */
 /* global ChhLanguage:false, DP_Themes:false */
@@ -1558,9 +1558,9 @@ function parseSetting() {
             DP_FontSize = 30;
           }
         } else if (text2[k].substr(0, 1) === 'O') {
-          DP_FontSize = parseInt(text2[k].substr(1, 2));
+          DP_FontSize = parseInt(text2[k].substr(1, 3));
         } else if (text2[k].substr(0, 1) === 'R') {
-          H2_refreshSec = parseInt(text2[k].substr(1, 2));
+          H2_refreshSec = parseInt(text2[k].substr(1, 10));
         } else if (text2[k].substr(0, 1) === 'T') {
           try {
             DP_Title = decodeURIComponent(text2[k].substr(1, 50));
@@ -1704,10 +1704,10 @@ function readLinkDataSetting(text) {
         }
         break;
       case 'O':
-        DP_FontSize = parseInt(setting.substr(1, 2));
+        DP_FontSize = parseInt(setting.substr(1, 3));
         break;
       case 'R':
-        H2_refreshSec = parseInt(setting.substr(1, 2));
+        H2_refreshSec = parseInt(setting.substr(1, 10));
         break;
       case 'T':
         try {
@@ -3477,17 +3477,20 @@ function showDialogFav() {
 // AllowDrop function for FAV
 function allowDrop(ev) {
   ev.preventDefault();
+  return false;
 }
 
 // Drag function for FAV
-function drag(ev,pos) {
+function drag(ev, pos) {
   DP_Drag_Pos = pos;
   ev.dataTransfer.setData('text', ev.target.id);
 }
 
 // Drop function for FAV
-function drop(ev,pos) {
-  let arr = DP_settings.Favorites[DP_Drag_Pos]
+function drop(ev, pos) {
+  ev.stopPropagation();
+
+  let arr = DP_settings.Favorites[DP_Drag_Pos];
 
   // löscht alten Position
   DP_settings.Favorites.splice(DP_Drag_Pos,1);
@@ -3496,10 +3499,11 @@ function drop(ev,pos) {
   DP_settings.Favorites.splice(pos, 0, arr );
 
   // Save to H2 database
-    saveSettingsH2();
+  saveSettingsH2();
 
   showDialogFav();
 
+  return false;
 }
 
 // Close Dialog Settings
