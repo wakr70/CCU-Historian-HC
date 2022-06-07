@@ -3,7 +3,7 @@
  ************************************/
 
 // Version
-var H2_version = 'v6.2';
+var H2_version = 'v6.3';
 
 /* define SLINT globals do avoid issues */
 /* global ChhLanguage:false, DP_Themes:false */
@@ -52,6 +52,7 @@ var DP_Subtitle = '';
 var DP_Loading = 0;
 var DP_Button_Jump = false;
 var DP_Drag_Pos = 0;
+var DP_Zoom = -1;
 
 var DP_yAxis = [{
   position: false,
@@ -975,21 +976,18 @@ function setSerienData(p_attr, serieObj) {
 
   }
 
-  if (arr.length > 0) {
+  // Here Data are ready to set for Serie
+  serieObj.setData(arr, true, false, false);
 
-    // Here Data are ready to set for Serie
-    serieObj.setData(arr, true, false, false);
-
-    // prepare and show min/max series
-    if (aggrType === 3) {
-      addAggregationMinMax(serieObj);
-    }
-
-    // update colors on txt
-    loadNewAxisInfo();
-    // Update Aggregation Text
-    showAggrText();
+  // prepare and show min/max series
+  if (aggrType === 3) {
+    addAggregationMinMax(serieObj);
   }
+
+  // update colors on txt
+  loadNewAxisInfo();
+  // Update Aggregation Text
+  showAggrText();
 
   // read data for comp series
   if (DP_attribute[p_attr].comp !== 'C0' && (serieObj.options.id.toString().substr(0, 1) !== 'C')) {
@@ -1594,6 +1592,7 @@ function readLinkData() {
         // parameter Periode (Stunden)
       } else if ((nv[0].toLowerCase() === 'periode') || (nv[0].toLowerCase() === 'period')) {
         Zeitraum_Start = new Date(Zeitraum_Ende - (new Date(3600 * 1000 * parseInt(nv[1]))));
+        DP_Zoom = parseInt(nv[1]);
         // parameter Data Point
       } else if (nv[0].toLowerCase() === 'setting') {
         readLinkDataSetting(nv[1]);
@@ -1972,7 +1971,8 @@ function parseDataPointsZoom() {
       }
       // parameter Zoom found
       if (nv[0].toLowerCase() === 'zoom') {
-        let newStart = new Date(Zeitraum_Ende - (new Date(3600 * 1000 * parseFloat(nv[1]))));
+        DP_Zoom = parseFloat(nv[1]);
+        let newStart = new Date(Zeitraum_Ende - (new Date(3600 * 1000 * DP_Zoom)));
         chart.xAxis[0].setExtremes(newStart.getTime(), Zeitraum_Ende.getTime(), true);
       }
     }
@@ -2604,10 +2604,10 @@ function loadNewSerienData() {
       setData(serie);
     }
   }
-  chart.xAxis[0].setExtremes(Zeitraum_Start.getTime(), Zeitraum_Ende.getTime(), true);
   loadNewPlotBand();
   chart.redraw();
   loadNewAxisInfo();
+  loadingInfo();
 }
 
 function loadNewAxisInfo() {
@@ -2847,7 +2847,7 @@ function generateUrl() {
 
   // Add Zoom if not full
   var extremes = chart.xAxis[0].getExtremes();
-  if (extremes.max !== extremes.dataMax || extremes.min !== extremes.dataMin) {
+  if (extremes.max < extremes.dataMax || extremes.min > extremes.dataMin) {
     url += '&zoom=' + (Math.round(((extremes.max - extremes.min) / (60 * 60 * 1000)) * 100) / 100).toString();
   }
 
@@ -2938,6 +2938,13 @@ function autoRefresh() {
       var dauer = Zeitraum_Ende.getTime() - Zeitraum_Start.getTime();
       Zeitraum_Ende = new Date(Date.now());
       Zeitraum_Start = new Date(Zeitraum_Ende - (new Date(dauer)));
+
+      // Add Zoom if not full
+      var extremes = chart.xAxis[0].getExtremes();
+      if (extremes.max < extremes.dataMax || extremes.min > extremes.dataMin) {
+         DP_Zoom = (Math.round(((extremes.max - extremes.min) / (60 * 60 * 1000)) * 100) / 100);
+      }
+
       loadNewSerienData();
     }
   } else {
@@ -2953,8 +2960,12 @@ function loadingInfo() {
     chart.hideLoading();
     if (DP_Button_Jump) {
       chart.xAxis[0].setExtremes(Zeitraum_Start.getTime(), Zeitraum_Ende.getTime(), true);
-      DP_Button_Jump = false;
+    } else if (DP_Zoom > 0) {
+      let newStart = new Date(Zeitraum_Ende - (new Date(3600 * 1000 * DP_Zoom)));
+      chart.xAxis[0].setExtremes(newStart.getTime(), Zeitraum_Ende.getTime(), true);
     }
+    DP_Button_Jump = false;
+    DP_Zoom = 0;
   }
   if (DP_Queue.length > 0 && DP_Navigator < 3) {
     if (DP_Loading !== DP_Queue.length) {
@@ -4373,6 +4384,13 @@ eventSingleRegister("#Select-AxisColor", "change", function() {
 
 function refreshClick() {
   Zeitraum_Ende = new Date(Date.now());
+
+  // Add Zoom if not full
+  var extremes = chart.xAxis[0].getExtremes();
+  if (extremes.max < extremes.dataMax || extremes.min > extremes.dataMin) {
+     DP_Zoom = (Math.round(((extremes.max - extremes.min) / (60 * 60 * 1000)) * 100) / 100);
+  }
+
   loadNewSerienData();
   return true;
 }
