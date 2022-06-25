@@ -3,7 +3,7 @@
  ************************************/
 
 // Version
-var H2_version = 'v6.3';
+var H2_version = 'v6.4';
 
 /* define SLINT globals do avoid issues */
 /* global ChhLanguage:false, DP_Themes:false */
@@ -4415,7 +4415,11 @@ function getLocalData(cname) {
 
 // check if new data should be loaded
 function checkZeitraum(rangInfo) {
-  var datNew = new Date(Zeitraum_Ende - (new Date(rangInfo._range)));
+  let range = rangInfo._range;
+  if (isNaN(range)) { 
+    range = Date.now(); 
+  };
+  var datNew = new Date(Zeitraum_Ende - (new Date(range)));
 // Patch for remove zoom reset: if (Zeitraum_Start > datNew) {
     Zeitraum_Start = datNew;
     loadNewSerienData();
