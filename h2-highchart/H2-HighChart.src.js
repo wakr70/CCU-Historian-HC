@@ -4416,9 +4416,9 @@ function getLocalData(cname) {
 // check if new data should be loaded
 function checkZeitraum(rangInfo) {
   let range = rangInfo._range;
-  if (isNaN(range)) { 
-    range = Date.now(); 
-  };
+  if (isNaN(range)) {
+    range = Date.now();
+  }
   var datNew = new Date(Zeitraum_Ende - (new Date(range)));
 // Patch for remove zoom reset: if (Zeitraum_Start > datNew) {
     Zeitraum_Start = datNew;
