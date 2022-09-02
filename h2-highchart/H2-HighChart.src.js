@@ -4417,7 +4417,8 @@ function getLocalData(cname) {
 function checkZeitraum(rangInfo) {
   let range = rangInfo._range;
   if (isNaN(range)) {
-    range = Date.now();
+//    range =  Date.now();   // all since 01.01.1970
+    range = 5*356*24*60*60*1000;   // bug fix for button ALL display last 5 years 
   }
   var datNew = new Date(Zeitraum_Ende - (new Date(range)));
 // Patch for remove zoom reset: if (Zeitraum_Start > datNew) {
