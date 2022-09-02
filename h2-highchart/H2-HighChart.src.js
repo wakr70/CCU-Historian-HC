@@ -2726,8 +2726,10 @@ function loadNewPlotBand() {
   if (!maxDate || maxDate < Zeitraum_Ende.getTime()) {
     maxDate = Zeitraum_Ende.getTime();
   }
+  // do nothing for over 35 days
+  if (maxDate-minDate > 35*86400000) {
   // gray in night, day yellow
-  if (DP_DayLight === 1) {
+  } else if (DP_DayLight === 1) {
     for (loopDate = minDate; loopDate <= maxDate; loopDate += 86400000) {
       start = new Date(loopDate);
       chart.xAxis[0].addPlotBand({
