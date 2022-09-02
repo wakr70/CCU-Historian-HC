@@ -3,7 +3,7 @@
  ************************************/
 
 // Version
-var H2_version = 'v6.4';
+var H2_version = 'v6.5';
 
 /* define SLINT globals do avoid issues */
 /* global ChhLanguage:false, DP_Themes:false */
