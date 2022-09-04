@@ -912,11 +912,11 @@ function bufferSerienData(id, data) {
   if ((Zeitraum_Ende - Zeitraum_Start) > (367*24*60*60*1000)) {
     let data_min = Zeitraum_Ende.getTime();
     let found = false;
-    for (let serie of chart.series) {
-      if (serie.visible && serie.options.group !== "nav") {
+    for (let l_serie of chart.series) {
+      if (l_serie.visible && l_serie.options.group !== "nav") {
         // get oldest date
-        if (serie.xData[0] && serie.xData[0] < data_min ) {
-           data_min = serie.xData[0];
+        if (l_serie.xData[0] && l_serie.xData[0] < data_min ) {
+           data_min = l_serie.xData[0];
            found = true;
         }
       }
@@ -4438,8 +4438,7 @@ function getLocalData(cname) {
 function checkZeitraum(rangInfo) {
   let range = rangInfo._range;
   if (isNaN(range)) {
-//    range =  Date.now();   // all since 01.01.1970
-    range = 5*356*24*60*60*1000;   // bug fix for button ALL display last 5 years 
+    range = 10*356*24*60*60*1000;   // bug fix for button ALL display last 5 years
   }
   var datNew = new Date(Zeitraum_Ende - (new Date(range)));
 // Patch for remove zoom reset: if (Zeitraum_Start > datNew) {
