@@ -908,6 +908,25 @@ function bufferSerienData(id, data) {
 
   setSerienData(attrIDX, serie);
 
+  // check how to display by button ALL, get oldest timestamp of new data
+  if ((Zeitraum_Ende - Zeitraum_Start) > (367*24*60*60*1000)) {
+    let data_min = Zeitraum_Ende.getTime();
+    let found = false;
+    for (let serie of chart.series) {
+      if (serie.visible && serie.options.group !== "nav") {
+        // get oldest date
+        if (serie.xData[0] && serie.xData[0] < data_min ) {
+           data_min = serie.xData[0];
+           found = true;
+        }
+      }
+    }
+    if (found) {
+       Zeitraum_Start = new Date(data_min);
+       DP_Button_Jump = true;
+    }
+  }
+
   loadingInfo();
 }
 
@@ -2962,12 +2981,12 @@ function loadingInfo() {
     chart.hideLoading();
     if (DP_Button_Jump) {
       chart.xAxis[0].setExtremes(Zeitraum_Start.getTime(), Zeitraum_Ende.getTime(), true);
+      DP_Button_Jump = false;
     } else if (DP_Zoom > 0) {
       let newStart = new Date(Zeitraum_Ende - (new Date(3600 * 1000 * DP_Zoom)));
       chart.xAxis[0].setExtremes(newStart.getTime(), Zeitraum_Ende.getTime(), true);
+      DP_Zoom = 0;
     }
-    DP_Button_Jump = false;
-    DP_Zoom = 0;
   }
   if (DP_Queue.length > 0 && DP_Navigator < 3) {
     if (DP_Loading !== DP_Queue.length) {
@@ -2975,7 +2994,7 @@ function loadingInfo() {
       DP_Loading = DP_Queue.length;
     }
     setTimeout(loadingInfo, 500);
-  } else {
+  } else if (DP_Loading > 0) {
     document.getElementById('loading').innerHTML = '';
     DP_Loading = 0;
   }
