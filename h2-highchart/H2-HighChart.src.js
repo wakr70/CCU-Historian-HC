@@ -3,7 +3,7 @@
  ************************************/
 
 // Version
-var H2_version = 'v6.5';
+var H2_version = 'v6.6';
 
 /* define SLINT globals do avoid issues */
 /* global ChhLanguage:false, DP_Themes:false */
@@ -2517,6 +2517,7 @@ function changeEventRaumFilter() {
               factor: DP_attribute[attr].factor,
               offset: DP_attribute[attr].offset,
               unit: DP_attribute[attr].unit,
+              shortname: '',
               buffer_data: {
                 timestamps: [],
                 values: [],
