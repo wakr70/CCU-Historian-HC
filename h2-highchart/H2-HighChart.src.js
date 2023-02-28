@@ -28,6 +28,9 @@ var Zeitraum_Ende = new Date(Date.now());
 var Zeitraum_Start = new Date(Zeitraum_Ende - (new Date(86400000 * 1)));
 var Scroll_Legend = true;
 var DP_Legend = 1;
+var DP_CrossHair = 1;
+var DP_ToolTip = 1;
+var DP_HighLight = 1;
 var DP_Navigator = 0;
 var DP_Labels = 0;
 var DP_Grid = 2;
@@ -1576,6 +1579,12 @@ function parseSetting() {
           }
         } else if (text2[k].substr(0, 1) === 'O') {
           DP_FontSize = parseInt(text2[k].substr(1, 3));
+        } else if (text2[k].substr(0, 1) === 'C') {
+          DP_CrossHair = parseInt(text2[k].substr(1, 3));
+        } else if (text2[k].substr(0, 1) === 'M') {
+          DP_ToolTip = parseInt(text2[k].substr(1, 3));
+        } else if (text2[k].substr(0, 1) === 'H') {
+          DP_HighLight = parseInt(text2[k].substr(1, 3));
         } else if (text2[k].substr(0, 1) === 'R') {
           H2_refreshSec = parseInt(text2[k].substr(1, 10));
         } else if (text2[k].substr(0, 1) === 'T') {
@@ -1723,6 +1732,15 @@ function readLinkDataSetting(text) {
         break;
       case 'O':
         DP_FontSize = parseInt(setting.substr(1, 3));
+        break;
+      case 'C':
+        DP_CrossHair = parseInt(setting.substr(1, 3));
+        break;
+      case 'M':
+        DP_ToolTip = parseInt(setting.substr(1, 3));
+        break;
+      case 'H':
+        DP_HighLight = parseInt(setting.substr(1, 3));
         break;
       case 'R':
         H2_refreshSec = parseInt(setting.substr(1, 10));
@@ -2371,6 +2389,33 @@ $(document).ready(function() {
     select.add(option);
   }
 
+  // CrossHair options
+  select = document.getElementById("Select-CrossHair");
+  for (i = 0; i < 13; i++) {
+    option = document.createElement("option");
+    option.text = window.ChhLanguage.default.historian['crosshairtxt' + i];
+    option.value = i;
+    select.add(option);
+  }
+
+  // ToolTip options
+  select = document.getElementById("Select-ToolTip");
+  for (i = 0; i < 6; i++) {
+    option = document.createElement("option");
+    option.text = window.ChhLanguage.default.historian['tooltiptxt' + i];
+    option.value = i;
+    select.add(option);
+  }
+
+  // HighLight options
+  select = document.getElementById("Select-HighLight");
+  for (i = 0; i < 7; i++) {
+    option = document.createElement("option");
+    option.text = window.ChhLanguage.default.historian['highlighttxt' + i];
+    option.value = i;
+    select.add(option);
+  }
+
   // Axis Type
   select = document.getElementById("Select-AxisType");
   option = document.createElement("option");
@@ -2846,6 +2891,9 @@ function generateUrl() {
   url += '|I' + DP_DataPointFilter.toString();
   url += '|B' + DP_Theme;
   url += '|O' + DP_FontSize;
+  url += '|C' + DP_CrossHair.toString();
+  url += '|M' + DP_ToolTip.toString();
+  url += '|H' + DP_HighLight.toString();
   url += '|R' + DP_AutoRefresh;
   url += '|T' + encodeURIComponent(DP_Title).replace(/'/g, '%27');
   url += '|S' + encodeURIComponent(DP_Subtitle).replace(/'/g, '%27');
@@ -3259,6 +3307,9 @@ function showDialogSettings() {
   document.getElementById("Select-DataPoint").value = DP_DataPointFilter.toString();
   document.getElementById("Select-Theme").value = DP_Theme;
   document.getElementById("Select-FontSize").value = DP_FontSize;
+  document.getElementById("Select-CrossHair").value = DP_CrossHair.toString();
+  document.getElementById("Select-ToolTip").value = DP_ToolTip.toString();
+  document.getElementById("Select-HighLight").value = DP_HighLight.toString();
   document.getElementById("Line-Refresh").value = DP_AutoRefresh;
   document.getElementById("Line-Title").value = DP_Title;
   document.getElementById("Line-Subtitle").value = DP_Subtitle;
@@ -3293,6 +3344,9 @@ function saveSetting() {
   strCustom += '|I' + DP_DataPointFilter.toString();
   strCustom += '|B' + DP_Theme;
   strCustom += '|O' + DP_FontSize;
+  strCustom += '|C' + DP_CrossHair.toString();
+  strCustom += '|M' + DP_ToolTip.toString();
+  strCustom += '|H' + DP_HighLight.toString();
   strCustom += '|R' + DP_AutoRefresh;
   strCustom += '|T' + encodeURIComponent(DP_Title).replace(/'/g, '%27');
   strCustom += '|S' + encodeURIComponent(DP_Subtitle).replace(/'/g, '%27');
@@ -3421,6 +3475,24 @@ function getDialogSetting() {
   // FontSize
   if (DP_FontSize.toString() !== document.getElementById("Select-FontSize").value) {
     DP_FontSize = parseInt(document.getElementById("Select-FontSize").value);
+    chartrefresh = true;
+  }
+
+  // CrossHair
+  if (DP_CrossHair.toString() !== document.getElementById("Select-CrossHair").value) {
+    DP_CrossHair = parseInt(document.getElementById("Select-CrossHair").value);
+    chartrefresh = true;
+  }
+
+  // ToolTip
+  if (DP_ToolTip.toString() !== document.getElementById("Select-ToolTip").value) {
+    DP_ToolTip = parseInt(document.getElementById("Select-ToolTip").value);
+    chartrefresh = true;
+  }
+
+  // HighLight
+  if (DP_HighLight.toString() !== document.getElementById("Select-HighLight").value) {
+    DP_HighLight= parseInt(document.getElementById("Select-HighLight").value);
     chartrefresh = true;
   }
 
@@ -3848,6 +3920,7 @@ function defineYAxis() {
       allowDecimals: true,
       visible: false,
       tickPositioner: null,
+      crosshair: defineCrosshairY(),
     };
     if (DP_yAxis[y].limit === 2) {
       newOptions.tickPositioner =  function () {
@@ -3907,6 +3980,7 @@ function chartSetOptions() {
 
   let options = {
     lang: window.ChhLanguage.default.highcharts,
+    accessibility: { enabled: false, },
     chart: {
       events: {
         load: requestInitData,
@@ -4069,6 +4143,7 @@ function chartSetOptions() {
     },
 
     xAxis: {
+      crosshair: defineCrosshairX(),
       type: 'datetime',
       ordinal: false,
       gridLineWidth: (DP_Grid === 1 || DP_Grid === 3 || DP_Grid === 4 || DP_Grid === 6) ? 1 : 0,
@@ -4080,12 +4155,16 @@ function chartSetOptions() {
           showAggrText();
         },
       },
+      dateTimeLabelFormats: { day: '%a %e. %b' },
     },
 
     yAxis: defineYAxis(),
 
+    tooltip: defineToolTip(),
+
     plotOptions: {
       series: {
+        states: defineHighLight(),
         events: {
           legendItemClick: function(event) {
             let attr;
@@ -4174,6 +4253,145 @@ function chartSetOptions() {
   if (!chart) {
     alert( 'HighChart Option error!');
   }
+}
+
+function defineCrosshairX() {
+  let ret = false;
+  if(DP_CrossHair === 1) {
+     ret = { width: 1, snap: true };
+  } else if (DP_CrossHair === 3) {
+     ret = { width: 1, snap: true };
+  } else if (DP_CrossHair === 4) {
+     ret = { width: 1, snap: false };
+  } else if (DP_CrossHair === 6) {
+     ret = { width: 1, snap: false };
+  } else if (DP_CrossHair === 7) {
+     ret = { width: 3, snap: true };
+  } else if (DP_CrossHair === 9) {
+     ret = { width: 3, snap: true };
+  } else if (DP_CrossHair === 10) {
+     ret = { width: 3, snap: false };
+  } else if (DP_CrossHair === 12) {
+     ret = { width: 3, snap: false };
+  }
+  return ret;
+}
+
+function defineCrosshairY() {
+  let ret = false;
+  if (DP_CrossHair === 2) {
+     ret= { width: 1, snap: true };
+  } else if (DP_CrossHair === 3) {
+     ret = { width: 1, snap: true };
+  } else if (DP_CrossHair === 5) {
+     ret = { width: 1, snap: false };
+  } else if (DP_CrossHair === 6) {
+     ret = { width: 1, snap: false };
+  } else if(DP_CrossHair === 8) {
+     ret = { width: 3, snap: true };
+  } else if(DP_CrossHair === 9) {
+     ret = { width: 3, snap: true };
+  } else if(DP_CrossHair === 11) {
+     ret = { width: 3, snap: false };
+  } else if(DP_CrossHair === 12) {
+     ret = { width: 3, snap: false };
+  }
+  return ret;
+}
+
+function defineHighLight() {
+  let ret = { hover: { enabled: true, lineWidthPlus: 0 }, inactive: { enabled: false, opacity: 1 } };
+  if (DP_HighLight === 1) {
+     ret= { hover: { enabled: true, lineWidthPlus: 1 }, inactive: { enabled: true, opacity: 0.2 } };
+  } else if (DP_HighLight === 2) {
+     ret= { hover: { enabled: true, lineWidthPlus: 1 }, inactive: { enabled: true, opacity: 0.5 } };
+  } else if (DP_HighLight === 3) {
+     ret= { hover: { enabled: true, lineWidthPlus: 1 }, inactive: { enabled: false, opacity: 1 } };
+  } else if (DP_HighLight === 4) {
+     ret= { hover: { enabled: true, lineWidthPlus: 3 }, inactive: { enabled: true, opacity: 0.2 } };
+  } else if (DP_HighLight === 5) {
+     ret= { hover: { enabled: true, lineWidthPlus: 3 }, inactive: { enabled: true, opacity: 0.5 } };
+  } else if (DP_HighLight === 6) {
+     ret= { hover: { enabled: true, lineWidthPlus: 3 }, inactive: { enabled: false, opacity: 1 } };
+  }
+  return ret;
+}
+
+function defineToolTip() {
+  let ret = { enabled: false };
+
+  if (DP_ToolTip === 1) {
+     ret = { enabled: true,
+             formatter: null,
+             shared: false,
+             split: true,
+             valueDecimals: 2,
+           }
+  } else if (DP_ToolTip === 2) {
+     ret = { enabled: true,
+             formatter: null,
+             shared: false,
+             split: false,
+             valueDecimals: 2,
+           }
+  } else if (DP_ToolTip === 3) {
+     ret = { enabled: true,
+             formatter: function () { return [''].concat( this.points ? this.points.map(function (point) {
+                                                                             if (point.series.name === 'MinMax') {
+                                                                                return point.series.name + ': <b>' +
+                                                                                window.Highcharts.numberFormat(point.point.low, 2, ",", ".") + " - " +
+                                                                                window.Highcharts.numberFormat(point.point.high, 2, ",", ".") + " " +
+                                                                                point.series.tooltipOptions.valueSuffix + "</b>";
+                                                                             } else {
+                                                                                return point.series.name + ': <b>' +
+                                                                                window.Highcharts.numberFormat(point.y, 2, ",", ".") + " " +
+                                                                                point.series.tooltipOptions.valueSuffix + "</b>";
+                                                                             }
+                                                                           }) : []
+                                    )} ,
+             shared: false,
+             split: true,
+             valueDecimals: 2,
+           }
+  } else if (DP_ToolTip === 4) {
+     ret = { enabled: true,
+             formatter: function () {    if (this.series.name === 'MinMax') {
+                                             return this.point.series.name + ': <b>' +
+                                             window.Highcharts.numberFormat(this.point.low, 2, ",", ".") + " - " +
+                                             window.Highcharts.numberFormat(this.point.high, 2, ",", ".") + " " +
+                                             this.point.series.tooltipOptions.valueSuffix + "</b>";
+                                         } else {
+                                             return this.point.series.name + ': <b>' +
+                                             window.Highcharts.numberFormat(this.point.y, 2, ",", ".") + " " +
+                                             this.point.series.tooltipOptions.valueSuffix + "</b>";
+                                         }
+                                    },
+             shared: false,
+             split: false,
+             valueDecimals: 2,
+           }
+  } else if (DP_ToolTip === 5) {
+     ret = { enabled: true,
+             formatter: function () { let xDate = new Date( this.x );
+                                      return this.points.reduce(function (s, point) {
+                                           if (point.series.name === 'MinMax') {
+                                               return s + '<br/>' + point.series.name + ': ' + 
+                                                      window.Highcharts.numberFormat(point.point.low, 2, ",", ".") + " - " + 
+                                                      window.Highcharts.numberFormat(point.point.high, 2, ",", ".") + " " + 
+                                                      point.series.tooltipOptions.valueSuffix ;
+                                           } else {
+                                               return s + '<br/>' + point.series.name + ': ' +
+                                                      window.Highcharts.numberFormat(point.y, 2, ",", ".") + " " + 
+                                                      point.series.tooltipOptions.valueSuffix ;
+                                           }
+                                    }, '<b>' + window.Highcharts.dateFormat('%A, %e. %b %Y, %H:%M', xDate) + '</b>'); },
+             shared: true,
+             split: false,
+             valueDecimals: 2,
+
+           }
+  }
+  return ret;
 }
 
 function showAggrText() {
