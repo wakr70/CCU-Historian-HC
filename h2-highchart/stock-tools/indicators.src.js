@@ -1,5 +1,5 @@
 /**
- * @license Highstock JS v10.0.0 (2022-03-07)
+ * @license Highstock JS v10.3.3 (2023-01-20)
  *
  * Indicator series type for Highcharts Stock
  *
@@ -37,20 +37,6 @@
             }
         }
     }
-    _registerModule(_modules, 'Stock/Indicators/SMA/SMAComposition.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
-        /* *
-         *
-         *  License: www.highcharts.com/license
-         *
-         *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
-         *
-         * */
-        var Series = SeriesRegistry.series,
-            ohlcProto = SeriesRegistry.seriesTypes.ohlc.prototype;
-        var addEvent = U.addEvent,
-            extend = U.extend;
-
-    });
     _registerModule(_modules, 'Stock/Indicators/SMA/SMAIndicator.js', [_modules['Core/Chart/Chart.js'], _modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (Chart, SeriesRegistry, U) {
         /* *
          *
@@ -114,14 +100,12 @@
                 _this.options = void 0;
                 _this.points = void 0;
                 return _this;
-                /* eslint-enable valid-jsdoc */
             }
             /* *
              *
              *  Functions
              *
              * */
-            /* eslint-disable valid-jsdoc */
             /**
              * @private
              */
@@ -135,8 +119,8 @@
              * @private
              */
             SMAIndicator.prototype.getName = function () {
-                var name = this.name,
-                    params = [];
+                var params = [];
+                var name = this.name;
                 if (!name) {
                     (this.nameComponents || []).forEach(function (component, index) {
                         params.push(this.options.params[component] +
@@ -155,14 +139,14 @@
                     xVal = series.xData,
                     yVal = series.yData,
                     yValLen = yVal.length,
-                    range = 0,
-                    sum = 0,
                     SMA = [],
                     xData = [],
-                    yData = [],
+                    yData = [];
+                var i,
                     index = -1,
-                    i,
-                    SMAPoint;
+                    range = 0,
+                    SMAPoint,
+                    sum = 0;
                 if (xVal.length < period) {
                     return;
                 }
@@ -252,17 +236,16 @@
              * @private
              */
             SMAIndicator.prototype.recalculateValues = function () {
-                var indicator = this,
+                var croppedDataValues = [],
+                    indicator = this,
                     oldData = indicator.points || [],
                     oldDataLength = (indicator.xData || []).length,
                     emptySet = {
                         values: [],
                         xData: [],
                         yData: []
-                    },
-                    processedData,
-                    croppedDataValues = [],
-                    overwriteData = true,
+                    };
+                var overwriteData = true,
                     oldFirstPointIndex,
                     oldLastPointIndex,
                     croppedData,
@@ -274,8 +257,11 @@
                 // we will try to access Series object without any properties
                 // (except for prototyped ones). This is what happens
                 // for example when using Axis.setDataGrouping(). See #16670
-                processedData = indicator.linkedParent.options ?
-                    (indicator.getValues(indicator.linkedParent, indicator.options.params) || emptySet) : emptySet;
+                var processedData = indicator.linkedParent.options &&
+                        indicator.linkedParent.yData && // #18176, #18177 indicators should
+                        indicator.linkedParent.yData.length ? // work with empty dataset
+                        (indicator.getValues(indicator.linkedParent,
+                    indicator.options.params) || emptySet) : emptySet;
                 // We need to update points to reflect changes in all,
                 // x and y's, values. However, do it only for non-grouped
                 // data - grouping does it for us (#8572)
@@ -326,7 +312,7 @@
                     indicator.isDirty = true;
                     indicator.redraw();
                 }
-                indicator.isDirtyData = false;
+                indicator.isDirtyData = !!indicator.linkedSeries;
             };
             /**
              * @private
@@ -458,7 +444,7 @@
          * @requires  stock/indicators/indicators
          * @apioption series.sma
          */
-        ''; // adds doclet above to the transpiled file
+        (''); // adds doclet above to the transpiled file
 
         return SMAIndicator;
     });
@@ -507,6 +493,11 @@
         var EMAIndicator = /** @class */ (function (_super) {
                 __extends(EMAIndicator, _super);
             function EMAIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
@@ -540,10 +531,9 @@
                     yValue = index < 0 ?
                         yVal[i - 1] :
                         yVal[i - 1][index],
-                    y;
-                y = typeof calEMA === 'undefined' ?
-                    SMA : correctFloat((yValue * EMApercent) +
-                    (calEMA * (1 - EMApercent)));
+                    y = typeof calEMA === 'undefined' ?
+                        SMA : correctFloat((yValue * EMApercent) +
+                        (calEMA * (1 - EMApercent)));
                 return [x, y];
             };
             EMAIndicator.prototype.getValues = function (series, params) {
@@ -552,15 +542,15 @@
                     yVal = series.yData,
                     yValLen = yVal ? yVal.length : 0,
                     EMApercent = 2 / (period + 1),
-                    sum = 0,
                     EMA = [],
                     xData = [],
-                    yData = [],
-                    index = -1,
-                    SMA = 0,
-                    calEMA,
+                    yData = [];
+                var calEMA,
                     EMAPoint,
-                    i;
+                    i,
+                    index = -1,
+                    sum = 0,
+                    SMA = 0;
                 // Check period, if bigger than points length, skip
                 if (yValLen < period) {
                     return;
@@ -622,6 +612,11 @@
         /* *
          *
          *  Default Export
+         *
+         * */
+        /* *
+         *
+         *  API Options
          *
          * */
         /**

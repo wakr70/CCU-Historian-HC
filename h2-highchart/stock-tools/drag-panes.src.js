@@ -1,5 +1,5 @@
 /**
- * @license Highstock JS v10.0.0 (2022-03-07)
+ * @license Highstock JS v10.3.3 (2023-01-20)
  *
  * Drag-panes module
  *
@@ -484,7 +484,7 @@
                      * @type     {Highcharts.ColorString}
                      * @requires modules/drag-panes
                      */
-                    lineColor: "#cccccc" /* neutralColor20 */,
+                    lineColor: "#cccccc" /* Palette.neutralColor20 */,
                     /**
                      * Dash style of the control line.
                      *

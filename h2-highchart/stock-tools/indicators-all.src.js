@@ -1,5 +1,5 @@
 /**
- * @license Highstock JS v10.0.0 (2022-03-07)
+ * @license Highstock JS v10.3.3 (2023-01-20)
  *
  * All technical indicators for Highcharts Stock
  *
@@ -37,20 +37,6 @@
             }
         }
     }
-    _registerModule(_modules, 'Stock/Indicators/SMA/SMAComposition.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
-        /* *
-         *
-         *  License: www.highcharts.com/license
-         *
-         *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
-         *
-         * */
-        var Series = SeriesRegistry.series,
-            ohlcProto = SeriesRegistry.seriesTypes.ohlc.prototype;
-        var addEvent = U.addEvent,
-            extend = U.extend;
-
-    });
     _registerModule(_modules, 'Stock/Indicators/SMA/SMAIndicator.js', [_modules['Core/Chart/Chart.js'], _modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (Chart, SeriesRegistry, U) {
         /* *
          *
@@ -114,14 +100,12 @@
                 _this.options = void 0;
                 _this.points = void 0;
                 return _this;
-                /* eslint-enable valid-jsdoc */
             }
             /* *
              *
              *  Functions
              *
              * */
-            /* eslint-disable valid-jsdoc */
             /**
              * @private
              */
@@ -135,8 +119,8 @@
              * @private
              */
             SMAIndicator.prototype.getName = function () {
-                var name = this.name,
-                    params = [];
+                var params = [];
+                var name = this.name;
                 if (!name) {
                     (this.nameComponents || []).forEach(function (component, index) {
                         params.push(this.options.params[component] +
@@ -155,14 +139,14 @@
                     xVal = series.xData,
                     yVal = series.yData,
                     yValLen = yVal.length,
-                    range = 0,
-                    sum = 0,
                     SMA = [],
                     xData = [],
-                    yData = [],
+                    yData = [];
+                var i,
                     index = -1,
-                    i,
-                    SMAPoint;
+                    range = 0,
+                    SMAPoint,
+                    sum = 0;
                 if (xVal.length < period) {
                     return;
                 }
@@ -252,17 +236,16 @@
              * @private
              */
             SMAIndicator.prototype.recalculateValues = function () {
-                var indicator = this,
+                var croppedDataValues = [],
+                    indicator = this,
                     oldData = indicator.points || [],
                     oldDataLength = (indicator.xData || []).length,
                     emptySet = {
                         values: [],
                         xData: [],
                         yData: []
-                    },
-                    processedData,
-                    croppedDataValues = [],
-                    overwriteData = true,
+                    };
+                var overwriteData = true,
                     oldFirstPointIndex,
                     oldLastPointIndex,
                     croppedData,
@@ -274,8 +257,11 @@
                 // we will try to access Series object without any properties
                 // (except for prototyped ones). This is what happens
                 // for example when using Axis.setDataGrouping(). See #16670
-                processedData = indicator.linkedParent.options ?
-                    (indicator.getValues(indicator.linkedParent, indicator.options.params) || emptySet) : emptySet;
+                var processedData = indicator.linkedParent.options &&
+                        indicator.linkedParent.yData && // #18176, #18177 indicators should
+                        indicator.linkedParent.yData.length ? // work with empty dataset
+                        (indicator.getValues(indicator.linkedParent,
+                    indicator.options.params) || emptySet) : emptySet;
                 // We need to update points to reflect changes in all,
                 // x and y's, values. However, do it only for non-grouped
                 // data - grouping does it for us (#8572)
@@ -326,7 +312,7 @@
                     indicator.isDirty = true;
                     indicator.redraw();
                 }
-                indicator.isDirtyData = false;
+                indicator.isDirtyData = !!indicator.linkedSeries;
             };
             /**
              * @private
@@ -458,7 +444,7 @@
          * @requires  stock/indicators/indicators
          * @apioption series.sma
          */
-        ''; // adds doclet above to the transpiled file
+        (''); // adds doclet above to the transpiled file
 
         return SMAIndicator;
     });
@@ -507,6 +493,11 @@
         var EMAIndicator = /** @class */ (function (_super) {
                 __extends(EMAIndicator, _super);
             function EMAIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
@@ -540,10 +531,9 @@
                     yValue = index < 0 ?
                         yVal[i - 1] :
                         yVal[i - 1][index],
-                    y;
-                y = typeof calEMA === 'undefined' ?
-                    SMA : correctFloat((yValue * EMApercent) +
-                    (calEMA * (1 - EMApercent)));
+                    y = typeof calEMA === 'undefined' ?
+                        SMA : correctFloat((yValue * EMApercent) +
+                        (calEMA * (1 - EMApercent)));
                 return [x, y];
             };
             EMAIndicator.prototype.getValues = function (series, params) {
@@ -552,15 +542,15 @@
                     yVal = series.yData,
                     yValLen = yVal ? yVal.length : 0,
                     EMApercent = 2 / (period + 1),
-                    sum = 0,
                     EMA = [],
                     xData = [],
-                    yData = [],
-                    index = -1,
-                    SMA = 0,
-                    calEMA,
+                    yData = [];
+                var calEMA,
                     EMAPoint,
-                    i;
+                    i,
+                    index = -1,
+                    sum = 0,
+                    SMA = 0;
                 // Check period, if bigger than points length, skip
                 if (yValLen < period) {
                     return;
@@ -624,6 +614,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A `EMA` series. If the [type](#series.ema.type) option is not
          * specified, it is inherited from [chart.type](#chart.type).
@@ -666,6 +661,11 @@
         var error = U.error,
             extend = U.extend,
             merge = U.merge;
+        /* *
+         *
+         *  Class
+         *
+         * */
         /**
          * The AD series type.
          *
@@ -848,8 +848,8 @@
         })();
         var noop = H.noop;
         var _a = SeriesRegistry.seriesTypes,
-            SMAIndicator = _a.sma,
-            ColumnSeries = _a.column;
+            columnProto = _a.column.prototype,
+            SMAIndicator = _a.sma;
         var extend = U.extend,
             merge = U.merge,
             correctFloat = U.correctFloat,
@@ -871,23 +871,28 @@
         var AOIndicator = /** @class */ (function (_super) {
                 __extends(AOIndicator, _super);
             function AOIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
-                /**
+                /* *
                  *
-                 * Properties
+                 *  Properties
                  *
-                 */
+                 * */
                 _this.data = void 0;
                 _this.options = void 0;
                 _this.points = void 0;
                 return _this;
             }
-            /**
+            /* *
              *
-             * Functions
+             *  Functions
              *
-             */
+             * */
             AOIndicator.prototype.drawGraph = function () {
                 var indicator = this,
                     options = indicator.options,
@@ -1004,7 +1009,7 @@
                  * @type  {Highcharts.ColorString|Highcharts.GradientColorObject|Highcharts.PatternObject}
                  * @since 7.0.0
                  */
-                greaterBarColor: "#06b535" /* positiveColor */,
+                greaterBarColor: "#06b535" /* Palette.positiveColor */,
                 /**
                  * Color of the Awesome oscillator series bar that is lower than the
                  * previous one. Note that if a `color` is defined, the `color`
@@ -1016,7 +1021,7 @@
                  * @type  {Highcharts.ColorString|Highcharts.GradientColorObject|Highcharts.PatternObject}
                  * @since 7.0.0
                  */
-                lowerBarColor: "#f21313" /* negativeColor */,
+                lowerBarColor: "#f21313" /* Palette.negativeColor */,
                 threshold: 0,
                 groupPadding: 0.2,
                 pointPadding: 0.2,
@@ -1036,15 +1041,20 @@
             nameComponents: false,
             // Columns support:
             markerAttribs: noop,
-            getColumnMetrics: ColumnSeries.prototype.getColumnMetrics,
-            crispCol: ColumnSeries.prototype.crispCol,
-            translate: ColumnSeries.prototype.translate,
-            drawPoints: ColumnSeries.prototype.drawPoints
+            getColumnMetrics: columnProto.getColumnMetrics,
+            crispCol: columnProto.crispCol,
+            translate: columnProto.translate,
+            drawPoints: columnProto.drawPoints
         });
         SeriesRegistry.registerSeriesType('ao', AOIndicator);
         /* *
          *
          *  Default Export
+         *
+         * */
+        /* *
+         *
+         *  API Options
          *
          * */
         /**
@@ -1075,7 +1085,7 @@
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var SMAIndicator = SeriesRegistry.seriesTypes.sma;
+        var smaProto = SeriesRegistry.seriesTypes.sma.prototype;
         var defined = U.defined,
             error = U.error,
             merge = U.merge;
@@ -1084,16 +1094,6 @@
          *  Composition
          *
          * */
-        /**
-         * Composition useful for all indicators that have more than one line. Compose
-         * it with your implementation where you will provide the `getValues` method
-         * appropriate to your indicator and `pointArrayMap`, `pointValKey`,
-         * `linesApiNames` properties. Notice that `pointArrayMap` should be consistent
-         * with the amount of lines calculated in the `getValues` method.
-         *
-         * @private
-         * @mixin multipleLinesMixin
-         */
         var MultipleLinesComposition;
         (function (MultipleLinesComposition) {
             /* *
@@ -1102,10 +1102,10 @@
              *
              * */
             /* *
-             *
-             *  Constants
-             *
-             * */
+            *
+            *  Constants
+            *
+            * */
             var composedClasses = [];
             /**
              * Additional lines DOCS names. Elements of linesApiNames array should
@@ -1114,7 +1114,6 @@
              * relative to pointArrayMap (without pointValKey).
              *
              * @private
-             * @name multipleLinesMixin.linesApiNames
              * @type {Array<string>}
              */
             var linesApiNames = ['bottomLine'];
@@ -1126,7 +1125,6 @@
              * getValues method from your implementation.
              *
              * @private
-             * @name multipleLinesMixin.pointArrayMap
              * @type {Array<string>}
              */
             var pointArrayMap = ['top', 'bottom'];
@@ -1135,8 +1133,8 @@
              * If the drawing of the area should
              * be disabled for some indicators, leave this option as an empty array.
              * Names should be the same as the names in the pointArrayMap.
+             *
              * @private
-             * @name multipleLinesMixin.areaLinesNames
              * @type {Array<string>}
              */
             var areaLinesNames = ['top'];
@@ -1144,17 +1142,22 @@
              * Main line id.
              *
              * @private
-             * @name multipleLinesMixin.pointValKey
              * @type {string}
              */
             var pointValKey = 'top';
             /* *
-             *
-             *  Functions
-             *
-             * */
-            /* eslint-disable valid-jsdoc */
+            *
+            *  Functions
+            *
+            * */
             /**
+             * Composition useful for all indicators that have more than one line.
+             * Compose it with your implementation where you will provide the
+             * `getValues` method appropriate to your indicator and `pointArrayMap`,
+             * `pointValKey`, `linesApiNames` properties. Notice that `pointArrayMap`
+             * should be consistent with the amount of lines calculated in the
+             * `getValues` method.
+             *
              * @private
              */
             function compose(IndicatorClass) {
@@ -1169,52 +1172,49 @@
                         pointValKey);
                     proto.areaLinesNames = (proto.areaLinesNames ||
                         areaLinesNames.slice());
-                    proto.drawGraph = drawGraph;
-                    proto.getGraphPath = getGraphPath;
-                    proto.toYData = toYData;
-                    proto.translate = translate;
-                    proto.getTranslatedLinesNames = getTranslatedLinesNames;
+                    proto.drawGraph = indicatorDrawGraph;
+                    proto.getGraphPath = indicatorGetGraphPath;
+                    proto.toYData = indicatorToYData;
+                    proto.translate = indicatorTranslate;
                 }
                 return IndicatorClass;
             }
             MultipleLinesComposition.compose = compose;
             /**
-             * Create the path based on points provided as argument.
-             * If indicator.nextPoints option is defined, create the areaFill.
+             * Generate the API name of the line
              *
-             * @param points Points on which the path should be created
+             * @private
+             * @param propertyName name of the line
              */
-            function getGraphPath(points) {
-                var indicator = this;
-                var areaPath,
-                    path = [],
-                    higherAreaPath = [];
-                points = points || this.points;
-                // Render Span
-                if (indicator.fillGraph && indicator.nextPoints) {
-                    areaPath = SMAIndicator.prototype.getGraphPath.call(indicator, indicator.nextPoints);
-                    if (areaPath && areaPath.length) {
-                        areaPath[0][0] = 'L';
-                        path = SMAIndicator.prototype.getGraphPath.call(indicator, points);
-                        higherAreaPath = areaPath.slice(0, path.length);
-                        // Reverse points, so that the areaFill will start from the end:
-                        for (var i = higherAreaPath.length - 1; i >= 0; i--) {
-                            path.push(higherAreaPath[i]);
-                        }
+            function getLineName(propertyName) {
+                return ('plot' +
+                    propertyName.charAt(0).toUpperCase() +
+                    propertyName.slice(1));
+            }
+            /**
+             * Create translatedLines Collection based on pointArrayMap.
+             *
+             * @private
+             * @param {string} [excludedValue]
+             *        Main line id
+             * @return {Array<string>}
+             *         Returns translated lines names without excluded value.
+             */
+            function getTranslatedLinesNames(indicator, excludedValue) {
+                var translatedLines = [];
+                (indicator.pointArrayMap || []).forEach(function (propertyName) {
+                    if (propertyName !== excludedValue) {
+                        translatedLines.push(getLineName(propertyName));
                     }
-                }
-                else {
-                    path = SMAIndicator.prototype.getGraphPath.apply(indicator, arguments);
-                }
-                return path;
+                });
+                return translatedLines;
             }
             /**
              * Draw main and additional lines.
              *
              * @private
-             * @function multipleLinesMixin.drawGraph
              */
-            function drawGraph() {
+            function indicatorDrawGraph() {
                 var indicator = this,
                     pointValKey = indicator.pointValKey,
                     linesApiNames = indicator.linesApiNames,
@@ -1229,7 +1229,8 @@
                     }, 
                     // additional lines point place holders:
                     secondaryLines = [],
-                    secondaryLinesNames = indicator.getTranslatedLinesNames(pointValKey);
+                    secondaryLinesNames = getTranslatedLinesNames(indicator,
+                    pointValKey);
                 var pointsLength = mainLinePoints.length,
                     point;
                 // Generate points for additional lines:
@@ -1248,7 +1249,7 @@
                     pointsLength = mainLinePoints.length;
                 });
                 // Modify options and generate area fill:
-                if (this.userOptions.fillColor && areaLinesNames.length) {
+                if (indicator.userOptions.fillColor && areaLinesNames.length) {
                     var index = secondaryLinesNames.indexOf(getLineName(areaLinesNames[0])),
                         secondLinePoints = secondaryLines[index],
                         firstLinePoints = areaLinesNames.length === 1 ?
@@ -1257,11 +1258,11 @@
                         originalColor = indicator.color;
                     indicator.points = firstLinePoints;
                     indicator.nextPoints = secondLinePoints;
-                    indicator.color = this.userOptions.fillColor;
+                    indicator.color = indicator.userOptions.fillColor;
                     indicator.options = merge(mainLinePoints, gappedExtend);
                     indicator.graph = indicator.area;
                     indicator.fillGraph = true;
-                    SeriesRegistry.seriesTypes.sma.prototype.drawGraph.call(indicator);
+                    smaProto.drawGraph.call(indicator);
                     indicator.area = indicator.graph;
                     // Clean temporary properties:
                     delete indicator.nextPoints;
@@ -1278,11 +1279,10 @@
                         else {
                             error('Error: "There is no ' + lineName +
                                 ' in DOCS options declared. Check if linesApiNames' +
-                                ' are consistent with your DOCS line names."' +
-                                ' at mixin/multiple-line.js:34');
+                                ' are consistent with your DOCS line names."');
                         }
                         indicator.graph = indicator['graph' + lineName];
-                        SMAIndicator.prototype.drawGraph.call(indicator);
+                        smaProto.drawGraph.call(indicator);
                         // Now save lines:
                         indicator['graph' + lineName] = indicator.graph;
                     }
@@ -1296,45 +1296,46 @@
                 indicator.points = mainLinePoints;
                 indicator.options = mainLineOptions;
                 indicator.graph = mainLinePath;
-                SMAIndicator.prototype.drawGraph.call(indicator);
+                smaProto.drawGraph.call(indicator);
             }
             /**
-             * Create translatedLines Collection based on pointArrayMap.
+             * Create the path based on points provided as argument.
+             * If indicator.nextPoints option is defined, create the areaFill.
              *
              * @private
-             * @function multipleLinesMixin.getTranslatedLinesNames
-             * @param {string} [excludedValue]
-             *        Main line id
-             * @return {Array<string>}
-             *         Returns translated lines names without excluded value.
+             * @param points Points on which the path should be created
              */
-            function getTranslatedLinesNames(excludedValue) {
-                var translatedLines = [];
-                (this.pointArrayMap || []).forEach(function (propertyName) {
-                    if (propertyName !== excludedValue) {
-                        translatedLines.push(getLineName(propertyName));
+            function indicatorGetGraphPath(points) {
+                var areaPath,
+                    path = [],
+                    higherAreaPath = [];
+                points = points || this.points;
+                // Render Span
+                if (this.fillGraph && this.nextPoints) {
+                    areaPath = smaProto.getGraphPath.call(this, this.nextPoints);
+                    if (areaPath && areaPath.length) {
+                        areaPath[0][0] = 'L';
+                        path = smaProto.getGraphPath.call(this, points);
+                        higherAreaPath = areaPath.slice(0, path.length);
+                        // Reverse points, so that the areaFill will start from the end:
+                        for (var i = higherAreaPath.length - 1; i >= 0; i--) {
+                            path.push(higherAreaPath[i]);
+                        }
                     }
-                });
-                return translatedLines;
-            }
-            /**
-             * Generate the API name of the line
-             * @param propertyName name of the line
-             */
-            function getLineName(propertyName) {
-                return ('plot' +
-                    propertyName.charAt(0).toUpperCase() +
-                    propertyName.slice(1));
+                }
+                else {
+                    path = smaProto.getGraphPath.apply(this, arguments);
+                }
+                return path;
             }
             /**
              * @private
-             * @function multipleLinesMixin.toYData
              * @param {Highcharts.Point} point
              *        Indicator point
              * @return {Array<number>}
              *         Returns point Y value for all lines
              */
-            function toYData(point) {
+            function indicatorToYData(point) {
                 var pointColl = [];
                 (this.pointArrayMap || []).forEach(function (propertyName) {
                     pointColl.push(point[propertyName]);
@@ -1345,25 +1346,24 @@
              * Add lines plot pixel values.
              *
              * @private
-             * @function multipleLinesMixin.translate
              */
-            function translate() {
-                var indicator = this,
-                    pointArrayMap = indicator.pointArrayMap;
+            function indicatorTranslate() {
+                var _this = this;
+                var pointArrayMap = this.pointArrayMap;
                 var LinesNames = [],
                     value;
-                LinesNames = indicator.getTranslatedLinesNames();
-                SMAIndicator.prototype.translate.apply(indicator, arguments);
-                indicator.points.forEach(function (point) {
+                LinesNames = getTranslatedLinesNames(this);
+                smaProto.translate.apply(this, arguments);
+                this.points.forEach(function (point) {
                     pointArrayMap.forEach(function (propertyName, i) {
                         value = point[propertyName];
                         // If the modifier, like for example compare exists,
                         // modified the original value by that method, #15867.
-                        if (indicator.dataModify) {
-                            value = indicator.dataModify.modifyValue(value);
+                        if (_this.dataModify) {
+                            value = _this.dataModify.modifyValue(value);
                         }
                         if (value !== null) {
-                            point[LinesNames[i]] = indicator.yAxis.toPixels(value, true);
+                            point[LinesNames[i]] = _this.yAxis.toPixels(value, true);
                         }
                     });
                 });
@@ -1405,7 +1405,11 @@
         var extend = U.extend,
             merge = U.merge,
             pick = U.pick;
-        /* eslint-disable valid-jsdoc */
+        /* *
+         *
+         *  Functions
+         *
+         * */
         // Utils
         // Index of element with extreme value from array (min or max)
         /**
@@ -1424,7 +1428,6 @@
             }
             return valueIndex;
         }
-        /* eslint-enable valid-jsdoc */
         /* *
          *
          *  Class
@@ -1442,6 +1445,11 @@
         var AroonIndicator = /** @class */ (function (_super) {
                 __extends(AroonIndicator, _super);
             function AroonIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
@@ -1576,6 +1584,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A Aroon indicator. If the [type](#series.aroon.type) option is not
          * specified, it is inherited from [chart.type](#chart.type).
@@ -1621,7 +1634,6 @@
         var AroonIndicator = SeriesRegistry.seriesTypes.aroon;
         var extend = U.extend,
             merge = U.merge;
-        var AROON = SeriesRegistry.seriesTypes.aroon;
         /* *
          *
          *  Class
@@ -1671,7 +1683,7 @@
                     aroonDown,
                     oscillator,
                     i;
-                aroon = AROON.prototype.getValues.call(this, series, params);
+                aroon = _super.prototype.getValues.call(this, series, params);
                 for (i = 0; i < aroon.yData.length; i++) {
                     aroonUp = aroon.yData[i][0];
                     aroonDown = aroon.yData[i][1];
@@ -1726,6 +1738,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * An `Aroon Oscillator` series. If the [type](#series.aroonoscillator.type)
          * option is not specified, it is inherited from [chart.type](#chart.type).
@@ -1773,7 +1790,11 @@
         var SMAIndicator = SeriesRegistry.seriesTypes.sma;
         var isArray = U.isArray,
             merge = U.merge;
-        /* eslint-disable valid-jsdoc */
+        /* *
+         *
+         *  Functions
+         *
+         * */
         // Utils:
         /**
          * @private
@@ -1801,10 +1822,9 @@
             y = (((prevATR * (period - 1)) + TR) / period);
             return [x, y];
         }
-        /* eslint-enable valid-jsdoc */
         /* *
          *
-         * Class
+         *  Class
          *
          * */
         /**
@@ -1819,6 +1839,11 @@
         var ATRIndicator = /** @class */ (function (_super) {
                 __extends(ATRIndicator, _super);
             function ATRIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
@@ -1915,6 +1940,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A `ATR` series. If the [type](#series.atr.type) option is not specified, it
          * is inherited from [chart.type](#chart.type).
@@ -1964,7 +1994,6 @@
          *  Functions
          *
          * */
-        /* eslint-disable valid-jsdoc */
         // Utils:
         /**
          * @private
@@ -2106,10 +2135,12 @@
                  * @sample {highstock} stock/indicators/indicator-area-fill
                  *      Background fill between lines.
                  *
-                 * @type      {Highcharts.Color}
-                 * @since 9.3.2
+                 * @type      {Highcharts.ColorType}
+                 * @since     9.3.2
                  * @apioption plotOptions.bb.fillColor
-                 *
+                 */
+                /**
+                 * Parameters used in calculation of the regression points.
                  */
                 params: {
                     period: 20,
@@ -2124,7 +2155,7 @@
                  */
                 bottomLine: {
                     /**
-                     * Styles for a bottom line.
+                     * Styles for the bottom line.
                      */
                     styles: {
                         /**
@@ -2146,9 +2177,18 @@
                  * @extends plotOptions.bb.bottomLine
                  */
                 topLine: {
+                    /**
+                     * Styles for the top line.
+                     */
                     styles: {
+                        /**
+                         * Pixel width of the line.
+                         */
                         lineWidth: 1,
                         /**
+                         * Color of the line. If not set, it's inherited from
+                         * [plotOptions.bb.color](#plotOptions.bb.color).
+                         *
                          * @type {Highcharts.ColorString}
                          */
                         lineColor: void 0
@@ -2168,16 +2208,21 @@
         }(SMAIndicator));
         extend(BBIndicator.prototype, {
             areaLinesNames: ['top', 'bottom'],
-            pointArrayMap: ['top', 'middle', 'bottom'],
-            pointValKey: 'middle',
+            linesApiNames: ['topLine', 'bottomLine'],
             nameComponents: ['period', 'standardDeviation'],
-            linesApiNames: ['topLine', 'bottomLine']
+            pointArrayMap: ['top', 'middle', 'bottom'],
+            pointValKey: 'middle'
         });
         MultipleLinesComposition.compose(BBIndicator);
         SeriesRegistry.registerSeriesType('bb', BBIndicator);
         /* *
          *
          *  Default Export
+         *
+         * */
+        /* *
+         *
+         *  API Options
          *
          * */
         /**
@@ -2222,7 +2267,11 @@
         var SMAIndicator = SeriesRegistry.seriesTypes.sma;
         var isArray = U.isArray,
             merge = U.merge;
-        /* eslint-disable valid-jsdoc */
+        /* *
+         *
+         *  Functions
+         *
+         * */
         // Utils:
         /**
          * @private
@@ -2236,18 +2285,17 @@
          * @private
          */
         function meanDeviation(arr, sma) {
-            var len = arr.length,
-                sum = 0,
+            var len = arr.length;
+            var sum = 0,
                 i;
             for (i = 0; i < len; i++) {
                 sum += Math.abs(sma - (arr[i]));
             }
             return sum;
         }
-        /* eslint-enable valid-jsdoc */
         /* *
          *
-         * Class
+         *  Class
          *
          * */
         /**
@@ -2262,6 +2310,11 @@
         var CCIIndicator = /** @class */ (function (_super) {
                 __extends(CCIIndicator, _super);
             function CCIIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
@@ -2285,14 +2338,14 @@
                     yVal = series.yData,
                     yValLen = yVal ? yVal.length : 0,
                     TP = [],
-                    periodTP = [],
-                    range = 1,
                     CCI = [],
                     xData = [],
-                    yData = [],
-                    CCIPoint,
+                    yData = [];
+                var CCIPoint,
                     p,
+                    periodTP = [],
                     len,
+                    range = 1,
                     smaTP,
                     TPtemp,
                     meanDev,
@@ -2357,6 +2410,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A `CCI` series. If the [type](#series.cci.type) option is not
          * specified, it is inherited from [chart.type](#chart.type).
@@ -2405,6 +2463,11 @@
         })();
         var SMAIndicator = SeriesRegistry.seriesTypes.sma;
         var merge = U.merge;
+        /* *
+         *
+         *  Class
+         *
+         * */
         /**
          * The CMF series type.
          *
@@ -2417,6 +2480,11 @@
         var CMFIndicator = /** @class */ (function (_super) {
                 __extends(CMFIndicator, _super);
             function CMFIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
@@ -2433,6 +2501,11 @@
                 _this.nameBase = 'Chaikin Money Flow';
                 return _this;
             }
+            /* *
+             *
+             *  Functions
+             *
+             * */
             /**
              * Checks if the series and volumeSeries are accessible, number of
              * points.x is longer than period, is series has OHLC data
@@ -2620,6 +2693,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A `CMF` series. If the [type](#series.cmf.type) option is not
          * specified, it is inherited from [chart.type](#chart.type).
@@ -2763,11 +2841,15 @@
                     var smoothedPlusDM = void 0,
                         smoothedMinusDM = void 0,
                         smoothedTR = void 0,
-                        plusDM = void 0, // +DM
-                        minusDM = void 0, // -DM
+                        plusDM = // +DM
+                         void 0, // +DM
+                        minusDM = // -DM
+                         void 0, // -DM
                         TR = void 0,
-                        plusDI = void 0, // +DI
-                        minusDI = void 0, // -DI
+                        plusDI = // +DI
+                         void 0, // +DI
+                        minusDI = // -DI
+                         void 0, // -DI
                         DX = void 0;
                     if (i <= period) {
                         plusDM = this.calculateDM(yVal, i, true);
@@ -2871,7 +2953,7 @@
                          *
                          * @type {Highcharts.ColorString}
                          */
-                        lineColor: "#06b535" /* positiveColor */ // green-ish
+                        lineColor: "#06b535" /* Palette.positiveColor */ // green-ish
                     }
                 },
                 /**
@@ -2891,7 +2973,7 @@
                          *
                          * @type {Highcharts.ColorString}
                          */
-                        lineColor: "#f21313" /* negativeColor */ // red-ish
+                        lineColor: "#f21313" /* Palette.negativeColor */ // red-ish
                     }
                 },
                 dataGrouping: {
@@ -2913,6 +2995,11 @@
         /* *
          *
          *  Default Export
+         *
+         * */
+        /* *
+         *
+         *  API Options
          *
          * */
         /**
@@ -2963,7 +3050,11 @@
             merge = U.merge,
             correctFloat = U.correctFloat,
             pick = U.pick;
-        /* eslint-disable valid-jsdoc */
+        /* *
+         *
+         *  Functions
+         *
+         * */
         // Utils:
         /**
          * @private
@@ -2993,13 +3084,18 @@
         var DPOIndicator = /** @class */ (function (_super) {
                 __extends(DPOIndicator, _super);
             function DPOIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
-                *
-                *   Properties
-                *
-                * */
+                 *
+                 *   Properties
+                 *
+                 * */
                 _this.options = void 0;
                 _this.data = void 0;
                 _this.points = void 0;
@@ -3010,9 +3106,6 @@
              *  Functions
              *
              * */
-            /**
-             * @lends Highcharts.Series#
-             */
             DPOIndicator.prototype.getValues = function (series, params) {
                 var period = params.period,
                     index = params.index,
@@ -3024,14 +3117,14 @@
                     // 0- date, 1- Detrended Price Oscillator
                     DPO = [],
                     xData = [],
-                    yData = [],
-                    sum = 0,
-                    oscillator,
+                    yData = [];
+                var oscillator,
                     periodIndex,
                     rangeIndex,
                     price,
                     i,
-                    j;
+                    j,
+                    sum = 0;
                 if (xVal.length <= range) {
                     return;
                 }
@@ -3102,6 +3195,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A Detrended Price Oscillator. If the [type](#series.dpo.type) option is not
          * specified, it is inherited from [chart.type](#chart.type).
@@ -3120,7 +3218,7 @@
 
         return DPOIndicator;
     });
-    _registerModule(_modules, 'Stock/Indicators/Chaikin/ChaikinIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
+    _registerModule(_modules, 'Stock/Indicators/Chaikin/ChaikinIndicator.js', [_modules['Stock/Indicators/AD/ADIndicator.js'], _modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (AD, SeriesRegistry, U) {
         /* *
          *
          *  License: www.highcharts.com/license
@@ -3144,9 +3242,7 @@
                 d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
             };
         })();
-        var _a = SeriesRegistry.seriesTypes,
-            AD = _a.ad,
-            EMAIndicator = _a.ema;
+        var EMAIndicator = SeriesRegistry.seriesTypes.ema;
         var correctFloat = U.correctFloat,
             extend = U.extend,
             merge = U.merge,
@@ -3303,6 +3399,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A `Chaikin Oscillator` series. If the [type](#series.chaikin.type)
          * option is not specified, it is inherited from [chart.type](#chart.type).
@@ -3348,7 +3449,11 @@
         var SMAIndicator = SeriesRegistry.seriesTypes.sma;
         var isNumber = U.isNumber,
             merge = U.merge;
-        /* eslint-enable require-jsdoc */
+        /* *
+         *
+         *  Class
+         *
+         * */
         /**
          * The CMO series type.
          *
@@ -3361,6 +3466,11 @@
         var CMOIndicator = /** @class */ (function (_super) {
                 __extends(CMOIndicator, _super);
             function CMOIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
@@ -3487,6 +3597,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A `CMO` series. If the [type](#series.cmo.type) option is not
          * specified, it is inherited from [chart.type](#chart.type).
@@ -3531,6 +3646,11 @@
         var correctFloat = U.correctFloat,
             isArray = U.isArray,
             merge = U.merge;
+        /* *
+         *
+         *  Class
+         *
+         * */
         /**
          * The DEMA series Type
          *
@@ -3543,29 +3663,43 @@
         var DEMAIndicator = /** @class */ (function (_super) {
                 __extends(DEMAIndicator, _super);
             function DEMAIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
+                /* *
+                 *
+                 *  Properties
+                 *
+                 * */
                 _this.EMApercent = void 0;
                 _this.data = void 0;
                 _this.options = void 0;
                 _this.points = void 0;
                 return _this;
             }
+            /* *
+             *
+             *  Functions
+             *
+             * */
             DEMAIndicator.prototype.getEMA = function (yVal, prevEMA, SMA, index, i, xVal) {
-                return EMAIndicator.prototype.calculateEma(xVal || [], yVal, typeof i === 'undefined' ? 1 : i, this.EMApercent, prevEMA, typeof index === 'undefined' ? -1 : index, SMA);
+                return _super.prototype.calculateEma.call(this, xVal || [], yVal, typeof i === 'undefined' ? 1 : i, this.EMApercent, prevEMA, typeof index === 'undefined' ? -1 : index, SMA);
             };
             DEMAIndicator.prototype.getValues = function (series, params) {
                 var period = params.period,
+                    EMAvalues = [],
                     doubledPeriod = 2 * period,
                     xVal = series.xData,
                     yVal = series.yData,
                     yValLen = yVal ? yVal.length : 0,
-                    index = -1,
-                    accumulatePeriodPoints = 0,
-                    SMA = 0,
                     DEMA = [],
                     xDataDema = [],
-                    yDataDema = [],
+                    yDataDema = [];
+                var accumulatePeriodPoints = 0,
                     EMA = 0, 
                     // EMA(EMA)
                     EMAlevel2, 
@@ -3573,9 +3707,10 @@
                     prevEMA,
                     prevEMAlevel2, 
                     // EMA values array
-                    EMAvalues = [],
                     i,
-                    DEMAPoint;
+                    index = -1,
+                    DEMAPoint,
+                    SMA = 0;
                 this.EMApercent = (2 / (period + 1));
                 // Check period, if bigger than EMA points length, skip
                 if (yValLen < 2 * period - 1) {
@@ -3587,7 +3722,7 @@
                 }
                 // Accumulate first N-points
                 accumulatePeriodPoints =
-                    EMAIndicator.prototype.accumulatePeriodPoints(period, index, yVal);
+                    _super.prototype.accumulatePeriodPoints.call(this, period, index, yVal);
                 // first point
                 SMA = accumulatePeriodPoints / period;
                 accumulatePeriodPoints = 0;
@@ -3652,6 +3787,11 @@
         /* *
          *
          *  Default Export
+         *
+         * */
+        /* *
+         *
+         *  API Options
          *
          * */
         /**
@@ -3928,6 +4068,11 @@
         var TEMAIndicator = SeriesRegistry.seriesTypes.tema;
         var correctFloat = U.correctFloat,
             merge = U.merge;
+        /* *
+         *
+         *  Class
+         *
+         * */
         /**
          * The TRIX series type.
          *
@@ -3940,13 +4085,28 @@
         var TRIXIndicator = /** @class */ (function (_super) {
                 __extends(TRIXIndicator, _super);
             function TRIXIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
+                /* *
+                 *
+                 *  Properties
+                 *
+                 * */
                 _this.data = void 0;
                 _this.options = void 0;
                 _this.points = void 0;
                 return _this;
             }
+            /* *
+             *
+             *  Functions
+             *
+             * */
             // TRIX is calculated using TEMA so we just extend getTemaPoint method.
             TRIXIndicator.prototype.getTemaPoint = function (xVal, tripledPeriod, EMAlevels, i) {
                 if (i > tripledPeriod) {
@@ -3984,6 +4144,11 @@
         /* *
          *
          *  Default Export
+         *
+         * */
+        /* *
+         *
+         *  API Options
          *
          * */
         /**
@@ -4165,6 +4330,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * An `Absolute Price Oscillator` series. If the [type](#series.apo.type) option
          * is not specified, it is inherited from [chart.type](#chart.type).
@@ -4183,7 +4353,7 @@
 
         return APOIndicator;
     });
-    _registerModule(_modules, 'Stock/Indicators/IKH/IKHIndicator.js', [_modules['Core/Color/Color.js'], _modules['Core/Globals.js'], _modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (Color, H, SeriesRegistry, U) {
+    _registerModule(_modules, 'Stock/Indicators/IKH/IKHIndicator.js', [_modules['Extensions/DataGrouping/ApproximationRegistry.js'], _modules['Core/Color/Color.js'], _modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (ApproximationRegistry, Color, SeriesRegistry, U) {
         /* *
          *
          *  License: www.highcharts.com/license
@@ -4215,24 +4385,39 @@
             isNumber = U.isNumber,
             merge = U.merge,
             objectEach = U.objectEach;
-        /* eslint-disable require-jsdoc */
-        // Utils:
+        /* *
+         *
+         *  Functions
+         *
+         * */
+        /**
+         * @private
+         */
         function maxHigh(arr) {
             return arr.reduce(function (max, res) {
                 return Math.max(max, res[1]);
             }, -Infinity);
         }
+        /**
+         * @private
+         */
         function minLow(arr) {
             return arr.reduce(function (min, res) {
                 return Math.min(min, res[2]);
             }, Infinity);
         }
+        /**
+         * @private
+         */
         function highlowLevel(arr) {
             return {
                 high: maxHigh(arr),
                 low: minLow(arr)
             };
         }
+        /**
+         * @private
+         */
         function getClosestPointRange(axis) {
             var closestDataRange,
                 loopLength,
@@ -4254,8 +4439,11 @@
             });
             return closestDataRange;
         }
-        // Check two lines intersection (line a1-a2 and b1-b2)
-        // Source: https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
+        /**
+         * Check two lines intersection (line a1-a2 and b1-b2)
+         * Source: https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
+         * @private
+         */
         function checkLineIntersection(a1, a2, b1, b2) {
             if (a1 && a2 && b1 && b2) {
                 var saX = a2.plotX - a1.plotX, // Auxiliary section a2-a1 X
@@ -4265,10 +4453,8 @@
                     sabX = a1.plotX - b1.plotX, // Auxiliary section a1-b1 X
                     sabY = a1.plotY - b1.plotY, // Auxiliary section a1-b1 Y
                     // First degree Bézier parameters
-                    u = void 0,
-                    t = void 0;
-                u = (-saY * sabX + saX * sabY) / (-sbX * saY + saX * sbY);
-                t = (sbX * sabY - sbY * sabX) / (-sbX * saY + saX * sbY);
+                    u = (-saY * sabX + saX * sabY) / (-sbX * saY + saX * sbY),
+                    t = (sbX * sabY - sbY * sabX) / (-sbX * saY + saX * sbY);
                 if (u >= 0 && u <= 1 && t >= 0 && t <= 1) {
                     return {
                         plotX: a1.plotX + t * saX,
@@ -4276,10 +4462,12 @@
                     };
                 }
             }
-            return false;
         }
-        // Parameter opt (indicator options object) include indicator, points,
-        // nextPoints, color, options, gappedExtend and graph properties
+        /**
+         * Parameter opt (indicator options object) include indicator, points,
+         * nextPoints, color, options, gappedExtend and graph properties
+         * @private
+         */
         function drawSenkouSpan(opt) {
             var indicator = opt.indicator;
             indicator.points = opt.points;
@@ -4290,21 +4478,28 @@
             indicator.fillGraph = true;
             SeriesRegistry.seriesTypes.sma.prototype.drawGraph.call(indicator);
         }
-        // Data integrity in Ichimoku is different than default 'averages':
-        // Point: [undefined, value, value, ...] is correct
-        // Point: [undefined, undefined, undefined, ...] is incorrect
-        H.approximations['ichimoku-averages'] = function () {
-            var ret = [],
-                isEmptyRange;
+        /**
+         * Data integrity in Ichimoku is different than default 'averages':
+         * Point: [undefined, value, value, ...] is correct
+         * Point: [undefined, undefined, undefined, ...] is incorrect
+         * @private
+         */
+        function ichimokuAverages() {
+            var ret = [];
+            var isEmptyRange;
             [].forEach.call(arguments, function (arr, i) {
-                ret.push(H.approximations.average(arr));
+                ret.push(ApproximationRegistry.average(arr));
                 isEmptyRange = !isEmptyRange && typeof ret[i] === 'undefined';
             });
             // Return undefined when first elem. is undefined and let
             // sum method handle null (#7377)
             return isEmptyRange ? void 0 : ret;
-        };
-        /* eslint-enable require-jsdoc */
+        }
+        /* *
+         *
+         *  Class
+         *
+         * */
         /**
          * The IKH series type.
          *
@@ -4314,37 +4509,34 @@
          *
          * @augments Highcharts.Series
          */
-        /* *
-        *
-        * Class
-        *
-        * */
         var IKHIndicator = /** @class */ (function (_super) {
                 __extends(IKHIndicator, _super);
             function IKHIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
-                *
-                *  Properties
-                *
-                * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                _this.graphCollection = void 0;
-                _this.graphsenkouSpan = void 0;
-                _this.ikhMap = void 0;
-                _this.nextPoints = void 0;
+                 *
+                 *  Properties
+                 *
+                 * */
+                _this.data = [];
+                _this.options = {};
+                _this.points = [];
+                _this.graphCollection = [];
                 return _this;
             }
             /* *
-            *
-            * Functions
-            *
-            * */
+             *
+             * Functions
+             *
+             * */
             IKHIndicator.prototype.init = function () {
-                SeriesRegistry.seriesTypes.sma.prototype.init.apply(this, arguments);
+                _super.prototype.init.apply(this, arguments);
                 // Set default color for lines:
                 this.options = merge({
                     tenkanLine: {
@@ -4393,8 +4585,10 @@
             IKHIndicator.prototype.translate = function () {
                 var indicator = this;
                 SeriesRegistry.seriesTypes.sma.prototype.translate.apply(indicator);
-                indicator.points.forEach(function (point) {
-                    indicator.pointArrayMap.forEach(function (key) {
+                for (var _i = 0, _a = indicator.points; _i < _a.length; _i++) {
+                    var point = _a[_i];
+                    for (var _b = 0, _c = indicator.pointArrayMap; _b < _c.length; _b++) {
+                        var key = _c[_b];
                         var pointValue = point[key];
                         if (isNumber(pointValue)) {
                             point['plot' + key] = indicator.yAxis.toPixels(pointValue, true);
@@ -4407,13 +4601,12 @@
                             ];
                             point.isNull = false;
                         }
-                    });
-                });
+                    }
+                }
             };
             IKHIndicator.prototype.drawGraph = function () {
                 var indicator = this,
                     mainLinePoints = indicator.points,
-                    pointsLength = mainLinePoints.length,
                     mainLineOptions = indicator.options,
                     mainLinePath = indicator.graph,
                     mainColor = indicator.color,
@@ -4455,7 +4648,8 @@
                     nextPoints = [
                         [],
                         [] // NextPoints negative color
-                    ],
+                    ];
+                var pointsLength = mainLinePoints.length,
                     lineIndex = 0,
                     position,
                     point,
@@ -4490,14 +4684,14 @@
                             intersect = checkLineIntersection(ikhMap.senkouSpanA[index - 1],
                             ikhMap.senkouSpanA[index],
                             ikhMap.senkouSpanB[index - 1],
-                            ikhMap.senkouSpanB[index]),
-                            intersectPointObj = {
-                                plotX: intersect.plotX,
-                                plotY: intersect.plotY,
-                                isNull: false,
-                                intersectPoint: true
-                            };
+                            ikhMap.senkouSpanB[index]);
                         if (intersect) {
+                            var intersectPointObj = {
+                                    plotX: intersect.plotX,
+                                    plotY: intersect.plotY,
+                                    isNull: false,
+                                    intersectPoint: true
+                                };
                             // Add intersect point to ichimoku points collection
                             // Create senkouSpan sections
                             ikhMap.senkouSpanA.splice(index, 0, intersectPointObj);
@@ -4523,15 +4717,16 @@
                     lineIndex++;
                 });
                 // Generate senkouSpan area:
-                // If graphColection exist then remove svg
+                // If graphCollection exist then remove svg
                 // element and indicator property
                 if (indicator.graphCollection) {
-                    indicator.graphCollection.forEach(function (graphName) {
+                    for (var _i = 0, _a = indicator.graphCollection; _i < _a.length; _i++) {
+                        var graphName = _a[_i];
                         indicator[graphName].destroy();
                         delete indicator[graphName];
-                    });
+                    }
                 }
-                // Clean grapCollection or initialize it
+                // Clean graphCollection or initialize it
                 indicator.graphCollection = [];
                 // When user set negativeColor property
                 if (negativeColor && ikhMap.senkouSpanA[0] && ikhMap.senkouSpanB[0]) {
@@ -4549,7 +4744,7 @@
                         if (Math.floor(sectionPoints.length / 2) >= 1) {
                             var x = Math.floor(sectionPoints.length / 2);
                             // When middle points has equal values
-                            // Compare all ponints plotY value sum
+                            // Compare all points plotY value sum
                             if (sectionPoints[x].plotY === sectionNextPoints[x].plotY) {
                                 pointsPlotYSum = 0;
                                 nextPointsPlotYSum = 0;
@@ -4619,8 +4814,8 @@
                 indicator.color = mainColor;
             };
             IKHIndicator.prototype.getGraphPath = function (points) {
-                var indicator = this,
-                    path = [],
+                var indicator = this;
+                var path = [],
                     spanA,
                     spanAarr = [];
                 points = points || this.points;
@@ -4655,9 +4850,8 @@
                     yValLen = (yVal && yVal.length) || 0,
                     closestPointRange = getClosestPointRange(xAxis),
                     IKH = [],
-                    xData = [],
-                    dateStart,
-                    date,
+                    xData = [];
+                var date,
                     slicedTSY,
                     slicedKSY,
                     slicedSSBY,
@@ -4677,7 +4871,7 @@
                     return;
                 }
                 // Add timestamps at the beginning
-                dateStart = xVal[0] - period * closestPointRange;
+                var dateStart = xVal[0] - period * closestPointRange;
                 for (i = 0; i < period; i++) {
                     xData.push(dateStart + i * closestPointRange);
                 }
@@ -4704,22 +4898,25 @@
                     if (typeof IKH[i] === 'undefined') {
                         IKH[i] = [];
                     }
-                    if (typeof IKH[i + period] === 'undefined') {
-                        IKH[i + period] = [];
+                    if (typeof IKH[i + period - 1] === 'undefined') {
+                        IKH[i + period - 1] = [];
                     }
-                    IKH[i + period][0] = TS;
-                    IKH[i + period][1] = KS;
-                    IKH[i + period][2] = void 0;
-                    IKH[i][2] = CS;
+                    IKH[i + period - 1][0] = TS;
+                    IKH[i + period - 1][1] = KS;
+                    IKH[i + period - 1][2] = void 0;
+                    if (typeof IKH[i + 1] === 'undefined') {
+                        IKH[i + 1] = [];
+                    }
+                    IKH[i + 1][2] = CS;
                     if (i <= period) {
-                        IKH[i + period][3] = void 0;
-                        IKH[i + period][4] = void 0;
+                        IKH[i + period - 1][3] = void 0;
+                        IKH[i + period - 1][4] = void 0;
                     }
-                    if (typeof IKH[i + 2 * period] === 'undefined') {
-                        IKH[i + 2 * period] = [];
+                    if (typeof IKH[i + 2 * period - 2] === 'undefined') {
+                        IKH[i + 2 * period - 2] = [];
                     }
-                    IKH[i + 2 * period][3] = SSA;
-                    IKH[i + 2 * period][4] = SSB;
+                    IKH[i + 2 * period - 2][3] = SSA;
+                    IKH[i + 2 * period - 2][4] = SSB;
                     xData.push(date);
                 }
                 // Add timestamps for further points
@@ -4919,7 +5116,23 @@
             pointValKey: 'tenkanSen',
             nameComponents: ['periodSenkouSpanB', 'period', 'periodTenkan']
         });
+        /* *
+         *
+         *  Registry
+         *
+         * */
+        ApproximationRegistry['ichimoku-averages'] = ichimokuAverages;
         SeriesRegistry.registerSeriesType('ikh', IKHIndicator);
+        /* *
+         *
+         *  Default Export
+         *
+         * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A `IKH` series. If the [type](#series.ikh.type) option is not
          * specified, it is inherited from [chart.type](#chart.type).
@@ -4964,6 +5177,11 @@
         var correctFloat = U.correctFloat,
             extend = U.extend,
             merge = U.merge;
+        /* *
+         *
+         *  Class
+         *
+         * */
         /**
          * The Keltner Channels series type.
          *
@@ -4976,13 +5194,28 @@
         var KeltnerChannelsIndicator = /** @class */ (function (_super) {
                 __extends(KeltnerChannelsIndicator, _super);
             function KeltnerChannelsIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
+                /* *
+                 *
+                 *  Properties
+                 *
+                 * */
                 _this.data = void 0;
                 _this.options = void 0;
                 _this.points = void 0;
                 return _this;
             }
+            /* *
+             *
+             *  Functions
+             *
+             * */
             KeltnerChannelsIndicator.prototype.init = function () {
                 SeriesRegistry.seriesTypes.sma.prototype.init.apply(this, arguments);
                 // Set default color for lines:
@@ -5154,6 +5387,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A Keltner Channels indicator. If the [type](#series.keltnerchannels.type)
          * option is not specified, it is inherited from[chart.type](#chart.type).
@@ -5198,13 +5436,18 @@
             };
         })();
         var _a = SeriesRegistry.seriesTypes,
-            SMAIndicator = _a.sma,
-            EMAIndicator = _a.ema;
+            EMAIndicator = _a.ema,
+            SMAIndicator = _a.sma;
         var correctFloat = U.correctFloat,
             error = U.error,
             extend = U.extend,
             isArray = U.isArray,
             merge = U.merge;
+        /* *
+         *
+         *  Class
+         *
+         * */
         /**
          * The Klinger oscillator series type.
          *
@@ -5459,6 +5702,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A Klinger oscillator. If the [type](#series.klinger.type)
          * option is not specified, it is inherited from [chart.type](#chart.type).
@@ -5500,17 +5748,17 @@
         })();
         var noop = H.noop;
         var _a = SeriesRegistry.seriesTypes,
-            SMAIndicator = _a.sma,
-            ColumnSeries = _a.column;
+            ColumnSeries = _a.column,
+            SMAIndicator = _a.sma;
         var extend = U.extend,
             correctFloat = U.correctFloat,
             defined = U.defined,
             merge = U.merge;
-        /**
+        /* *
          *
-         * Class
+         *  Class
          *
-         */
+         * */
         /**
          * The MACD series type.
          *
@@ -5523,13 +5771,18 @@
         var MACDIndicator = /** @class */ (function (_super) {
                 __extends(MACDIndicator, _super);
             function MACDIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
-                /**
+                /* *
                  *
-                 * Properties
+                 *  Properties
                  *
-                 */
+                 * */
                 _this.data = void 0;
                 _this.options = void 0;
                 _this.points = void 0;
@@ -5540,29 +5793,38 @@
                 _this.signalZones = void 0;
                 return _this;
             }
-            /**
+            /* *
              *
-             * Functions
+             *  Functions
              *
-             */
+             * */
             MACDIndicator.prototype.init = function () {
                 SeriesRegistry.seriesTypes.sma.prototype.init.apply(this, arguments);
+                var originalColor = this.color,
+                    originalColorIndex = this.userOptions._colorIndex;
                 // Check whether series is initialized. It may be not initialized,
                 // when any of required indicators is missing.
                 if (this.options) {
-                    // Set default color for a signal line and the histogram:
-                    this.options = merge({
-                        signalLine: {
-                            styles: {
-                                lineColor: this.color
-                            }
-                        },
-                        macdLine: {
-                            styles: {
-                                color: this.color
-                            }
+                    // If the default colour doesn't set, get the next available from
+                    // the array and apply it #15608.
+                    if (defined(this.userOptions._colorIndex)) {
+                        if (this.options.signalLine &&
+                            this.options.signalLine.styles &&
+                            !this.options.signalLine.styles.lineColor) {
+                            this.userOptions._colorIndex++;
+                            this.getCyclic('color', void 0, this.chart.options.colors);
+                            this.options.signalLine.styles.lineColor =
+                                this.color;
                         }
-                    }, this.options);
+                        if (this.options.macdLine &&
+                            this.options.macdLine.styles &&
+                            !this.options.macdLine.styles.lineColor) {
+                            this.userOptions._colorIndex++;
+                            this.getCyclic('color', void 0, this.chart.options.colors);
+                            this.options.macdLine.styles.lineColor =
+                                this.color;
+                        }
+                    }
                     // Zones have indexes automatically calculated, we need to
                     // translate them to support multiple lines within one indicator
                     this.macdZones = {
@@ -5575,6 +5837,9 @@
                     };
                     this.resetZones = true;
                 }
+                // Reset color and index #15608.
+                this.color = originalColor;
+                this.userOptions._colorIndex = originalColorIndex;
             };
             MACDIndicator.prototype.toYData = function (point) {
                 return [point.y, point.signal, point.MACD];
@@ -5885,6 +6150,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A `MACD` series. If the [type](#series.macd.type) option is not
          * specified, it is inherited from [chart.type](#chart.type).
@@ -5934,7 +6204,11 @@
             merge = U.merge,
             error = U.error,
             isArray = U.isArray;
-        /* eslint-disable require-jsdoc */
+        /* *
+         *
+         *  Functions
+         *
+         * */
         // Utils:
         function sumArray(array) {
             return array.reduce(function (prev, cur) {
@@ -5950,7 +6224,6 @@
         function calculateRawMoneyFlow(typicalPrice, volume) {
             return typicalPrice * volume;
         }
-        /* eslint-enable require-jsdoc */
         /* *
          *
          *  Class
@@ -5968,23 +6241,28 @@
         var MFIIndicator = /** @class */ (function (_super) {
                 __extends(MFIIndicator, _super);
             function MFIIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
-                *
-                *  Properties
-                *
-                * */
+                 *
+                 *  Properties
+                 *
+                 * */
                 _this.data = void 0;
                 _this.options = void 0;
                 _this.points = void 0;
                 return _this;
             }
             /* *
-            *
-            *  Functions
-            *
-            * */
+             *
+             *  Functions
+             *
+             * */
             MFIIndicator.prototype.getValues = function (series, params) {
                 var period = params.period,
                     xVal = series.xData,
@@ -6110,6 +6388,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A `MFI` series. If the [type](#series.mfi.type) option is not specified, it
          * is inherited from [chart.type](#chart.type).
@@ -6154,13 +6437,21 @@
         var extend = U.extend,
             isArray = U.isArray,
             merge = U.merge;
-        /* eslint-disable require-jsdoc */
+        /* *
+         *
+         *  Functions
+         *
+         * */
         function populateAverage(xVal, yVal, i, period, index) {
             var mmY = yVal[i - 1][index] - yVal[i - period - 1][index],
                 mmX = xVal[i - 1];
             return [mmX, mmY];
         }
-        /* eslint-enable require-jsdoc */
+        /* *
+         *
+         *  Class
+         *
+         * */
         /**
          * The Momentum series type.
          *
@@ -6173,13 +6464,28 @@
         var MomentumIndicator = /** @class */ (function (_super) {
                 __extends(MomentumIndicator, _super);
             function MomentumIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
+                /* *
+                 *
+                 *  Properties
+                 *
+                 * */
                 _this.data = void 0;
                 _this.options = void 0;
                 _this.points = void 0;
                 return _this;
             }
+            /* *
+             *
+             *  Functions
+             *
+             * */
             MomentumIndicator.prototype.getValues = function (series, params) {
                 var period = params.period,
                     index = params.index,
@@ -6248,6 +6554,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A `Momentum` series. If the [type](#series.momentum.type) option is not
          * specified, it is inherited from [chart.type](#chart.type).
@@ -6289,8 +6600,12 @@
             };
         })();
         var ATRIndicator = SeriesRegistry.seriesTypes.atr;
-        var merge = U.merge,
-            extend = U.extend;
+        var merge = U.merge;
+        /* *
+         *
+         *  Class
+         *
+         * */
         /**
          * The NATR series type.
          *
@@ -6303,6 +6618,11 @@
         var NATRIndicator = /** @class */ (function (_super) {
                 __extends(NATRIndicator, _super);
             function NATRIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /**
@@ -6368,6 +6688,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A `NATR` series. If the [type](#series.natr.type) option is not specified, it
          * is inherited from [chart.type](#chart.type).
@@ -6431,6 +6756,11 @@
         var OBVIndicator = /** @class */ (function (_super) {
                 __extends(OBVIndicator, _super);
             function OBVIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
@@ -6558,6 +6888,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A `OBV` series. If the [type](#series.obv.type) option is not
          * specified, it is inherited from [chart.type](#chart.type).
@@ -6598,8 +6933,12 @@
                 d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
             };
         })();
-        var SMAIndicator = SeriesRegistry.seriesTypes.sma;
-        /* eslint-disable valid-jsdoc */
+        var SMAPoint = SeriesRegistry.seriesTypes.sma.prototype.pointClass;
+        /* *
+         *
+         *  Functions
+         *
+         * */
         /**
          * @private
          */
@@ -6617,7 +6956,6 @@
                 point[prop] = null;
             }
         }
-        /* eslint-enable valid-jsdoc */
         /* *
          *
          *  Class
@@ -6626,11 +6964,11 @@
         var PivotPointsPoint = /** @class */ (function (_super) {
                 __extends(PivotPointsPoint, _super);
             function PivotPointsPoint() {
-                /**
+                /* *
                  *
-                 * Properties
+                 *  Properties
                  *
-                 */
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 _this.P = void 0;
@@ -6638,11 +6976,11 @@
                 _this.series = void 0;
                 return _this;
             }
-            /**
-              *
-              * Functions
-              *
-              */
+            /* *
+             *
+             *  Functions
+             *
+             * */
             PivotPointsPoint.prototype.destroyElements = function () {
                 destroyExtraLabels(this, 'destroyElements');
             };
@@ -6651,7 +6989,7 @@
                 destroyExtraLabels(this, 'destroyElements');
             };
             return PivotPointsPoint;
-        }(SMAIndicator.prototype.pointClass));
+        }(SMAPoint));
         /* *
          *
          *  Default Export
@@ -6706,13 +7044,18 @@
         var PivotPointsIndicator = /** @class */ (function (_super) {
                 __extends(PivotPointsIndicator, _super);
             function PivotPointsIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
-                /**
+                /* *
                  *
-                 * Properties
+                 *  Properties
                  *
-                 */
+                 * */
                 _this.data = void 0;
                 _this.options = void 0;
                 _this.points = void 0;
@@ -6720,11 +7063,11 @@
                 _this.plotEndPoint = void 0;
                 return _this;
             }
-            /**
+            /* *
              *
-             * Functions
+             *  Functions
              *
-             */
+             * */
             PivotPointsIndicator.prototype.toYData = function (point) {
                 return [point.P]; // The rest should not affect extremes
             };
@@ -6833,7 +7176,7 @@
                             }
                         }
                         SeriesRegistry.seriesTypes.sma.prototype.drawDataLabels
-                            .apply(indicator, arguments);
+                            .call(indicator);
                     });
                 }
             };
@@ -7001,6 +7344,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A pivot points indicator. If the [type](#series.pivotpoints.type) option is
          * not specified, it is inherited from [chart.type](#chart.type).
@@ -7063,13 +7411,18 @@
         var PPOIndicator = /** @class */ (function (_super) {
                 __extends(PPOIndicator, _super);
             function PPOIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
-                *
-                *   Properties
-                *
-                * */
+                 *
+                 *   Properties
+                 *
+                 * */
                 _this.data = void 0;
                 _this.options = void 0;
                 _this.points = void 0;
@@ -7174,6 +7527,11 @@
         /* *
          *
          *  Default Export
+         *
+         * */
+        /* *
+         *
+         *  API Options
          *
          * */
         /**
@@ -7295,20 +7653,20 @@
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
-                *
-                *  Properties
-                *
-                * */
+                 *
+                 *  Properties
+                 *
+                 * */
                 _this.data = void 0;
                 _this.options = void 0;
                 _this.points = void 0;
                 return _this;
             }
             /* *
-            *
-            *  Functions
-            *
-            * */
+             *
+             *  Functions
+             *
+             * */
             PCIndicator.prototype.getValues = function (series, params) {
                 var period = params.period,
                     xVal = series.xData,
@@ -7436,6 +7794,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A Price channel indicator. If the [type](#series.pc.type) option is not
          * specified, it is inherited from [chart.type](#chart.type).
@@ -7483,6 +7846,11 @@
         var extend = U.extend,
             isArray = U.isArray,
             merge = U.merge;
+        /* *
+         *
+         *  Class
+         *
+         * */
         /**
          * The Price Envelopes series type.
          *
@@ -7495,13 +7863,28 @@
         var PriceEnvelopesIndicator = /** @class */ (function (_super) {
                 __extends(PriceEnvelopesIndicator, _super);
             function PriceEnvelopesIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
+                /* *
+                 *
+                 *  Properties
+                 *
+                 * */
                 _this.data = void 0;
                 _this.options = void 0;
                 _this.points = void 0;
                 return _this;
             }
+            /* *
+             *
+             *  Functions
+             *
+             * */
             PriceEnvelopesIndicator.prototype.init = function () {
                 SeriesRegistry.seriesTypes.sma.prototype.init.apply(this, arguments);
                 // Set default color for lines:
@@ -7706,6 +8089,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A price envelopes indicator. If the [type](#series.priceenvelopes.type)
          * option is not specified, it is inherited from [chart.type](#chart.type).
@@ -7753,7 +8141,11 @@
         var SMAIndicator = SeriesRegistry.seriesTypes.sma;
         var merge = U.merge,
             extend = U.extend;
-        /* eslint-disable require-jsdoc */
+        /* *
+         *
+         *  Functions
+         *
+         * */
         // Utils:
         function toFixed(a, n) {
             return parseFloat(a.toFixed(n));
@@ -7824,10 +8216,9 @@
             }
             return pEP;
         }
-        /* eslint-enable require-jsdoc */
         /* *
          *
-         * Class
+         *  Class
          *
          * */
         /**
@@ -7842,6 +8233,11 @@
         var PSARIndicator = /** @class */ (function (_super) {
                 __extends(PSARIndicator, _super);
             function PSARIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
@@ -8014,6 +8410,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A `PSAR` series. If the [type](#series.psar.type) option is not specified, it
          * is inherited from [chart.type](#chart.type).
@@ -8060,7 +8461,11 @@
         var isArray = U.isArray,
             merge = U.merge,
             extend = U.extend;
-        /* eslint-disable require-jsdoc */
+        /* *
+         *
+         *  Functions
+         *
+         * */
         // Utils:
         function populateAverage(xVal, yVal, i, period, index) {
             /* Calculated as:
@@ -8087,7 +8492,6 @@
             }
             return [xVal[i], rocY];
         }
-        /* eslint-enable require-jsdoc */
         /* *
          *
          *  Class
@@ -8105,6 +8509,11 @@
         var ROCIndicator = /** @class */ (function (_super) {
                 __extends(ROCIndicator, _super);
             function ROCIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
@@ -8195,6 +8604,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A `ROC` series. If the [type](#series.wma.type) option is not
          * specified, it is inherited from [chart.type](#chart.type).
@@ -8249,12 +8663,20 @@
         var SMAIndicator = SeriesRegistry.seriesTypes.sma;
         var isNumber = U.isNumber,
             merge = U.merge;
-        /* eslint-disable require-jsdoc */
+        /* *
+         *
+         *  Functions
+         *
+         * */
         // Utils:
         function toFixed(a, n) {
             return parseFloat(a.toFixed(n));
         }
-        /* eslint-enable require-jsdoc */
+        /* *
+         *
+         *  Class
+         *
+         * */
         /**
          * The RSI series type.
          *
@@ -8267,6 +8689,11 @@
         var RSIIndicator = /** @class */ (function (_super) {
                 __extends(RSIIndicator, _super);
             function RSIIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
@@ -8398,6 +8825,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A `RSI` series. If the [type](#series.rsi.type) option is not
          * specified, it is inherited from [chart.type](#chart.type).
@@ -8466,11 +8898,21 @@
                  * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
+                /* *
+                 *
+                 *  Properties
+                 *
+                 * */
                 _this.data = void 0;
                 _this.options = void 0;
                 _this.points = void 0;
                 return _this;
             }
+            /* *
+             *
+             *  Functions
+             *
+             * */
             StochasticIndicator.prototype.init = function () {
                 SeriesRegistry.seriesTypes.sma.prototype.init.apply(this, arguments);
                 // Set default color for lines:
@@ -8626,6 +9068,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A Stochastic indicator. If the [type](#series.stochastic.type) option is not
          * specified, it is inherited from [chart.type](#chart.type).
@@ -8668,10 +9115,16 @@
                 d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
             };
         })();
-        var StochasticIndicator = SeriesRegistry.seriesTypes.stochastic;
-        var seriesTypes = SeriesRegistry.seriesTypes;
+        var _a = SeriesRegistry.seriesTypes,
+            smaProto = _a.sma.prototype,
+            StochasticIndicator = _a.stochastic;
         var extend = U.extend,
             merge = U.merge;
+        /* *
+         *
+         *  Class
+         *
+         * */
         /**
          * The Slow Stochastic series type.
          *
@@ -8684,16 +9137,31 @@
         var SlowStochasticIndicator = /** @class */ (function (_super) {
                 __extends(SlowStochasticIndicator, _super);
             function SlowStochasticIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
+                /* *
+                 *
+                 *  Properties
+                 *
+                 * */
                 _this.data = void 0;
                 _this.options = void 0;
                 _this.points = void 0;
                 return _this;
             }
+            /* *
+             *
+             *  Functions
+             *
+             * */
             SlowStochasticIndicator.prototype.getValues = function (series, params) {
                 var periods = params.periods,
-                    fastValues = seriesTypes.stochastic.prototype.getValues.call(this,
+                    fastValues = _super.prototype.getValues.call(this,
                     series,
                     params),
                     slowValues = {
@@ -8708,7 +9176,7 @@
                 slowValues.xData = fastValues.xData.slice(periods[1] - 1);
                 var fastYData = fastValues.yData.slice(periods[1] - 1);
                 // Get SMA(%D)
-                var smoothedValues = seriesTypes.sma.prototype.getValues.call(this, {
+                var smoothedValues = smaProto.getValues.call(this, {
                         xData: slowValues.xData,
                         yData: fastYData
                     }, {
@@ -8771,6 +9239,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A Slow Stochastic indicator. If the [type](#series.slowstochastic.type)
          * option is not specified, it is inherited from [chart.type](#chart.type).
@@ -8820,7 +9293,11 @@
             extend = U.extend,
             merge = U.merge,
             objectEach = U.objectEach;
-        /* eslint-disable require-jsdoc */
+        /* *
+         *
+         *  Functions
+         *
+         * */
         // Utils:
         function createPointObj(mainSeries, index, close) {
             return {
@@ -8829,7 +9306,6 @@
                 x: mainSeries.xData[index]
             };
         }
-        /* eslint-enable require-jsdoc */
         /* *
          *
          *  Class
@@ -8847,6 +9323,11 @@
         var SupertrendIndicator = /** @class */ (function (_super) {
                 __extends(SupertrendIndicator, _super);
             function SupertrendIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
@@ -9238,7 +9719,7 @@
                  *
                  * @type {Highcharts.ColorString|Highcharts.GradientColorObject|Highcharts.PatternObject}
                  */
-                risingTrendColor: "#06b535" /* positiveColor */,
+                risingTrendColor: "#06b535" /* Palette.positiveColor */,
                 /**
                  * Color of the Supertrend series line that is above the main series.
                  *
@@ -9247,7 +9728,7 @@
                  *
                  * @type {Highcharts.ColorString|Highcharts.GradientColorObject|Highcharts.PatternObject}
                  */
-                fallingTrendColor: "#f21313" /* negativeColor */,
+                fallingTrendColor: "#f21313" /* Palette.negativeColor */,
                 /**
                  * The styles for the Supertrend line that intersect main series.
                  *
@@ -9265,7 +9746,7 @@
                          *
                          * @type {Highcharts.ColorString}
                          */
-                        lineColor: "#333333" /* neutralColor80 */,
+                        lineColor: "#333333" /* Palette.neutralColor80 */,
                         /**
                          * The dash or dot style of the grid lines. For possible
                          * values, see
@@ -9295,6 +9776,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A `Supertrend indicator` series. If the [type](#series.supertrend.type)
          * option is not specified, it is inherited from [chart.type](#chart.type).
@@ -9314,7 +9800,7 @@
 
         return SupertrendIndicator;
     });
-    _registerModule(_modules, 'Stock/Indicators/VBP/VBPPoint.js', [_modules['Core/Series/Point.js'], _modules['Core/Series/SeriesRegistry.js']], function (Point, SeriesRegistry) {
+    _registerModule(_modules, 'Stock/Indicators/VBP/VBPPoint.js', [_modules['Core/Series/SeriesRegistry.js']], function (SeriesRegistry) {
         /* *
          *
          *  License: www.highcharts.com/license
@@ -9338,12 +9824,12 @@
                 d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
             };
         })();
+        var SMAPoint = SeriesRegistry.seriesTypes.sma.prototype.pointClass;
         /* *
          *
-         *  Imports
+         *  Class
          *
          * */
-        var SMAIndicator = SeriesRegistry.seriesTypes.sma;
         var VBPPoint = /** @class */ (function (_super) {
                 __extends(VBPPoint, _super);
             function VBPPoint() {
@@ -9355,10 +9841,10 @@
                 if (this.negativeGraphic) {
                     this.negativeGraphic = this.negativeGraphic.destroy();
                 }
-                return Point.prototype.destroy.apply(this, arguments);
+                return _super.prototype.destroy.apply(this, arguments);
             };
             return VBPPoint;
-        }(SMAIndicator.prototype.pointClass));
+        }(SMAPoint));
         /* *
          *
          *  Default Export
@@ -9397,7 +9883,9 @@
         })();
         var animObject = A.animObject;
         var noop = H.noop;
-        var SMAIndicator = SeriesRegistry.seriesTypes.sma;
+        var _a = SeriesRegistry.seriesTypes,
+            columnProto = _a.column.prototype,
+            SMAIndicator = _a.sma;
         var addEvent = U.addEvent,
             arrayMax = U.arrayMax,
             arrayMin = U.arrayMin,
@@ -9407,7 +9895,11 @@
             extend = U.extend,
             isArray = U.isArray,
             merge = U.merge;
-        /* eslint-disable require-jsdoc */
+        /* *
+         *
+         *  Functions
+         *
+         * */
         // Utils
         function arrayExtremesOHLC(data) {
             var dataLength = data.length,
@@ -9429,9 +9921,12 @@
                 max: max
             };
         }
-        /* eslint-enable require-jsdoc */
-        var abs = Math.abs,
-            columnPrototype = SeriesRegistry.seriesTypes.column.prototype;
+        var abs = Math.abs;
+        /* *
+         *
+         *  Class
+         *
+         * */
         /**
          * The Volume By Price (VBP) series type.
          *
@@ -9444,8 +9939,18 @@
         var VBPIndicator = /** @class */ (function (_super) {
                 __extends(VBPIndicator, _super);
             function VBPIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
+                /* *
+                 *
+                 *  Properties
+                 *
+                 * */
                 _this.data = void 0;
                 _this.negWidths = void 0;
                 _this.options = void 0;
@@ -9458,6 +9963,11 @@
                 _this.zoneLinesSVG = void 0;
                 return _this;
             }
+            /* *
+             *
+             *  Functions
+             *
+             * */
             VBPIndicator.prototype.init = function (chart) {
                 var indicator = this,
                     params,
@@ -9538,10 +10048,10 @@
                 var indicator = this;
                 if (indicator.options.volumeDivision.enabled) {
                     indicator.posNegVolume(true, true);
-                    columnPrototype.drawPoints.apply(indicator, arguments);
+                    columnProto.drawPoints.apply(indicator, arguments);
                     indicator.posNegVolume(false, false);
                 }
-                columnPrototype.drawPoints.apply(indicator, arguments);
+                columnProto.drawPoints.apply(indicator, arguments);
             };
             // Function responsible for dividing volume into positive and negative
             VBPIndicator.prototype.posNegVolume = function (initVol, pos) {
@@ -9605,7 +10115,7 @@
                     chartPlotTop,
                     barX,
                     barY;
-                columnPrototype.translate.apply(indicator);
+                columnProto.translate.apply(indicator);
                 indicatorPoints = indicator.points;
                 // Do translate operation when points exist
                 if (indicatorPoints.length) {
@@ -9974,13 +10484,18 @@
             pointClass: VBPPoint,
             markerAttribs: noop,
             drawGraph: noop,
-            getColumnMetrics: columnPrototype.getColumnMetrics,
-            crispCol: columnPrototype.crispCol
+            getColumnMetrics: columnProto.getColumnMetrics,
+            crispCol: columnProto.crispCol
         });
         SeriesRegistry.registerSeriesType('vbp', VBPIndicator);
         /* *
          *
          *  Default Export
+         *
+         * */
+        /* *
+         *
+         *  API Options
          *
          * */
         /**
@@ -10033,7 +10548,7 @@
             merge = U.merge;
         /* *
          *
-         * Class
+         *  Class
          *
          * */
         /**
@@ -10048,6 +10563,11 @@
         var VWAPIndicator = /** @class */ (function (_super) {
                 __extends(VWAPIndicator, _super);
             function VWAPIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
@@ -10200,6 +10720,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A `Volume Weighted Average Price (VWAP)` series. If the
          * [type](#series.vwap.type) option is not specified, it is inherited from
@@ -10245,6 +10770,11 @@
         var extend = U.extend,
             isArray = U.isArray,
             merge = U.merge;
+        /* *
+         *
+         *  Class
+         *
+         * */
         /**
          * The Williams %R series type.
          *
@@ -10351,6 +10881,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A `Williams %R Oscillator` series. If the [type](#series.williamsr.type)
          * option is not specified, it is inherited from [chart.type](#chart.type).
@@ -10398,7 +10933,11 @@
         var SMAIndicator = SeriesRegistry.seriesTypes.sma;
         var isArray = U.isArray,
             merge = U.merge;
-        /* eslint-disable valid-jsdoc */
+        /* *
+         *
+         *  Functions
+         *
+         * */
         // Utils:
         /**
          * @private
@@ -10432,7 +10971,11 @@
             points.shift(); // remove point until range < period
             return [wmaX, wmaY];
         }
-        /* eslint-enable valid-jsdoc */
+        /* *
+         *
+         *  Class
+         *
+         * */
         /**
          * The SMA series type.
          *
@@ -10445,13 +10988,28 @@
         var WMAIndicator = /** @class */ (function (_super) {
                 __extends(WMAIndicator, _super);
             function WMAIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
+                /* *
+                 *
+                 *  Properties
+                 *
+                 * */
                 _this.data = void 0;
                 _this.options = void 0;
                 _this.points = void 0;
                 return _this;
             }
+            /* *
+             *
+             *  Functions
+             *
+             * */
             WMAIndicator.prototype.getValues = function (series, params) {
                 var period = params.period,
                     xVal = series.xData,
@@ -10528,6 +11086,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A `WMA` series. If the [type](#series.wma.type) option is not specified, it
          * is inherited from [chart.type](#chart.type).
@@ -10575,7 +11138,7 @@
             extend = U.extend;
         /* *
          *
-         * Class
+         *  Class
          *
          * */
         /**
@@ -10590,6 +11153,11 @@
         var ZigzagIndicator = /** @class */ (function (_super) {
                 __extends(ZigzagIndicator, _super);
             function ZigzagIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
@@ -10779,6 +11347,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A `Zig Zag` series. If the [type](#series.zigzag.type) option is not
          * specified, it is inherited from [chart.type](#chart.type).
@@ -10795,7 +11368,7 @@
 
         return ZigzagIndicator;
     });
-    _registerModule(_modules, 'Stock/Indicators/LinearRegression/LinearRegression.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
+    _registerModule(_modules, 'Stock/Indicators/LinearRegression/LinearRegressionIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /**
          *
          *  (c) 2010-2021 Kamil Kulig
@@ -10827,7 +11400,7 @@
             merge = U.merge;
         /* *
          *
-         * Class
+         *  Class
          *
          * */
         /**
@@ -10842,6 +11415,11 @@
         var LinearRegressionIndicator = /** @class */ (function (_super) {
                 __extends(LinearRegressionIndicator, _super);
             function LinearRegressionIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
@@ -11082,6 +11660,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A linear regression series. If the
          * [type](#series.linearregression.type) option is not specified, it is
@@ -11099,7 +11682,7 @@
 
         return LinearRegressionIndicator;
     });
-    _registerModule(_modules, 'Stock/Indicators/LinearRegressionSlopes/LinearRegressionSlopes.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
+    _registerModule(_modules, 'Stock/Indicators/LinearRegressionSlopes/LinearRegressionSlopesIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /**
          *
          *  (c) 2010-2021 Kamil Kulig
@@ -11130,7 +11713,7 @@
             merge = U.merge;
         /* *
          *
-         * Class
+         *  Class
          *
          * */
         /**
@@ -11145,6 +11728,11 @@
         var LinearRegressionSlopesIndicator = /** @class */ (function (_super) {
                 __extends(LinearRegressionSlopesIndicator, _super);
             function LinearRegressionSlopesIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
@@ -11191,6 +11779,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A linear regression intercept series. If the
          * [type](#series.linearregressionslope.type) option is not specified, it is
@@ -11208,7 +11801,7 @@
 
         return LinearRegressionSlopesIndicator;
     });
-    _registerModule(_modules, 'Stock/Indicators/LinearRegressionIntercept/LinearRegressionIntercept.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
+    _registerModule(_modules, 'Stock/Indicators/LinearRegressionIntercept/LinearRegressionInterceptIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /**
          *
          *  (c) 2010-2021 Kamil Kulig
@@ -11239,7 +11832,7 @@
             merge = U.merge;
         /* *
          *
-         * Class
+         *  Class
          *
          * */
         /**
@@ -11254,6 +11847,11 @@
         var LinearRegressionInterceptIndicator = /** @class */ (function (_super) {
                 __extends(LinearRegressionInterceptIndicator, _super);
             function LinearRegressionInterceptIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
@@ -11300,6 +11898,11 @@
          *  Default Export
          *
          * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
         /**
          * A linear regression intercept series. If the
          * [type](#series.linearregressionintercept.type) option is not specified, it is
@@ -11317,7 +11920,7 @@
 
         return LinearRegressionInterceptIndicator;
     });
-    _registerModule(_modules, 'Stock/Indicators/LinearRegressionAngle/LinearRegressionAngle.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
+    _registerModule(_modules, 'Stock/Indicators/LinearRegressionAngle/LinearRegressionAngleIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /**
          *
          *  (c) 2010-2021 Kamil Kulig
@@ -11348,7 +11951,7 @@
             merge = U.merge;
         /* *
          *
-         * Class
+         *  Class
          *
          * */
         /**
@@ -11363,6 +11966,11 @@
         var LinearRegressionAngleIndicator = /** @class */ (function (_super) {
                 __extends(LinearRegressionAngleIndicator, _super);
             function LinearRegressionAngleIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
@@ -11381,12 +11989,12 @@
              *
              * */
             /**
-            * Convert a slope of a line to angle (in degrees) between
-            * the line and x axis
-            * @private
-            * @param {number} slope of the straight line function
-            * @return {number} angle in degrees
-            */
+             * Convert a slope of a line to angle (in degrees) between
+             * the line and x axis
+             * @private
+             * @param {number} slope of the straight line function
+             * @return {number} angle in degrees
+             */
             LinearRegressionAngleIndicator.prototype.slopeToAngle = function (slope) {
                 return Math.atan(slope) * (180 / Math.PI); // rad to deg
             };
@@ -11469,7 +12077,11 @@
         var correctFloat = U.correctFloat,
             extend = U.extend,
             merge = U.merge;
-        /* eslint-disable valid-jsdoc */
+        /* *
+         *
+         *  Functions
+         *
+         * */
         /**
          * @private
          */
@@ -11489,7 +12101,11 @@
         function getPointLB(low, base) {
             return low * (correctFloat(1 - 2 * base));
         }
-        /* eslint-enable valid-jsdoc */
+        /* *
+         *
+         *  Class
+         *
+         * */
         /**
          * The ABands series type
          *
@@ -11753,13 +12369,18 @@
         var TrendLineIndicator = /** @class */ (function (_super) {
                 __extends(TrendLineIndicator, _super);
             function TrendLineIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
                 /* *
-                *
-                *   Properties
-                *
-                * */
+                 *
+                 *   Properties
+                 *
+                 * */
                 _this.data = void 0;
                 _this.options = void 0;
                 _this.points = void 0;
@@ -11859,6 +12480,11 @@
         /* *
          *
          *  Default Export
+         *
+         * */
+        /* *
+         *
+         *  API Options
          *
          * */
         /**
@@ -12078,8 +12704,6 @@
     });
     _registerModule(_modules, 'masters/indicators/indicators-all.src.js', [], function () {
 
-        // eslint-disable-next-line max-len
-        // eslint-disable-next-line max-len
 
     });
 }));

@@ -1,5 +1,5 @@
 /**
- * @license Highcharts JS v10.0.0 (2022-03-07)
+ * @license Highcharts JS v10.3.3 (2023-01-20)
  *
  * Client side exporting module
  *
@@ -68,11 +68,11 @@
                     .match(/data:([^;]*)(;base64)?,([0-9A-Za-z+/]+)/);
             if (parts &&
                 parts.length > 3 &&
-                win.atob &&
+                (win.atob) &&
                 win.ArrayBuffer &&
                 win.Uint8Array &&
                 win.Blob &&
-                domurl.createObjectURL) {
+                (domurl.createObjectURL)) {
                 // Try to convert data URL to Blob
                 var binStr = win.atob(parts[3]),
                     buf = new win.ArrayBuffer(binStr.length),
@@ -107,7 +107,7 @@
                 nav.msSaveOrOpenBlob(dataURL, filename);
                 return;
             }
-            dataURL = "" + dataURL;
+            dataURL = "".concat(dataURL);
             // Some browsers have limitations for data URL lengths. Try to convert to
             // Blob or fall back. Edge always needs that blob.
             var isOldEdgeBrowser = /Edge\/\d+/.test(nav.userAgent);
@@ -166,7 +166,7 @@
          *
          * */
         var OfflineExportingDefaults = {
-                libURL: 'https://code.highcharts.com/10.0.0/lib/',
+                libURL: 'https://code.highcharts.com/10.3.3/lib/',
                 // When offline-exporting is loaded, redefine the menu item definitions
                 // related to download.
                 menuItemDefinitions: {
@@ -210,7 +210,7 @@
 
         return OfflineExportingDefaults;
     });
-    _registerModule(_modules, 'Extensions/OfflineExporting/OfflineExporting.js', [_modules['Core/Renderer/HTML/AST.js'], _modules['Core/Chart/Chart.js'], _modules['Core/DefaultOptions.js'], _modules['Extensions/DownloadURL.js'], _modules['Extensions/Exporting/Exporting.js'], _modules['Core/Globals.js'], _modules['Core/HttpUtilities.js'], _modules['Extensions/OfflineExporting/OfflineExportingDefaults.js'], _modules['Core/Utilities.js']], function (AST, Chart, D, DownloadURL, Exporting, H, HU, OfflineExportingDefaults, U) {
+    _registerModule(_modules, 'Extensions/OfflineExporting/OfflineExporting.js', [_modules['Core/Renderer/HTML/AST.js'], _modules['Core/Chart/Chart.js'], _modules['Core/Defaults.js'], _modules['Extensions/DownloadURL.js'], _modules['Extensions/Exporting/Exporting.js'], _modules['Core/Globals.js'], _modules['Core/HttpUtilities.js'], _modules['Extensions/OfflineExporting/OfflineExportingDefaults.js'], _modules['Core/Utilities.js']], function (AST, Chart, D, DownloadURL, Exporting, H, HU, OfflineExportingDefaults, U) {
         /* *
          *
          *  Client side exporting module
@@ -637,11 +637,11 @@
                             href.indexOf('data:') !== 0);
                     });
                 };
-                // If we are on IE and in styled mode, add a whitelist to the renderer
+                // If we are on IE and in styled mode, add an allowlist to the renderer
                 // for inline styles that we want to pass through. There are so many
-                // styles by default in IE that we don't want to blacklist them all.
-                if (H.isMS && chart.styledMode && !Exporting.inlineWhitelist.length) {
-                    Exporting.inlineWhitelist.push(/^blockSize/, /^border/, /^caretColor/, /^color/, /^columnRule/, /^columnRuleColor/, /^cssFloat/, /^cursor/, /^fill$/, /^fillOpacity/, /^font/, /^inlineSize/, /^length/, /^lineHeight/, /^opacity/, /^outline/, /^parentRule/, /^rx$/, /^ry$/, /^stroke/, /^textAlign/, /^textAnchor/, /^textDecoration/, /^transform/, /^vectorEffect/, /^visibility/, /^x$/, /^y$/);
+                // styles by default in IE that we don't want to denylist them all.
+                if (H.isMS && chart.styledMode && !Exporting.inlineAllowlist.length) {
+                    Exporting.inlineAllowlist.push(/^blockSize/, /^border/, /^caretColor/, /^color/, /^columnRule/, /^columnRuleColor/, /^cssFloat/, /^cursor/, /^fill$/, /^fillOpacity/, /^font/, /^inlineSize/, /^length/, /^lineHeight/, /^opacity/, /^outline/, /^parentRule/, /^rx$/, /^ry$/, /^stroke/, /^textAlign/, /^textAnchor/, /^textDecoration/, /^transform/, /^vectorEffect/, /^visibility/, /^x$/, /^y$/);
                 }
                 // Always fall back on:
                 // - MS browsers: Embedded images JPEG/PNG, or any PDF

@@ -1,5 +1,5 @@
 /**
- * @license Highstock JS v10.0.0 (2022-03-07)
+ * @license Highstock JS v10.3.3 (2023-01-20)
  *
  * Indicator series type for Highcharts Stock
  *
@@ -65,6 +65,11 @@
         var correctFloat = U.correctFloat,
             isArray = U.isArray,
             merge = U.merge;
+        /* *
+         *
+         *  Class
+         *
+         * */
         /**
          * The DEMA series Type
          *
@@ -77,29 +82,43 @@
         var DEMAIndicator = /** @class */ (function (_super) {
                 __extends(DEMAIndicator, _super);
             function DEMAIndicator() {
+                /* *
+                 *
+                 *  Static Properties
+                 *
+                 * */
                 var _this = _super !== null && _super.apply(this,
                     arguments) || this;
+                /* *
+                 *
+                 *  Properties
+                 *
+                 * */
                 _this.EMApercent = void 0;
                 _this.data = void 0;
                 _this.options = void 0;
                 _this.points = void 0;
                 return _this;
             }
+            /* *
+             *
+             *  Functions
+             *
+             * */
             DEMAIndicator.prototype.getEMA = function (yVal, prevEMA, SMA, index, i, xVal) {
-                return EMAIndicator.prototype.calculateEma(xVal || [], yVal, typeof i === 'undefined' ? 1 : i, this.EMApercent, prevEMA, typeof index === 'undefined' ? -1 : index, SMA);
+                return _super.prototype.calculateEma.call(this, xVal || [], yVal, typeof i === 'undefined' ? 1 : i, this.EMApercent, prevEMA, typeof index === 'undefined' ? -1 : index, SMA);
             };
             DEMAIndicator.prototype.getValues = function (series, params) {
                 var period = params.period,
+                    EMAvalues = [],
                     doubledPeriod = 2 * period,
                     xVal = series.xData,
                     yVal = series.yData,
                     yValLen = yVal ? yVal.length : 0,
-                    index = -1,
-                    accumulatePeriodPoints = 0,
-                    SMA = 0,
                     DEMA = [],
                     xDataDema = [],
-                    yDataDema = [],
+                    yDataDema = [];
+                var accumulatePeriodPoints = 0,
                     EMA = 0, 
                     // EMA(EMA)
                     EMAlevel2, 
@@ -107,9 +126,10 @@
                     prevEMA,
                     prevEMAlevel2, 
                     // EMA values array
-                    EMAvalues = [],
                     i,
-                    DEMAPoint;
+                    index = -1,
+                    DEMAPoint,
+                    SMA = 0;
                 this.EMApercent = (2 / (period + 1));
                 // Check period, if bigger than EMA points length, skip
                 if (yValLen < 2 * period - 1) {
@@ -121,7 +141,7 @@
                 }
                 // Accumulate first N-points
                 accumulatePeriodPoints =
-                    EMAIndicator.prototype.accumulatePeriodPoints(period, index, yVal);
+                    _super.prototype.accumulatePeriodPoints.call(this, period, index, yVal);
                 // first point
                 SMA = accumulatePeriodPoints / period;
                 accumulatePeriodPoints = 0;
@@ -186,6 +206,11 @@
         /* *
          *
          *  Default Export
+         *
+         * */
+        /* *
+         *
+         *  API Options
          *
          * */
         /**
