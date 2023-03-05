@@ -1,4 +1,4 @@
-var ChhLanguage = {
+window.ChhLanguage = {
   'default': {
     'interface': {
       'search': 'Suche',

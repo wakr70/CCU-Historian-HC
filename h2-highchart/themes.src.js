@@ -1,4 +1,4 @@
-var DP_Themes = {
+window.DP_Themes = {
 
 // ********
   'standard-light': {

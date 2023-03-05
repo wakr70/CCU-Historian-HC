@@ -1,63 +1,61 @@
 /* *********************************
- * HighChart javascripts by wak 2019-2022
+ * HighChart javascripts by wak 2019-2023
  ************************************/
 
-// Version
-var H2_version = 'v6.6';
 
 /* define SLINT globals do avoid issues */
-/* global ChhLanguage:false, DP_Themes:false */
+/* global ChhLanguage:false, DP_Themes:false, window.H2buffer:false */
 /* eslint-env browser */
 
+window.H2buffer = {
+         version: 'v6.7',  // Version
 // Setup H2 Database Services, default set to same server as this webpage and port 8082
-var H2_server = location.hostname;
-var H2_port = (location.port === "") ? "80" : location.port;
-var H2_refreshSec = 60;
-// Refresh Time is enabled
+         server: location.hostname,
+         port: (location.port === "") ? "80" : location.port,
+         ApiKey: "",
+         refreshSec: 60,   // Refresh Time is enabled
+         AutoRefresh: 0,
+         AutoRefreshCount: 0,
+         chart: undefined,
+         FontSizes: [8,10,12,14,16,18,20,24,30,40,50,60,70,80,100],
+         DashType: ['Solid', 'Dash', 'DashDot', 'Dot', 'LongDash', 'LongDashDot', 'LongDashDotDot',
+                    'ShortDash', 'ShortDashDot', 'ShortDashDotDot', 'ShortDot'],
+         CrossHair: 1,
+         Legend: 1,
+         ToolTip: 1,
+         HighLight: 1,
+         Navigator: 0,
+         Labels: 0,
+         Grid: 2,
+         DayLight: 1,
+         filter_feld: '',
+         Scroll_Legend: true,
+         ShowFilter: 1,
+         Limit: false,
+         Theme: 'standard',
+         Theme_Setting: undefined,
+         FontSize: 14,
+         Title: '',
+         Subtitle: '',
+         Loading: 0,
+         Button_Jump: false,
+         PopupID: undefined,
+         PopupAxisPos: undefined,
+         Queue: [],
+         ColorNext: 0,
+         Drag_Pos: 0,
+         Zoom: -1,
+         Settings_old: {},
+         Settings: {},
+         DataPointFilter: 0,
+         ZR_Ende: new Date(Date.now()),
+         ZR_Start: new Date(Date.now() - (new Date(86400000 * 1))),
+         DataPoints: [],
+         DataAttr: [],
 
-// declare global Variables
-var cntrlIsPressed = false;
-var chart;
-var filter_feld = '';
-var DP_point = [];
-var DP_settings = {};
-var DP_settings_old = {};
-var DP_ApiKey = "";
-var DP_DataPointFilter = 0;
-var Zeitraum_Ende = new Date(Date.now());
-var Zeitraum_Start = new Date(Zeitraum_Ende - (new Date(86400000 * 1)));
-var Scroll_Legend = true;
-var DP_Legend = 1;
-var DP_CrossHair = 1;
-var DP_ToolTip = 1;
-var DP_HighLight = 1;
-var DP_Navigator = 0;
-var DP_Labels = 0;
-var DP_Grid = 2;
-var DP_DayLight = 1;
-var DP_Limit = false;
-var DP_AutoRefresh = 0;
-var DP_ShowFilter = 1;
-var AutoRefreshCount = 0;
-var DP_attribute = [];
-var DP_PopupID;
-var DP_PopupAxisObj;
-var DP_PopupAxisPos;
-var DP_Theme = 'standard';
-var DP_FontSize = 14;
-var DP_FontSizes = [8,10,12,14,16,18,20,24,30,40,50,60,70,80,100];
-var DP_Theme_Setting;
-var DP_DashType = ['Solid', 'Dash', 'DashDot', 'Dot', 'LongDash', 'LongDashDot', 'LongDashDotDot', 'ShortDash', 'ShortDashDot', 'ShortDashDotDot', 'ShortDot'];
-var DP_Queue = [];
-var DP_ColorNext = 0;
-var DP_Title = '';
-var DP_Subtitle = '';
-var DP_Loading = 0;
-var DP_Button_Jump = false;
-var DP_Drag_Pos = 0;
-var DP_Zoom = -1;
+};
 
-var DP_yAxis = [{
+window.H2buffer.yAxis = [{
   position: false,
   limit: 0,
   min: 0,
@@ -238,11 +236,10 @@ var DP_yAxis = [{
   color: 1,
   type: 0
 }];
-var DP_yAxis_default = JSON.parse(JSON.stringify(DP_yAxis));
 
 function createChart() {
   // Check DARK Mode
-  let l_theme = DP_Theme;
+  let l_theme = window.H2buffer.Theme;
   if (l_theme === 'standard') {
      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
        l_theme = 'standard-dark';
@@ -251,14 +248,14 @@ function createChart() {
      }
   }
   if (l_theme !== 'standard-light' && window.DP_Themes[l_theme] && window.DP_Themes['standard-light']) {
-    DP_Theme_Setting = window.Highcharts.merge(window.DP_Themes['standard-light'], window.DP_Themes[l_theme]);
+    window.H2buffer.Theme_Setting = window.Highcharts.merge(window.DP_Themes['standard-light'], window.DP_Themes[l_theme]);
   } else {
-    DP_Theme_Setting = window.DP_Themes['standard-light'];
+    window.H2buffer.Theme_Setting = window.DP_Themes['standard-light'];
   }
 
   chartSetFontSize();
 
-  window.Highcharts.setOptions(DP_Theme_Setting);
+  window.Highcharts.setOptions(window.H2buffer.Theme_Setting);
 
   chartSetOptions();
 
@@ -272,7 +269,7 @@ function defaultAttrib(DP, colorNr, idx) {
 
   // add default from fix settings
 
-  var attr = {
+  let attr = {
     id: idx,
     aggr: 'A0',
     atime: 'T1',
@@ -297,10 +294,10 @@ function defaultAttrib(DP, colorNr, idx) {
     },
   };
   if (colorNr === -1) {
-    attr.color = 'F' + (DP_ColorNext % chart.options.colors.length);
-    DP_ColorNext++;
+    attr.color = 'F' + (window.H2buffer.ColorNext % window.H2buffer.chart.options.colors.length);
+    window.H2buffer.ColorNext++;
   } else {
-    attr.color = 'F' + (colorNr % chart.options.colors.length);
+    attr.color = 'F' + (colorNr % window.H2buffer.chart.options.colors.length);
   }
 
   if (DP !== -1) {
@@ -379,7 +376,7 @@ function defaultAttrib(DP, colorNr, idx) {
     // add default from database
     if (DP.attributes.custom && DP.attributes.custom.HighChart) {
 
-      var text2 = DP.attributes.custom.HighChart.split('|');
+      let text2 = DP.attributes.custom.HighChart.split('|');
       if (text2.length > 0) {
         for (let l_text of text2) {
           if (l_text.substr(0, 1) === 'A') {
@@ -435,50 +432,50 @@ function defaultAttrib(DP, colorNr, idx) {
 */
 function addSerie(DP, DP_type) {
 
-  var unit;
-  var shortname;
-  var yAxis;
-  var dp_vis;
-  var type;
-  var step;
-  var color;
-  var lineType;
-  var aggrType;
-  var aggrTime;
-  var stacking;
-  var dashtype;
-  var linewidth;
-  var marker;
+  let unit;
+  let shortname;
+  let yAxis;
+  let dp_vis;
+  let type;
+  let step;
+  let color;
+  let lineType;
+  let aggrType;
+  let aggrTime;
+  let stacking;
+  let dashtype;
+  let linewidth;
+  let marker;
 
-  var grouping = undefined;
-  var dptype = DP.id.identifier;
-  var valueDecimals = 1;
+  let grouping = undefined;
+  let dptype = DP.id.identifier;
+  let valueDecimals = 1;
 
-  var attrIDX = (DP_type === '') ? DP.idx.toString() : (DP_type + '_' + DP.idx.toString());
+  let attrIDX = (DP_type === '') ? DP.idx.toString() : (DP_type + '_' + DP.idx.toString());
 
-  var attr = DP_attribute.findIndex(obj => obj.id === attrIDX);
+  let attr = window.H2buffer.DataAttr.findIndex(obj => obj.id === attrIDX);
 
   if (attr === -1) {
-    DP_attribute.push(defaultAttrib(DP, -1, attrIDX));
-    attr = DP_attribute.findIndex(obj => obj.id === attrIDX);
+    window.H2buffer.DataAttr.push(defaultAttrib(DP, -1, attrIDX));
+    attr = window.H2buffer.DataAttr.findIndex(obj => obj.id === attrIDX);
   }
 
-  yAxis = parseInt(DP_attribute[attr].yaxis.substr(1, 2));
-  color = chart.options.colors[parseInt(DP_attribute[attr].color.substr(1, 2))];
-  aggrType = parseInt(DP_attribute[attr].aggr.substr(1, 2));
-  aggrTime = parseInt(DP_attribute[attr].atime.substr(1, 2));
-  lineType = parseInt(DP_attribute[attr].line.substr(1, 2));
-  dp_vis = DP_attribute[attr].visible;
-  unit = DP_attribute[attr].unit;
-  shortname = DP_attribute[attr].shortname;
+  yAxis = parseInt(window.H2buffer.DataAttr[attr].yaxis.substr(1, 2));
+  color = window.H2buffer.chart.options.colors[parseInt(window.H2buffer.DataAttr[attr].color.substr(1, 2))];
+  aggrType = parseInt(window.H2buffer.DataAttr[attr].aggr.substr(1, 2));
+  aggrTime = parseInt(window.H2buffer.DataAttr[attr].atime.substr(1, 2));
+  lineType = parseInt(window.H2buffer.DataAttr[attr].line.substr(1, 2));
+  dp_vis = window.H2buffer.DataAttr[attr].visible;
+  unit = window.H2buffer.DataAttr[attr].unit;
+  shortname = window.H2buffer.DataAttr[attr].shortname;
 
-  stacking = DP_attribute[attr].stack;
+  stacking = window.H2buffer.DataAttr[attr].stack;
 
-  dashtype = DP_DashType[parseInt(DP_attribute[attr].dash.substr(1, 2))];
+  dashtype = window.H2buffer.DashType[parseInt(window.H2buffer.DataAttr[attr].dash.substr(1, 2))];
 
-  linewidth = parseInt(DP_attribute[attr].width.substr(1, 2));
+  linewidth = parseInt(window.H2buffer.DataAttr[attr].width.substr(1, 2));
 
-  marker = defineMarker(parseInt(DP_attribute[attr].mark.substr(1, 2)), color, linewidth);
+  marker = defineMarker(parseInt(window.H2buffer.DataAttr[attr].mark.substr(1, 2)), color, linewidth);
 
   switch (dptype) {
     case "MEAN5MINUTES":
@@ -538,10 +535,10 @@ function addSerie(DP, DP_type) {
     step = "";
   }
 
-  var groupUnits = [];
-  var groupforced = false;
-  var groupsmoothed = false;
-  var groupwidth = 2;
+  let groupUnits = [];
+  let groupforced = false;
+  let groupsmoothed = false;
+  let groupwidth = 2;
 
   // fine grouping Highchart standard
   if (aggrTime === 0) {
@@ -624,9 +621,9 @@ function addSerie(DP, DP_type) {
     };
   }
 
-  var pointFormater = null;
-  var pointFormat = null;
-  var serienName = '';
+  let pointFormater = null;
+  let pointFormat = null;
+  let serienName = '';
 
   pointFormater = function() { return toolTipInfo(this); };
 
@@ -642,7 +639,7 @@ function addSerie(DP, DP_type) {
     serienName = DP.attributes.displayName + '.' + DP.id.identifier;
   }
 
-  var def_serie = {
+  let def_serie = {
     id: attrIDX,
     name: serienName,
     type: type,
@@ -670,17 +667,17 @@ function addSerie(DP, DP_type) {
   };
 
   // Create Chart Serie !!!
-  chart.addSeries(def_serie, false, false);
+  window.H2buffer.chart.addSeries(def_serie, false, false);
 
 }
 
 function defineDataLabels() {
 
-  var objLabels;
+  let objLabels;
 
-  if (DP_Labels === 0) {
+  if (window.H2buffer.Labels === 0) {
     objLabels = { enabled: false };
-  } else if (DP_Labels === 1) {
+  } else if (window.H2buffer.Labels === 1) {
     objLabels = {
       enabled: true,
       allowOverlap: true,
@@ -704,7 +701,7 @@ function defineDataLabels() {
       }
     };
 
-  } else if (DP_Labels === 2) {
+  } else if (window.H2buffer.Labels === 2) {
     objLabels = {
       enabled: true,
       allowOverlap: false,
@@ -723,7 +720,7 @@ function defineDataLabels() {
 
 function defineMarker(iMarker, strColor, iLineW) {
 
-  var objMarker = {
+  let objMarker = {
     enabled: false,
     states: {
       hover: {
@@ -731,52 +728,52 @@ function defineMarker(iMarker, strColor, iLineW) {
       }
     }
   };
-  var iRadius;
+  let iRadius;
   if (iLineW < 3) {
     iRadius = 4;
   } else {
     iRadius = (4 + iLineW - 2);
   }
-  if (iMarker > 0 && iMarker <= chart.options.symbols.length) {
+  if (iMarker > 0 && iMarker <= window.H2buffer.chart.options.symbols.length) {
     objMarker = {
       enabled: true,
-      symbol: chart.options.symbols[iMarker - 1],
+      symbol: window.H2buffer.chart.options.symbols[iMarker - 1],
       radius: iRadius,
       lineColor: strColor,
       lineWidth: 0,
       fillColor: strColor,
     };
-  } else if (iMarker > chart.options.symbols.length && iMarker <= chart.options.symbols.length * 2) {
+  } else if (iMarker > window.H2buffer.chart.options.symbols.length && iMarker <= window.H2buffer.chart.options.symbols.length * 2) {
     objMarker = {
       enabled: true,
-      symbol: chart.options.symbols[iMarker - 1 - chart.options.symbols.length],
+      symbol: window.H2buffer.chart.options.symbols[iMarker - 1 - window.H2buffer.chart.options.symbols.length],
       radius: iRadius,
       lineColor: 'black',
       lineWidth: 1,
       fillColor: strColor,
     };
-  } else if (iMarker > chart.options.symbols.length * 2 && iMarker <= chart.options.symbols.length * 3) {
+  } else if (iMarker > window.H2buffer.chart.options.symbols.length * 2 && iMarker <= window.H2buffer.chart.options.symbols.length * 3) {
     objMarker = {
       enabled: true,
-      symbol: chart.options.symbols[iMarker - 1 - chart.options.symbols.length * 2],
+      symbol: window.H2buffer.chart.options.symbols[iMarker - 1 - window.H2buffer.chart.options.symbols.length * 2],
       radius: iRadius,
       lineColor: 'white',
       lineWidth: 1,
       fillColor: strColor,
     };
-  } else if (iMarker > chart.options.symbols.length * 3 && iMarker <= chart.options.symbols.length * 4) {
+  } else if (iMarker > window.H2buffer.chart.options.symbols.length * 3 && iMarker <= window.H2buffer.chart.options.symbols.length * 4) {
     objMarker = {
       enabled: true,
-      symbol: chart.options.symbols[iMarker - 1 - chart.options.symbols.length * 3],
+      symbol: window.H2buffer.chart.options.symbols[iMarker - 1 - window.H2buffer.chart.options.symbols.length * 3],
       radius: iRadius,
       lineColor: strColor,
       lineWidth: 2,
       fillColor: 'black',
     };
-  } else if (iMarker > chart.options.symbols.length * 4 && iMarker <= chart.options.symbols.length * 5) {
+  } else if (iMarker > window.H2buffer.chart.options.symbols.length * 4 && iMarker <= window.H2buffer.chart.options.symbols.length * 5) {
     objMarker = {
       enabled: true,
-      symbol: chart.options.symbols[iMarker - 1 - chart.options.symbols.length * 4],
+      symbol: window.H2buffer.chart.options.symbols[iMarker - 1 - window.H2buffer.chart.options.symbols.length * 4],
       radius: iRadius,
       lineColor: strColor,
       lineWidth: 2,
@@ -789,9 +786,9 @@ function defineMarker(iMarker, strColor, iLineW) {
 
 function setData(objSerie) {
 
-  var datStart = Zeitraum_Start.getTime();
-  var datEnd = Zeitraum_Ende.getTime();
-  var attrIDX;
+  let datStart = window.H2buffer.ZR_Start.getTime();
+  let datEnd = window.H2buffer.ZR_Ende.getTime();
+  let attrIDX;
 
   if (objSerie.options.name === 'MinMax') {
     return;
@@ -804,49 +801,49 @@ function setData(objSerie) {
     attrIDX = objSerie.options.id.toString();
   }
 
-  var found = false;
+  let found = false;
 
-  var attr = DP_attribute.findIndex(obj => obj.id === attrIDX);
+  let attr = window.H2buffer.DataAttr.findIndex(obj => obj.id === attrIDX);
   if (attr !== -1) {
 
-    if (DP_attribute[attr].comp !== 'C0') {
+    if (window.H2buffer.DataAttr[attr].comp !== 'C0') {
 
-      if (objSerie.options.id.toString().substr(0, 1) === 'C' && DP_attribute[attr].visible === 2) {
+      if (objSerie.options.id.toString().substr(0, 1) === 'C' && window.H2buffer.DataAttr[attr].visible === 2) {
         // main is visible and all will be loaded together
         return;
       }
 
       // correct start for comparisation data, do read only once
-      datStart += getComparisionBackDay(DP_attribute[attr].comp);
+      datStart += getComparisionBackDay(window.H2buffer.DataAttr[attr].comp);
 
       if (objSerie.options.id.toString().substr(0, 1) === 'C') {
-        datEnd += getComparisionBackDay(DP_attribute[attr].comp);
+        datEnd += getComparisionBackDay(window.H2buffer.DataAttr[attr].comp);
       }
     }
 
     // check buffer timestamps and decide to read additional data
-    if ((DP_attribute[attr].buffer_data) && (DP_attribute[attr].buffer_data.buffer_start) && (DP_attribute[attr].buffer_data.buffer_end)) {
-      if ((DP_attribute[attr].buffer_data.buffer_start <= datStart) && (DP_attribute[attr].buffer_data.buffer_end >= datEnd)) {
+    if ((window.H2buffer.DataAttr[attr].buffer_data) && (window.H2buffer.DataAttr[attr].buffer_data.buffer_start) && (window.H2buffer.DataAttr[attr].buffer_data.buffer_end)) {
+      if ((window.H2buffer.DataAttr[attr].buffer_data.buffer_start <= datStart) && (window.H2buffer.DataAttr[attr].buffer_data.buffer_end >= datEnd)) {
         // all data already in the buffer
         found = true;
         setSerienData(attr, objSerie);
-      } else if (DP_attribute[attr].buffer_data.buffer_start > datStart
-        && DP_attribute[attr].buffer_data.buffer_start <= datEnd
-        && DP_attribute[attr].buffer_data.buffer_end >= datEnd
-        && DP_attribute[attr].buffer_data.values.length > 0) {
+      } else if (window.H2buffer.DataAttr[attr].buffer_data.buffer_start > datStart
+        && window.H2buffer.DataAttr[attr].buffer_data.buffer_start <= datEnd
+        && window.H2buffer.DataAttr[attr].buffer_data.buffer_end >= datEnd
+        && window.H2buffer.DataAttr[attr].buffer_data.values.length > 0) {
         // append to begin
-        datEnd = DP_attribute[attr].buffer_data.buffer_start;
-      } else if (DP_attribute[attr].buffer_data.buffer_start <= datStart
-        && DP_attribute[attr].buffer_data.buffer_end >= datStart
-        && DP_attribute[attr].buffer_data.buffer_end < datEnd
-        && DP_attribute[attr].buffer_data.values.length > 0) {
+        datEnd = window.H2buffer.DataAttr[attr].buffer_data.buffer_start;
+      } else if (window.H2buffer.DataAttr[attr].buffer_data.buffer_start <= datStart
+        && window.H2buffer.DataAttr[attr].buffer_data.buffer_end >= datStart
+        && window.H2buffer.DataAttr[attr].buffer_data.buffer_end < datEnd
+        && window.H2buffer.DataAttr[attr].buffer_data.values.length > 0) {
         // append to end by refresh button
-        datStart = DP_attribute[attr].buffer_data.buffer_end;
+        datStart = window.H2buffer.DataAttr[attr].buffer_data.buffer_end;
       }
     }
     // missing data found ?
     if (!found) {
-      getDataH2(objSerie, DP_attribute[attr].id, attr, datStart, datEnd);
+      getDataH2(objSerie, window.H2buffer.DataAttr[attr].id, attr, datStart, datEnd);
     }
   }
 }
@@ -860,41 +857,41 @@ function bufferSerienData(id, data) {
   }
 
   // find queue entry
-  var q_i = DP_Queue.findIndex(obj => obj[0] === id);
+  let q_i = window.H2buffer.Queue.findIndex(obj => obj[0] === id);
 
-  var attrIDX = DP_Queue[q_i][3];
+  let attrIDX = window.H2buffer.Queue[q_i][3];
 
   if (data.values.length > 0) {
 
     // correct values to round -3
-    for (var i = 0; i < data.values.length; i++) {
+    for (let i = 0; i < data.values.length; i++) {
       data.values[i] = Math.round(data.values[i] * 1000) / 1000;
     }
 
-    if (DP_attribute[attrIDX].buffer_data.buffer_start >= DP_Queue[q_i][4]
-      && DP_attribute[attrIDX].buffer_data.buffer_start === DP_Queue[q_i][5]
-      && DP_attribute[attrIDX].buffer_data.values.length > 0) {
+    if (window.H2buffer.DataAttr[attrIDX].buffer_data.buffer_start >= window.H2buffer.Queue[q_i][4]
+      && window.H2buffer.DataAttr[attrIDX].buffer_data.buffer_start === window.H2buffer.Queue[q_i][5]
+      && window.H2buffer.DataAttr[attrIDX].buffer_data.values.length > 0) {
 
-      DP_attribute[attrIDX].buffer_data.buffer_start = DP_Queue[q_i][4];
-      DP_attribute[attrIDX].buffer_data.timestamps = data.timestamps.concat(DP_attribute[attrIDX].buffer_data.timestamps);
-      DP_attribute[attrIDX].buffer_data.values = data.values.concat(DP_attribute[attrIDX].buffer_data.values);
+      window.H2buffer.DataAttr[attrIDX].buffer_data.buffer_start = window.H2buffer.Queue[q_i][4];
+      window.H2buffer.DataAttr[attrIDX].buffer_data.timestamps = data.timestamps.concat(window.H2buffer.DataAttr[attrIDX].buffer_data.timestamps);
+      window.H2buffer.DataAttr[attrIDX].buffer_data.values = data.values.concat(window.H2buffer.DataAttr[attrIDX].buffer_data.values);
 
-    } else if (DP_attribute[attrIDX].buffer_data.buffer_end <= DP_Queue[q_i][5]
-      && DP_attribute[attrIDX].buffer_data.buffer_end === DP_Queue[q_i][4]
-      && DP_attribute[attrIDX].buffer_data.values.length > 0) {
+    } else if (window.H2buffer.DataAttr[attrIDX].buffer_data.buffer_end <= window.H2buffer.Queue[q_i][5]
+      && window.H2buffer.DataAttr[attrIDX].buffer_data.buffer_end === window.H2buffer.Queue[q_i][4]
+      && window.H2buffer.DataAttr[attrIDX].buffer_data.values.length > 0) {
 
-      DP_attribute[attrIDX].buffer_data.buffer_end = DP_Queue[q_i][5];
-      DP_attribute[attrIDX].buffer_data.timestamps = DP_attribute[attrIDX].buffer_data.timestamps.concat(data.timestamps);
-      DP_attribute[attrIDX].buffer_data.values = DP_attribute[attrIDX].buffer_data.values.concat(data.values);
+      window.H2buffer.DataAttr[attrIDX].buffer_data.buffer_end = window.H2buffer.Queue[q_i][5];
+      window.H2buffer.DataAttr[attrIDX].buffer_data.timestamps = window.H2buffer.DataAttr[attrIDX].buffer_data.timestamps.concat(data.timestamps);
+      window.H2buffer.DataAttr[attrIDX].buffer_data.values = window.H2buffer.DataAttr[attrIDX].buffer_data.values.concat(data.values);
     } else {
-      DP_attribute[attrIDX].buffer_data.buffer_start = DP_Queue[q_i][4];
-      DP_attribute[attrIDX].buffer_data.buffer_end = DP_Queue[q_i][5];
-      DP_attribute[attrIDX].buffer_data.timestamps = data.timestamps;
-      DP_attribute[attrIDX].buffer_data.values = data.values;
+      window.H2buffer.DataAttr[attrIDX].buffer_data.buffer_start = window.H2buffer.Queue[q_i][4];
+      window.H2buffer.DataAttr[attrIDX].buffer_data.buffer_end = window.H2buffer.Queue[q_i][5];
+      window.H2buffer.DataAttr[attrIDX].buffer_data.timestamps = data.timestamps;
+      window.H2buffer.DataAttr[attrIDX].buffer_data.values = data.values;
     }
 
     // update counter
-    if (DP_Navigator < 3) {
+    if (window.H2buffer.Navigator < 3) {
       document.getElementById("count_val").innerHTML = (Number(document.getElementById("count_val").innerHTML) + data.values.length).toString();
     } else {
       document.getElementById("count_val").innerHTML = "";
@@ -902,20 +899,20 @@ function bufferSerienData(id, data) {
   }
 
   // get which serie has to be updated
-  var serie = DP_Queue[q_i][2];
+  let serie = window.H2buffer.Queue[q_i][2];
 
   // queue clear for this one
-  DP_Queue.splice(q_i, 1);
+  window.H2buffer.Queue.splice(q_i, 1);
 
   loadingInfo();
 
   setSerienData(attrIDX, serie);
 
   // check how to display by button ALL, get oldest timestamp of new data
-  if ((Zeitraum_Ende - Zeitraum_Start) > (367*24*60*60*1000)) {
-    let data_min = Zeitraum_Ende.getTime();
+  if ((window.H2buffer.ZR_Ende - window.H2buffer.ZR_Start) > (367*24*60*60*1000)) {
+    let data_min = window.H2buffer.ZR_Ende.getTime();
     let found = false;
-    for (let l_serie of chart.series) {
+    for (let l_serie of window.H2buffer.chart.series) {
       if (l_serie.visible && l_serie.options.group !== "nav") {
         // get oldest date
         if (l_serie.xData[0] && l_serie.xData[0] < data_min ) {
@@ -925,8 +922,8 @@ function bufferSerienData(id, data) {
       }
     }
     if (found) {
-       Zeitraum_Start = new Date(data_min);
-       DP_Button_Jump = true;
+       window.H2buffer.ZR_Start = new Date(data_min);
+       window.H2buffer.Button_Jump = true;
     }
   }
 
@@ -935,11 +932,11 @@ function bufferSerienData(id, data) {
 
 function setSerienData(p_attr, serieObj) {
 
-  let aggrType = parseInt(DP_attribute[p_attr].aggr.substr(1, 2));
-  let compType = DP_attribute[p_attr].comp;
+  let aggrType = parseInt(window.H2buffer.DataAttr[p_attr].aggr.substr(1, 2));
+  let compType = window.H2buffer.DataAttr[p_attr].comp;
 
-  let datStart = Zeitraum_Start.getTime();
-  let datEnd = Zeitraum_Ende.getTime();
+  let datStart = window.H2buffer.ZR_Start.getTime();
+  let datEnd = window.H2buffer.ZR_Ende.getTime();
 
   let arr = [];
   let backSec = 0;
@@ -960,9 +957,9 @@ function setSerienData(p_attr, serieObj) {
     datStart += backSec;
     datEnd += backSec;
 
-    let attr2 = DP_attribute.findIndex(obj => obj.id === serieObj.options.id.toString());
+    let attr2 = window.H2buffer.DataAttr.findIndex(obj => obj.id === serieObj.options.id.toString());
     if (attr2) {
-      aggrType = parseInt(DP_attribute[attr2].aggr.substr(1, 2));
+      aggrType = parseInt(window.H2buffer.DataAttr[attr2].aggr.substr(1, 2));
     }
   }
 
@@ -1012,11 +1009,11 @@ function setSerienData(p_attr, serieObj) {
   showAggrText();
 
   // read data for comp series
-  if (DP_attribute[p_attr].comp !== 'C0' && (serieObj.options.id.toString().substr(0, 1) !== 'C')) {
+  if (window.H2buffer.DataAttr[p_attr].comp !== 'C0' && (serieObj.options.id.toString().substr(0, 1) !== 'C')) {
 
-    let sobj = chart.get(DP_attribute[p_attr].comp + '_' + DP_attribute[p_attr].id);
-    let attrC = DP_attribute.findIndex(obj => obj.id === DP_attribute[p_attr].comp + '_' + DP_attribute[p_attr].id);
-    if (sobj && attrC !== -1 && DP_attribute[attrC].comp === 'C0' && DP_attribute[attrC].visible === 2) {
+    let sobj = window.H2buffer.chart.get(window.H2buffer.DataAttr[p_attr].comp + '_' + window.H2buffer.DataAttr[p_attr].id);
+    let attrC = window.H2buffer.DataAttr.findIndex(obj => obj.id === window.H2buffer.DataAttr[p_attr].comp + '_' + window.H2buffer.DataAttr[p_attr].id);
+    if (sobj && attrC !== -1 && window.H2buffer.DataAttr[attrC].comp === 'C0' && window.H2buffer.DataAttr[attrC].visible === 2) {
       setSerienData(p_attr, sobj);
     }
   }
@@ -1028,7 +1025,7 @@ function setSerienDataAggr0(p_attr, datStart, datEnd, backSec) {
   let arr = [];
 
   // Define BufferLink
-  let buffer = DP_attribute[p_attr].buffer_data;
+  let buffer = window.H2buffer.DataAttr[p_attr].buffer_data;
 
   // get start and end position over binary search
   let arrStart;
@@ -1038,10 +1035,10 @@ function setSerienDataAggr0(p_attr, datStart, datEnd, backSec) {
 
   if (datStart <= buffer.timestamps[arrEnd]) {
     if (arrStart > 0 && datStart !== buffer.timestamps[arrStart]) {
-      arr.push([datStart - backSec, (buffer.values[arrStart - 1] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
+      arr.push([datStart - backSec, (buffer.values[arrStart - 1] * window.H2buffer.DataAttr[p_attr].factor) + window.H2buffer.DataAttr[p_attr].offset]);
     }
     for (let i = arrStart; i <= arrEnd; i++) {
-      arr.push([buffer.timestamps[i] - backSec, (buffer.values[i] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
+      arr.push([buffer.timestamps[i] - backSec, (buffer.values[i] * window.H2buffer.DataAttr[p_attr].factor) + window.H2buffer.DataAttr[p_attr].offset]);
     }
   }
 
@@ -1054,7 +1051,7 @@ function setSerienDataAggr1(p_attr, datStart, datEnd, backSec) {
   let arr = [];
 
   // Define BufferLink
-  let buffer = DP_attribute[p_attr].buffer_data;
+  let buffer = window.H2buffer.DataAttr[p_attr].buffer_data;
 
   // get start and end position over binary search
   let arrStart;
@@ -1076,7 +1073,7 @@ function setSerienDataAggr1(p_attr, datStart, datEnd, backSec) {
         }
       }
 
-      last_value = (buffer.values[i] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset;
+      last_value = (buffer.values[i] * window.H2buffer.DataAttr[p_attr].factor) + window.H2buffer.DataAttr[p_attr].offset;
       last_time = buffer.timestamps[i];
 
       arr.push([buffer.timestamps[i] - backSec, last_value]);
@@ -1092,7 +1089,7 @@ function setSerienDataAggr2(p_attr, datStart, datEnd, backSec) {
   let arr = [];
 
   // Define BufferLink
-  let buffer = DP_attribute[p_attr].buffer_data;
+  let buffer = window.H2buffer.DataAttr[p_attr].buffer_data;
 
   // get start and end position over binary search
   let arrStart;
@@ -1116,7 +1113,7 @@ function setSerienDataAggr2(p_attr, datStart, datEnd, backSec) {
           }
         }
 
-        arr.push([buffer.timestamps[i] - backSec, ((buffer.values[i] - last_value) * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
+        arr.push([buffer.timestamps[i] - backSec, ((buffer.values[i] - last_value) * window.H2buffer.DataAttr[p_attr].factor) + window.H2buffer.DataAttr[p_attr].offset]);
 
         last_value = buffer.values[i];
         last_time = buffer.timestamps[i];
@@ -1134,7 +1131,7 @@ function setSerienDataAggr5(p_attr, datStart, datEnd, backSec) {
   let t = 0;
 
   // Define BufferLink
-  let buffer = DP_attribute[p_attr].buffer_data;
+  let buffer = window.H2buffer.DataAttr[p_attr].buffer_data;
 
   // get start and end position over binary search
   let arrStart;
@@ -1156,12 +1153,12 @@ function setSerienDataAggr5(p_attr, datStart, datEnd, backSec) {
         // fill every minute with 1 as run time
         if (last_value > 60000) {
           for (t = last_time; t < buffer.timestamps[i] - 60000; t = t + 60000) {
-            arr.push([t - backSec, (1 * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
+            arr.push([t - backSec, (1 * window.H2buffer.DataAttr[p_attr].factor) + window.H2buffer.DataAttr[p_attr].offset]);
             last_value -= 60000;
           }
         }
         if (last_value > 0) {
-          arr.push([t - 1 - backSec, (Math.round(last_value / 60) / 1000 * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
+          arr.push([t - 1 - backSec, (Math.round(last_value / 60) / 1000 * window.H2buffer.DataAttr[p_attr].factor) + window.H2buffer.DataAttr[p_attr].offset]);
         }
         last_value = 0;
         last_time = buffer.timestamps[i];
@@ -1186,12 +1183,12 @@ function setSerienDataAggr5(p_attr, datStart, datEnd, backSec) {
       last_value = datEnd - last_time;
       if (last_value > 60000) {
         for (t = last_time; t < datEnd - 60000; t = t + 60000) {
-          arr.push([t - backSec, (1 * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
+          arr.push([t - backSec, (1 * window.H2buffer.DataAttr[p_attr].factor) + window.H2buffer.DataAttr[p_attr].offset]);
           last_value -= 60000;
         }
       }
       if (last_value > 0) {
-        arr.push([datEnd - backSec, (Math.round(last_value / 60) / 1000 * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
+        arr.push([datEnd - backSec, (Math.round(last_value / 60) / 1000 * window.H2buffer.DataAttr[p_attr].factor) + window.H2buffer.DataAttr[p_attr].offset]);
       }
     }
   }
@@ -1204,7 +1201,7 @@ function setSerienDataAggr6(p_attr, datStart, datEnd, backSec) {
   let arr = [];
 
   // Define BufferLink
-  let buffer = DP_attribute[p_attr].buffer_data;
+  let buffer = window.H2buffer.DataAttr[p_attr].buffer_data;
 
   // get start and end position over binary search
   let arrStart;
@@ -1217,7 +1214,7 @@ function setSerienDataAggr6(p_attr, datStart, datEnd, backSec) {
     for (let i = arrStart; i <= arrEnd; i++) {
 
       let timestamprounded = Math.round((buffer.timestamps[i] - backSec) / 60000) * 60000;
-      arr.push([timestamprounded, (buffer.values[i] * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset]);
+      arr.push([timestamprounded, (buffer.values[i] * window.H2buffer.DataAttr[p_attr].factor) + window.H2buffer.DataAttr[p_attr].offset]);
 
     }
   }
@@ -1228,10 +1225,10 @@ function setSerienDataAggr6(p_attr, datStart, datEnd, backSec) {
 // Delta +
 function setSerienDataAggr7(p_attr, datStart, datEnd, backSec) {
 
-  var arr = [];
+  let arr = [];
 
   // Define BufferLink
-  let buffer = DP_attribute[p_attr].buffer_data;
+  let buffer = window.H2buffer.DataAttr[p_attr].buffer_data;
 
   // get start and end position over binary search
   let arrStart;
@@ -1256,7 +1253,7 @@ function setSerienDataAggr7(p_attr, datStart, datEnd, backSec) {
         }
 
         // only + values, - are ignored
-        let delta_val = ((buffer.values[i] - last_value) * DP_attribute[p_attr].factor) + DP_attribute[p_attr].offset;
+        let delta_val = ((buffer.values[i] - last_value) * window.H2buffer.DataAttr[p_attr].factor) + window.H2buffer.DataAttr[p_attr].offset;
         if (delta_val >= 0) {
           arr.push([buffer.timestamps[i] - backSec, delta_val]);
         }
@@ -1302,8 +1299,8 @@ function getDataH2(p_series, p_attrID, p_attr, datStart, datEnd) {
     return;
   }
 
-  var key = p_attrID + '_' + Date.now();
-  var p_id = p_series.options.id.toString();
+  let key = p_attrID + '_' + Date.now();
+  let p_id = p_series.options.id.toString();
 
   // refresh for comparisation done over real ID
   if (p_series.options.id.toString().substr(0, 1) === 'C') {
@@ -1311,17 +1308,17 @@ function getDataH2(p_series, p_attrID, p_attr, datStart, datEnd) {
   }
 
   // save request to queue
-  DP_Queue.push([key, p_attrID, p_series, p_attr, datStart, datEnd]);
+  window.H2buffer.Queue.push([key, p_attrID, p_series, p_attr, datStart, datEnd]);
 
   // display loading info
   loadingInfo();
 
   // get serien data from H2 database
-  var url = 'http://' + H2_server + ':' + H2_port;
+  let url = 'http://' + window.H2buffer.server + ':' + window.H2buffer.port;
   url += '/query/jsonrpc.gy';
-  url += (DP_ApiKey === "") ? "" : "?" + DP_ApiKey;
+  url += (window.H2buffer.ApiKey === "") ? "" : "?" + window.H2buffer.ApiKey;
 
-  var postData = {
+  let postData = {
     id: key,
     method: 'getTimeSeriesRaw',
     params: [p_id, datStart, datEnd]
@@ -1355,7 +1352,7 @@ function getDataH2(p_series, p_attrID, p_attr, datStart, datEnd) {
 */
 function requestInitData() {
 
-  if (DP_Navigator < 3) {
+  if (window.H2buffer.Navigator < 3) {
     document.getElementById("count_val").innerHTML = "0";
     document.getElementById('count_text').innerHTML = window.ChhLanguage.default.historian.labelValues;
   } else {
@@ -1364,24 +1361,24 @@ function requestInitData() {
   }
 
 // set default global chart object
-  chart = $('#container').highcharts();
+  window.H2buffer.chart = $('#container').highcharts();
 
   // get LocalData DataPoints
-  var loc_dataPoints = getLocalData('DataPoints');
+  let loc_dataPoints = getLocalData('DataPoints');
   if (loc_dataPoints) {
 
     // speed up with local data and read actual one later
 
     try {
-      DP_point = JSON.parse(loc_dataPoints);
+      window.H2buffer.DataPoints = JSON.parse(loc_dataPoints);
     } catch {
-      DP_point = {};
+      window.H2buffer.DataPoints = {};
     }
-    if (DP_point[1] && DP_point[1].attributes) {
+    if (window.H2buffer.DataPoints[1] && window.H2buffer.DataPoints[1].attributes) {
       parseDataPoints();
 
       // read datapoints only if old
-      var loc_datatime = getLocalData('DataPointsTime');
+      let loc_datatime = getLocalData('DataPointsTime');
       if (loc_datatime === null || parseInt(loc_datatime) + 3600000 <= Date.now()) {
         // actual data will be read in 2 sec.
         setTimeout(requestData, 2000);
@@ -1394,8 +1391,8 @@ function requestInitData() {
   }
 
   // show HighChart Stock Tools hidden
-  if (chart.stockTools) {
-    chart.stockTools.showhideBtn.click();
+  if (window.H2buffer.chart.stockTools) {
+    window.H2buffer.chart.stockTools.showhideBtn.click();
   }
 }
 
@@ -1405,11 +1402,11 @@ function requestInitData() {
 */
 function requestData() {
 
-  var url = 'http://' + H2_server + ':' + H2_port;
+  let url = 'http://' + window.H2buffer.server + ':' + window.H2buffer.port;
   url += '/query/jsonrpc.gy';
-  url += (DP_ApiKey === "") ? "" : "?" + DP_ApiKey;
+  url += (window.H2buffer.ApiKey === "") ? "" : "?" + window.H2buffer.ApiKey;
 
-  var postData = {
+  let postData = {
     id: 'DP',
     method: 'getDataPoint',
     params: []
@@ -1441,11 +1438,11 @@ function requestData() {
 */
 function requestSettings() {
 
-  var url = 'http://' + H2_server + ':' + H2_port;
+  let url = 'http://' + window.H2buffer.server + ':' + window.H2buffer.port;
   url += '/query/jsonrpc.gy';
-  url += (DP_ApiKey === "") ? "" : "?" + DP_ApiKey;
+  url += (window.H2buffer.ApiKey === "") ? "" : "?" + window.H2buffer.ApiKey;
 
-  var postData = {
+  let postData = {
     id: 'Setup',
     method: 'getConfig',
     params: ['HighChart']
@@ -1472,20 +1469,20 @@ function requestSettings() {
           strSetNew = result.result.replace(/'/g, '"');
 
           if (strSetNew && strSetNew.substring(0, 2) === '{"') {
-            DP_settings = JSON.parse(strSetNew);
-            DP_settings_old = JSON.parse(strSetNew);
+            window.H2buffer.Settings = JSON.parse(strSetNew);
+            window.H2buffer.Settings_old = JSON.parse(strSetNew);
           } else {
-            DP_settings = { 'Setting': '' };
-            strSetNew = JSON.stringify(DP_settings);
+            window.H2buffer.Settings = { 'Setting': '' };
+            strSetNew = JSON.stringify(window.H2buffer.Settings);
           }
         }
         catch (e) {
-          DP_settings = { 'Setting': '' };
-          strSetNew = JSON.stringify(DP_settings);
+          window.H2buffer.Settings = { 'Setting': '' };
+          strSetNew = JSON.stringify(window.H2buffer.Settings);
         }
       } else {
-        DP_settings = { 'Setting': '' };
-        strSetNew = JSON.stringify(DP_settings);
+        window.H2buffer.Settings = { 'Setting': '' };
+        strSetNew = JSON.stringify(window.H2buffer.Settings);
       }
       if (strSetNew !== getLocalData('setting')) {
         // save LocalData Settings
@@ -1504,100 +1501,100 @@ function parseSetting() {
 
   // read default from YAXIS
   // take default values from database
-  var x;
-  var text2;
-  var k;
+  let x;
+  let text2;
+  let k;
 
-  if (DP_settings) {
-    for (x = 0; x < DP_yAxis.length; x++) {
-      if (DP_settings['YAXIS' + x]) {
-        text2 = DP_settings['YAXIS' + x].split('|');
-        var axis_id = x;
+  if (window.H2buffer.Settings) {
+    for (x = 0; x < window.H2buffer.yAxis.length; x++) {
+      if (window.H2buffer.Settings['YAXIS' + x]) {
+        text2 = window.H2buffer.Settings['YAXIS' + x].split('|');
+        let axis_id = x;
         for (k = 0; k < text2.length; k++) {
           if (text2[k].substr(0, 1) === 'P') {
             if (text2[k].substr(1, 1) === '0') {
-              DP_yAxis[axis_id].position = false;
+              window.H2buffer.yAxis[axis_id].position = false;
             }
             if (text2[k].substr(1, 1) === '1') {
-              DP_yAxis[axis_id].position = true;
+              window.H2buffer.yAxis[axis_id].position = true;
             }
           } else if (text2[k].substr(0, 1) === 'C') {
             if (text2[k].substr(1, 1) === '0') {
-              DP_yAxis[axis_id].type = 0;
+              window.H2buffer.yAxis[axis_id].type = 0;
             }
             if (text2[k].substr(1, 1) === '1') {
-              DP_yAxis[axis_id].type = 1;
+              window.H2buffer.yAxis[axis_id].type = 1;
             }
           } else if (text2[k].substr(0, 1) === 'A') {
             if (text2[k].substr(1, 1) >= '0' && text2[k].substr(1, 1) <= '2') {
-              DP_yAxis[axis_id].limit = parseInt(text2[k].substr(1, 1));
+              window.H2buffer.yAxis[axis_id].limit = parseInt(text2[k].substr(1, 1));
             }
           } else if (text2[k].substr(0, 1) === 'L') {
-            DP_yAxis[axis_id].min = parseFloat(text2[k].substr(1, 15));
+            window.H2buffer.yAxis[axis_id].min = parseFloat(text2[k].substr(1, 15));
           } else if (text2[k].substr(0, 1) === 'H') {
-            DP_yAxis[axis_id].max = parseFloat(text2[k].substr(1, 15));
+            window.H2buffer.yAxis[axis_id].max = parseFloat(text2[k].substr(1, 15));
           } else if (text2[k].substr(0, 1) === 'G') {
-            DP_yAxis[axis_id].tick = parseInt(text2[k].substr(1, 15));
+            window.H2buffer.yAxis[axis_id].tick = parseInt(text2[k].substr(1, 15));
           } else if (text2[k].substr(0, 1) === 'F') {
-            DP_yAxis[axis_id].color = parseInt(text2[k].substr(1, 2));
+            window.H2buffer.yAxis[axis_id].color = parseInt(text2[k].substr(1, 2));
           } else if (text2[k].substr(0, 1) === 'T') {
             try {
-              DP_yAxis[axis_id].text = decodeURIComponent(text2[k].substr(1, 50));
+              window.H2buffer.yAxis[axis_id].text = decodeURIComponent(text2[k].substr(1, 50));
             } catch {
-              DP_yAxis[axis_id].text = text2[k].substr(1, 50);
+              window.H2buffer.yAxis[axis_id].text = text2[k].substr(1, 50);
             }
           }
         }
       }
     }
     // Read default Settings
-    if (DP_settings['Setting']) {
-      text2 = DP_settings['Setting'].split('|');
+    if (window.H2buffer.Settings['Setting']) {
+      text2 = window.H2buffer.Settings['Setting'].split('|');
       for (k = 0; k < text2.length; k++) {
         if (text2[k].substr(0, 1) === 'L') {
-          DP_Legend = parseInt(text2[k].substr(1, 2));
+          window.H2buffer.Legend = parseInt(text2[k].substr(1, 2));
         } else if (text2[k].substr(0, 1) === 'N') {
-          DP_Navigator = parseInt(text2[k].substr(1, 2));
+          window.H2buffer.Navigator = parseInt(text2[k].substr(1, 2));
         } else if (text2[k].substr(0, 1) === 'P') {
-          DP_Labels = parseInt(text2[k].substr(1, 2));
+          window.H2buffer.Labels = parseInt(text2[k].substr(1, 2));
         } else if (text2[k].substr(0, 1) === 'D') {
-          DP_DayLight = parseInt(text2[k].substr(1, 2));
+          window.H2buffer.DayLight = parseInt(text2[k].substr(1, 2));
         } else if (text2[k].substr(0, 1) === 'G') {
-          DP_Grid = parseInt(text2[k].substr(1, 2));
+          window.H2buffer.Grid = parseInt(text2[k].substr(1, 2));
         } else if (text2[k].substr(0, 1) === 'F') {
-          DP_ShowFilter = parseInt(text2[k].substr(1, 2));
+          window.H2buffer.ShowFilter = parseInt(text2[k].substr(1, 2));
         } else if (text2[k].substr(0, 1) === 'I') {
-          DP_DataPointFilter = parseInt(text2[k].substr(1, 2));
+          window.H2buffer.DataPointFilter = parseInt(text2[k].substr(1, 2));
         } else if (text2[k].substr(0, 1) === 'B') {
-          DP_Theme = text2[k].substr(1, 30);
-          if (DP_Theme === 'standard_groß') {    // check old version
-            DP_Theme = 'standard-light';
-            DP_FontSize = 20;
-          } else if (DP_Theme === 'standard_groesser') {     // check old version
-            DP_Theme = 'standard-light';
-            DP_FontSize = 30;
+          window.H2buffer.Theme = text2[k].substr(1, 30);
+          if (window.H2buffer.Theme === 'standard_groß') {    // check old version
+            window.H2buffer.Theme = 'standard-light';
+            window.H2buffer.FontSize = 20;
+          } else if (window.H2buffer.Theme === 'standard_groesser') {     // check old version
+            window.H2buffer.Theme = 'standard-light';
+            window.H2buffer.FontSize = 30;
           }
         } else if (text2[k].substr(0, 1) === 'O') {
-          DP_FontSize = parseInt(text2[k].substr(1, 3));
+          window.H2buffer.FontSize = parseInt(text2[k].substr(1, 3));
         } else if (text2[k].substr(0, 1) === 'C') {
-          DP_CrossHair = parseInt(text2[k].substr(1, 3));
+          window.H2buffer.CrossHair = parseInt(text2[k].substr(1, 3));
         } else if (text2[k].substr(0, 1) === 'M') {
-          DP_ToolTip = parseInt(text2[k].substr(1, 3));
+          window.H2buffer.ToolTip = parseInt(text2[k].substr(1, 3));
         } else if (text2[k].substr(0, 1) === 'H') {
-          DP_HighLight = parseInt(text2[k].substr(1, 3));
+          window.H2buffer.HighLight = parseInt(text2[k].substr(1, 3));
         } else if (text2[k].substr(0, 1) === 'R') {
-          H2_refreshSec = parseInt(text2[k].substr(1, 10));
+          window.H2buffer.refreshSec = parseInt(text2[k].substr(1, 10));
         } else if (text2[k].substr(0, 1) === 'T') {
           try {
-            DP_Title = decodeURIComponent(text2[k].substr(1, 50));
+            window.H2buffer.Title = decodeURIComponent(text2[k].substr(1, 50));
           } catch {
-            DP_Title = text2[k].substr(1, 50);
+            window.H2buffer.Title = text2[k].substr(1, 50);
           }
         } else if (text2[k].substr(0, 1) === 'S') {
           try {
-            DP_Subtitle = decodeURIComponent(text2[k].substr(1, 60));
+            window.H2buffer.Subtitle = decodeURIComponent(text2[k].substr(1, 60));
           } catch {
-            DP_Subtitle = text2[k].substr(1, 60);
+            window.H2buffer.Subtitle = text2[k].substr(1, 60);
           }
         }
       }
@@ -1608,85 +1605,85 @@ function parseSetting() {
 function readLinkData() {
   // check parameter from get-link
   if (location.search) {
-    var parts = decodeURIComponent(location.search.substring(1)).split('&');
+    let parts = decodeURIComponent(location.search.substring(1)).split('&');
     for (let l_part of parts) {
-      var nv = l_part.split('=');
+      let nv = l_part.split('=');
       if (!nv[0]) {
         continue;
       }
 
       if (nv[0].toLowerCase() === 'dp') {
-        DP_Limit = true;
+        window.H2buffer.Limit = true;
         // parameter Periode (Stunden)
       } else if ((nv[0].toLowerCase() === 'periode') || (nv[0].toLowerCase() === 'period')) {
-        Zeitraum_Start = new Date(Zeitraum_Ende - (new Date(3600 * 1000 * parseInt(nv[1]))));
-        DP_Zoom = parseInt(nv[1]);
+        window.H2buffer.ZR_Start = new Date(window.H2buffer.ZR_Ende - (new Date(3600 * 1000 * parseInt(nv[1]))));
+        window.H2buffer.Zoom = parseInt(nv[1]);
         // parameter Data Point
       } else if (nv[0].toLowerCase() === 'setting') {
         readLinkDataSetting(nv[1]);
       } else if (nv[0].toLowerCase() === 'filterkey') {
-        filter_feld = decodeURIComponent(nv[1].toLowerCase());
+        window.H2buffer.filter_feld = decodeURIComponent(nv[1].toLowerCase());
       } else if (nv[0].toLowerCase() === 'title') {
-        DP_Title = decodeURIComponent(nv[1]);
-        DP_Title = DP_Title.replaceAll('§', '%').replaceAll('µ', '&');
+        window.H2buffer.Title = decodeURIComponent(nv[1]);
+        window.H2buffer.Title = window.H2buffer.Title.replaceAll('§', '%').replaceAll('µ', '&');
       } else if (nv[0].toLowerCase() === 'subtitle') {
-        DP_Subtitle = decodeURIComponent(nv[1]);
-        DP_Subtitle = DP_Subtitle.replaceAll('§', '%').replaceAll('µ', '&');
+        window.H2buffer.Subtitle = decodeURIComponent(nv[1]);
+        window.H2buffer.Subtitle = window.H2buffer.Subtitle.replaceAll('§', '%').replaceAll('µ', '&');
       } else if (nv[0].toLowerCase() === 'legend') {
         if (decodeURIComponent(nv[1].toLowerCase()) === 'false') {
-          DP_Legend = 0;
+          window.H2buffer.Legend = 0;
         }
         if (parseInt(decodeURIComponent(nv[1])) >= 0 && parseInt(decodeURIComponent(nv[1])) < 7) {
-          DP_Legend = parseInt(decodeURIComponent(nv[1]));
+          window.H2buffer.Legend = parseInt(decodeURIComponent(nv[1]));
         }
       } else if (nv[0].toLowerCase() === 'navigator') {
         if (decodeURIComponent(nv[1].toLowerCase()) === 'false') {
-          DP_Navigator = 3;
+          window.H2buffer.Navigator = 3;
         }
         if (decodeURIComponent(nv[1].toLowerCase()) >= '0' && decodeURIComponent(nv[1].toLowerCase()) <= '4') {
-          DP_Navigator = parseInt(decodeURIComponent(nv[1]));
+          window.H2buffer.Navigator = parseInt(decodeURIComponent(nv[1]));
         }
       } else if (nv[0].toLowerCase() === 'theme') {
-        DP_Theme = decodeURIComponent(nv[1].toLowerCase());
-        if (DP_Theme === 'standard_groß') {      // check old version
-          DP_Theme = 'standard-light';
-          DP_FontSize = 20;
-        } else if (DP_Theme === 'standard_groesser') {      // check old version
-          DP_Theme = 'standard-light';
-          DP_FontSize = 30;
+        window.H2buffer.Theme = decodeURIComponent(nv[1].toLowerCase());
+        if (window.H2buffer.Theme === 'standard_groß') {      // check old version
+          window.H2buffer.Theme = 'standard-light';
+          window.H2buffer.FontSize = 20;
+        } else if (window.H2buffer.Theme === 'standard_groesser') {      // check old version
+          window.H2buffer.Theme = 'standard-light';
+          window.H2buffer.FontSize = 30;
         }
       } else if (nv[0].toLowerCase() === 'fontsize') {
-        DP_FontSize = parseInt(decodeURIComponent(nv[1]));
+        window.H2buffer.FontSize = parseInt(decodeURIComponent(nv[1]));
       } else if (nv[0].toLowerCase() === 'dpfilter') {
-        DP_DataPointFilter = parseInt(decodeURIComponent(nv[1]));
+        window.H2buffer.DataPointFilter = parseInt(decodeURIComponent(nv[1]));
       } else if (nv[0].toLowerCase() === 'labels') {
         if (decodeURIComponent(nv[1].toLowerCase()) === 'true') {
-          DP_Labels = 1;
+          window.H2buffer.Labels = 1;
         }
         if (decodeURIComponent(nv[1].toLowerCase()) >= '0' && decodeURIComponent(nv[1].toLowerCase()) <= '2') {
-          DP_Labels = parseInt(decodeURIComponent(nv[1]));
+          window.H2buffer.Labels = parseInt(decodeURIComponent(nv[1]));
         }
       } else if (nv[0].toLowerCase() === 'daylight') {
         if (decodeURIComponent(nv[1].toLowerCase()) === 'false') {
-          DP_DayLight = 0;
+          window.H2buffer.DayLight = 0;
         }
         if (decodeURIComponent(nv[1].toLowerCase()) >= '0' && decodeURIComponent(nv[1].toLowerCase()) <= '3') {
-          DP_DayLight = parseInt(decodeURIComponent(nv[1]));
+          window.H2buffer.DayLight = parseInt(decodeURIComponent(nv[1]));
         }
       } else if (nv[0].toLowerCase() === 'grid') {
-        DP_Grid = parseInt(decodeURIComponent(nv[1]));
+        window.H2buffer.Grid = parseInt(decodeURIComponent(nv[1]));
       } else if (nv[0].toLowerCase() === 'refresh') {
         if (parseInt(decodeURIComponent(nv[1])) > 0) {
-          H2_refreshSec = parseInt(decodeURIComponent(nv[1]));
+          window.H2buffer.refreshSec = parseInt(decodeURIComponent(nv[1]));
         } else if (decodeURIComponent(nv[1].toLowerCase()) === 'true') {
-          H2_refreshSec = 60;
+          window.H2buffer.refreshSec = 60;
         }
       }
     }
   }
-  if (H2_refreshSec > 0) {
-    DP_AutoRefresh = H2_refreshSec;
-    AutoRefreshCount = DP_AutoRefresh;
+  if (window.H2buffer.refreshSec > 0) {
+    window.H2buffer.AutoRefresh = window.H2buffer.refreshSec;
+    window.H2buffer.AutoRefreshCount = window.H2buffer.AutoRefresh;
     setTimeout(autoRefresh, 1000);
   }
 
@@ -1700,63 +1697,63 @@ function readLinkDataSetting(text) {
     for (let setting of text2) {
       switch (setting.substr(0, 1)) {
       case 'L':
-        DP_Legend = parseInt(setting.substr(1, 2));
+        window.H2buffer.Legend = parseInt(setting.substr(1, 2));
         break;
       case 'N':
-        DP_Navigator = parseInt(setting.substr(1, 2));
+        window.H2buffer.Navigator = parseInt(setting.substr(1, 2));
         break;
       case 'P':
-        DP_Labels = parseInt(setting.substr(1, 2));
+        window.H2buffer.Labels = parseInt(setting.substr(1, 2));
         break;
       case 'D':
-        DP_DayLight = parseInt(setting.substr(1, 2));
+        window.H2buffer.DayLight = parseInt(setting.substr(1, 2));
         break;
       case 'G':
-        DP_Grid = parseInt(setting.substr(1, 2));
+        window.H2buffer.Grid = parseInt(setting.substr(1, 2));
         break;
       case 'F':
-        DP_ShowFilter = parseInt(setting.substr(1, 2));
+        window.H2buffer.ShowFilter = parseInt(setting.substr(1, 2));
         break;
       case 'I':
-        DP_DataPointFilter = parseInt(setting.substr(1, 2));
+        window.H2buffer.DataPointFilter = parseInt(setting.substr(1, 2));
         break;
       case 'B':
-        DP_Theme = setting.substr(1, 30);
-        if (DP_Theme === 'standard_groß') {    // check old version
-          DP_Theme = 'standard-light';
-          DP_FontSize = 20;
-        } else if (DP_Theme === 'standard_groesser') {     // check old version
-          DP_Theme = 'standard-light';
-          DP_FontSize = 30;
+        window.H2buffer.Theme = setting.substr(1, 30);
+        if (window.H2buffer.Theme === 'standard_groß') {    // check old version
+          window.H2buffer.Theme = 'standard-light';
+          window.H2buffer.FontSize = 20;
+        } else if (window.H2buffer.Theme === 'standard_groesser') {     // check old version
+          window.H2buffer.Theme = 'standard-light';
+          window.H2buffer.FontSize = 30;
         }
         break;
       case 'O':
-        DP_FontSize = parseInt(setting.substr(1, 3));
+        window.H2buffer.FontSize = parseInt(setting.substr(1, 3));
         break;
       case 'C':
-        DP_CrossHair = parseInt(setting.substr(1, 3));
+        window.H2buffer.CrossHair = parseInt(setting.substr(1, 3));
         break;
       case 'M':
-        DP_ToolTip = parseInt(setting.substr(1, 3));
+        window.H2buffer.ToolTip = parseInt(setting.substr(1, 3));
         break;
       case 'H':
-        DP_HighLight = parseInt(setting.substr(1, 3));
+        window.H2buffer.HighLight = parseInt(setting.substr(1, 3));
         break;
       case 'R':
-        H2_refreshSec = parseInt(setting.substr(1, 10));
+        window.H2buffer.refreshSec = parseInt(setting.substr(1, 10));
         break;
       case 'T':
         try {
-          DP_Title = decodeURIComponent(setting.substr(1, 50));
+          window.H2buffer.Title = decodeURIComponent(setting.substr(1, 50));
         } catch {
-          DP_Title = setting.substr(1, 50);
+          window.H2buffer.Title = setting.substr(1, 50);
         }
         break;
       case 'S':
         try {
-          DP_Subtitle = decodeURIComponent(setting.substr(1, 60));
+          window.H2buffer.Subtitle = decodeURIComponent(setting.substr(1, 60));
         } catch {
-          DP_Subtitle = setting.substr(1, 60);
+          window.H2buffer.Subtitle = setting.substr(1, 60);
         }
         break;
       }
@@ -1774,15 +1771,15 @@ function requestData2(TXT_JSON) {
     return;
   }
 
-  var DP_point_loc = [];
+  let DP_point_loc = [];
   for (let dppoint of TXT_JSON.result) {
     DP_point_loc.push(dppoint);
   }
 
   // Sort data points on DisplayName
   DP_point_loc.sort(function(a, b) {
-    var x = a.attributes.displayName + '.' + a.id.identifier;
-    var y = b.attributes.displayName + '.' + b.id.identifier;
+    let x = a.attributes.displayName + '.' + a.id.identifier;
+    let y = b.attributes.displayName + '.' + b.id.identifier;
     x = x.toLowerCase();
     y = y.toLowerCase();
     if (x < y) {
@@ -1798,7 +1795,7 @@ function requestData2(TXT_JSON) {
     // save LocalData DataPoints
     setLocalData('DataPoints', JSON.stringify(DP_point_loc));
 
-    DP_point = DP_point_loc;
+    window.H2buffer.DataPoints = DP_point_loc;
 
     parseDataPoints();
   }
@@ -1808,17 +1805,17 @@ function requestData2(TXT_JSON) {
 
 
 function parseDataPoints() {
-  var i;
-  var text = '';
-  DP_attribute = [];
+  let i;
+  let text = '';
+  window.H2buffer.DataAttr = [];
 
 
   // Alle Serien aufbauen und Räume & Gewerke sammeln nur für anzeigbare
   parseDataPointFill();
 
-  var nv;
-  var parts;
-  var select;
+  let nv;
+  let parts;
+  let select;
   // check parameter from get-link
   if (location.search) {
     parts = decodeURIComponent(location.search.substring(1)).split('&');
@@ -1839,7 +1836,7 @@ function parseDataPoints() {
 
         // parameter Raum
       } else if (nv[0].toLowerCase() === 'room') {
-        var DP_start_room = decodeURIComponent(nv[1].toLowerCase());
+        let DP_start_room = decodeURIComponent(nv[1].toLowerCase());
         select = document.getElementById("Select-Raum");
         for (let l_opt of select.options) {
           if (l_opt.label.toLowerCase() === DP_start_room.toLowerCase() || l_opt.value.toLowerCase() === DP_start_room.toLowerCase()) {
@@ -1849,7 +1846,7 @@ function parseDataPoints() {
         }
         // parameter Gewerk
       } else if (nv[0].toLowerCase() === 'function') {
-        var DP_start_func = decodeURIComponent(nv[1].toLowerCase());
+        let DP_start_func = decodeURIComponent(nv[1].toLowerCase());
         select = document.getElementById("Select-Gewerk");
         for (let l_opt of select.options) {
           if (l_opt.label.toLowerCase() === DP_start_func.toLowerCase() || l_opt.value.toLowerCase() === DP_start_func.toLowerCase()) {
@@ -1861,26 +1858,26 @@ function parseDataPoints() {
         // FilterLine
       } else if (nv[0].toLowerCase() === 'filterline') {
         if (decodeURIComponent(nv[1].toLowerCase()) === 'false' || decodeURIComponent(nv[1].toLowerCase()) === '0') {
-          DP_ShowFilter = 0;
+          window.H2buffer.ShowFilter = 0;
         }
         // only filterline both
         if (decodeURIComponent(nv[1].toLowerCase()) === '1') {
-          DP_ShowFilter = 1;
+          window.H2buffer.ShowFilter = 1;
         }
         // only filterline without menue
         if (decodeURIComponent(nv[1].toLowerCase()) === '2') {
-          DP_ShowFilter = 2;
+          window.H2buffer.ShowFilter = 2;
         }
         // only menue without filterline
         if (decodeURIComponent(nv[1].toLowerCase()) === '3') {
-          DP_ShowFilter = 3;
+          window.H2buffer.ShowFilter = 3;
         }
       }
     }
   }
 
   // Update Chart
-  chart.update({
+  window.H2buffer.chart.update({
     yAxis: defineYAxis(),
     legend: defineLegend()
   }, false, false);
@@ -1888,10 +1885,10 @@ function parseDataPoints() {
   // Yaxis options
   $("#Select-Yaxis").empty();
   select = document.getElementById("Select-Yaxis");
-  for (i = 0; i < DP_yAxis.length; i++) {
+  for (i = 0; i < window.H2buffer.yAxis.length; i++) {
     let option = document.createElement("option");
-    if (DP_yAxis[i].text !== "" && DP_yAxis[i].text !== null) {
-      option.text = DP_yAxis[i].text;
+    if (window.H2buffer.yAxis[i].text !== "" && window.H2buffer.yAxis[i].text !== null) {
+      option.text = window.H2buffer.yAxis[i].text;
     } else {
       option.text = window.ChhLanguage.default.historian['yaxis' + i];
     }
@@ -1911,18 +1908,18 @@ function parseDataPoints() {
 }
 
 function parseDataPointFill() {
-  var DP_rooms = [];
-  var DP_gewerk = [];
-  var t;
-  var text2;
-  var attr;
+  let DP_rooms = [];
+  let DP_gewerk = [];
+  let t;
+  let text2;
+  let attr;
 
   // reset DP attributes
-  DP_attribute = [];
-  DP_ColorNext = 0;
+  window.H2buffer.DataAttr = [];
+  window.H2buffer.ColorNext = 0;
 
   // Alle Serien aufbauen und Räume & Gewerke sammeln nur für anzeigbare
-  for (let dp of DP_point) {
+  for (let dp of window.H2buffer.DataPoints) {
 
 // nur valide DPs
    if (checkFilter("ALLES", "ALLES", "", null, dp)) {
@@ -1956,7 +1953,7 @@ function parseDataPointFill() {
         text2 = dp.attributes.custom.HighChart.split('|');
         if (text2.length > 0) {
           attr = defaultAttrib(dp, -1, dp.idx.toString());
-          DP_attribute.push(attr);
+          window.H2buffer.DataAttr.push(attr);
         }
       }
     }
@@ -1966,7 +1963,7 @@ function parseDataPointFill() {
   DP_rooms.sort( sortLowercase );
 
   $("#Select-Raum").empty();
-  var select = document.getElementById("Select-Raum");
+  let select = document.getElementById("Select-Raum");
 
   // add default all and sysvar
   select.options[select.options.length] = new Option(window.ChhLanguage.default.historian.roomALL, 'ALLES');
@@ -1994,7 +1991,7 @@ function parseDataPointFill() {
   }
 
   // Set start parameter
-  document.getElementById("filterFeld").value = filter_feld;
+  document.getElementById("filterFeld").value = window.H2buffer.filter_feld;
 }
 
 /*****/
@@ -2008,9 +2005,9 @@ function parseDataPointsZoom() {
       }
       // parameter Zoom found
       if (nv[0].toLowerCase() === 'zoom') {
-        DP_Zoom = parseFloat(nv[1]);
-        let newStart = new Date(Zeitraum_Ende - (new Date(3600 * 1000 * DP_Zoom)));
-        chart.xAxis[0].setExtremes(newStart.getTime(), Zeitraum_Ende.getTime(), true);
+        window.H2buffer.Zoom = parseFloat(nv[1]);
+        let newStart = new Date(window.H2buffer.ZR_Ende - (new Date(3600 * 1000 * window.H2buffer.Zoom)));
+        window.H2buffer.chart.xAxis[0].setExtremes(newStart.getTime(), window.H2buffer.ZR_Ende.getTime(), true);
       }
     }
   }
@@ -2024,56 +2021,56 @@ function parseDataPointsDP(text,nv) {
 
     if (text2.length > 0) {
 
-      let DP_pos = DP_point.findIndex(obj => obj.idx.toString().toUpperCase() === dp_id.toString().toUpperCase()
+      let DP_pos = window.H2buffer.DataPoints.findIndex(obj => obj.idx.toString().toUpperCase() === dp_id.toString().toUpperCase()
         || ((obj.attributes.displayName) && obj.attributes.displayName.toUpperCase() === dp_id.toUpperCase())
         || (obj.id.address + '.' + obj.id.identifier).toUpperCase() === dp_id.toUpperCase());
       if (DP_pos !== -1) {
-        dp_id = DP_point[DP_pos].idx.toString();
+        dp_id = window.H2buffer.DataPoints[DP_pos].idx.toString();
       }
-      let attrpos = DP_attribute.findIndex(obj => obj.id === dp_id);
+      let attrpos = window.H2buffer.DataAttr.findIndex(obj => obj.id === dp_id);
       if (attrpos === -1) {
         let attr;
         if (DP_pos !== -1) {
-          attr = defaultAttrib(DP_point[DP_pos], j, dp_id);
+          attr = defaultAttrib(window.H2buffer.DataPoints[DP_pos], j, dp_id);
         } else {
           attr = defaultAttrib(-1, j, dp_id);
         }
 
-        DP_attribute.push(attr);
-        attrpos = DP_attribute.findIndex(obj => obj.id === dp_id);
+        window.H2buffer.DataAttr.push(attr);
+        attrpos = window.H2buffer.DataAttr.findIndex(obj => obj.id === dp_id);
       }
-      DP_attribute[attrpos].visible = 2;
+      window.H2buffer.DataAttr[attrpos].visible = 2;
       for (let k = 1; k < text2.length; k++) {
         if (text2[k].substr(0, 1) === 'A') {
-          DP_attribute[attrpos].aggr = text2[k];
+          window.H2buffer.DataAttr[attrpos].aggr = text2[k];
         } else if (text2[k].substr(0, 1) === 'Y') {
-          DP_attribute[attrpos].yaxis = text2[k];
+          window.H2buffer.DataAttr[attrpos].yaxis = text2[k];
         } else if (text2[k].substr(0, 1) === 'T') {
-          DP_attribute[attrpos].atime = text2[k];
+          window.H2buffer.DataAttr[attrpos].atime = text2[k];
         } else if (text2[k].substr(0, 1) === 'F') {
-          DP_attribute[attrpos].color = text2[k];
+          window.H2buffer.DataAttr[attrpos].color = text2[k];
         } else if (text2[k].substr(0, 1) === 'C') {
-          DP_attribute[attrpos].comp = text2[k];
+          window.H2buffer.DataAttr[attrpos].comp = text2[k];
         } else if (text2[k].substr(0, 1) === 'L') {
-          DP_attribute[attrpos].line = text2[k];
+          window.H2buffer.DataAttr[attrpos].line = text2[k];
         } else if (text2[k].substr(0, 1) === 'M') {
-          DP_attribute[attrpos].mark = text2[k];
+          window.H2buffer.DataAttr[attrpos].mark = text2[k];
         } else if (text2[k].substr(0, 1) === 'D') {
-          DP_attribute[attrpos].dash = text2[k];
+          window.H2buffer.DataAttr[attrpos].dash = text2[k];
         } else if (text2[k].substr(0, 1) === 'W') {
-          DP_attribute[attrpos].width = text2[k];
+          window.H2buffer.DataAttr[attrpos].width = text2[k];
         } else if (text2[k].substr(0, 1) === 'S') {
-          DP_attribute[attrpos].stack = parseInt(text2[k].substr(1, 2));
+          window.H2buffer.DataAttr[attrpos].stack = parseInt(text2[k].substr(1, 2));
         } else if (text2[k].substr(0, 1) === 'V') {
-          DP_attribute[attrpos].visible = parseInt(text2[k].substr(1, 1));
+          window.H2buffer.DataAttr[attrpos].visible = parseInt(text2[k].substr(1, 1));
         } else if (text2[k].substr(0, 1) === 'U') {
-          DP_attribute[attrpos].unit = decodeURIComponent(nv[1]).split(',')[j].split('|')[k].substr(1, 20).replaceAll("§", "%").replaceAll('µ', '&');
+          window.H2buffer.DataAttr[attrpos].unit = decodeURIComponent(nv[1]).split(',')[j].split('|')[k].substr(1, 20).replaceAll("§", "%").replaceAll('µ', '&');
         } else if (text2[k].substr(0, 1) === 'N') {
-          DP_attribute[attrpos].shortname = decodeURIComponent(nv[1]).split(',')[j].split('|')[k].substr(1, 40).replaceAll("§", "%").replaceAll('µ', '&');
+          window.H2buffer.DataAttr[attrpos].shortname = decodeURIComponent(nv[1]).split(',')[j].split('|')[k].substr(1, 40).replaceAll("§", "%").replaceAll('µ', '&');
         } else if (text2[k].substr(0, 1) === 'X') {
-          DP_attribute[attrpos].factor = parseFloat(text2[k].substr(1, 10));
+          window.H2buffer.DataAttr[attrpos].factor = parseFloat(text2[k].substr(1, 10));
         } else if (text2[k].substr(0, 1) === 'O') {
-          DP_attribute[attrpos].offset = parseFloat(text2[k].substr(1, 10));
+          window.H2buffer.DataAttr[attrpos].offset = parseFloat(text2[k].substr(1, 10));
         }
       }
     }
@@ -2085,43 +2082,43 @@ function parseDataPointsAxis(text,nv) {
   for (let j = 0; j < text.length; j++) {
     let text2 = text[j].toUpperCase().split('|');
     let axis_id = parseInt(text2[0].substr(1, 2));
-    if (axis_id >= 0 && axis_id < DP_yAxis.length) {
+    if (axis_id >= 0 && axis_id < window.H2buffer.yAxis.length) {
       if (text2.length > 0) {
         for (let k = 1; k < text2.length; k++) {
           if (text2[k].substr(0, 1) === 'P') {
             if (text2[k].substr(1, 1) === '0') {
-              DP_yAxis[axis_id].position = false;
+              window.H2buffer.yAxis[axis_id].position = false;
             }
             if (text2[k].substr(1, 1) === '1') {
-              DP_yAxis[axis_id].position = true;
+              window.H2buffer.yAxis[axis_id].position = true;
             }
           } else if (text2[k].substr(0, 1) === 'C') {
             if (text2[k].substr(1, 1) === '0') {
-              DP_yAxis[axis_id].type = 0;
+              window.H2buffer.yAxis[axis_id].type = 0;
             }
             if (text2[k].substr(1, 1) === '1') {
-              DP_yAxis[axis_id].type = 1;
+              window.H2buffer.yAxis[axis_id].type = 1;
             }
           } else if (text2[k].substr(0, 1) === 'A') {
             if (text2[k].substr(1, 1) === '0') {
-              DP_yAxis[axis_id].limit = 0;
+              window.H2buffer.yAxis[axis_id].limit = 0;
             }
             if (text2[k].substr(1, 1) === '1') {
-              DP_yAxis[axis_id].limit = 1;
+              window.H2buffer.yAxis[axis_id].limit = 1;
             }
             if (text2[k].substr(1, 1) === '2') {
-              DP_yAxis[axis_id].limit = 2;
+              window.H2buffer.yAxis[axis_id].limit = 2;
             }
           } else if (text2[k].substr(0, 1) === 'L') {
-            DP_yAxis[axis_id].min = parseFloat(text2[k].substr(1, 15));
+            window.H2buffer.yAxis[axis_id].min = parseFloat(text2[k].substr(1, 15));
           } else if (text2[k].substr(0, 1) === 'H') {
-            DP_yAxis[axis_id].max = parseFloat(text2[k].substr(1, 15));
+            window.H2buffer.yAxis[axis_id].max = parseFloat(text2[k].substr(1, 15));
           } else if (text2[k].substr(0, 1) === 'G') {
-            DP_yAxis[axis_id].tick = parseInt(text2[k].substr(1, 15));
+            window.H2buffer.yAxis[axis_id].tick = parseInt(text2[k].substr(1, 15));
           } else if (text2[k].substr(0, 1) === 'F') {
-            DP_yAxis[axis_id].color = parseInt(text2[k].substr(1, 2));
+            window.H2buffer.yAxis[axis_id].color = parseInt(text2[k].substr(1, 2));
           } else if (text2[k].substr(0, 1) === 'T') {
-            DP_yAxis[axis_id].text = decodeURIComponent(nv[1]).split(',')[j].split('|')[k].substr(1, 50).replaceAll("§", "%").replaceAll('µ', '&');
+            window.H2buffer.yAxis[axis_id].text = decodeURIComponent(nv[1]).split(',')[j].split('|')[k].substr(1, 50).replaceAll("§", "%").replaceAll('µ', '&');
           }
         }
       }
@@ -2141,20 +2138,20 @@ $(document).ready(function() {
     lang: window.ChhLanguage.default.highcharts,
   });
 
-  DP_ApiKey = "";
+  window.H2buffer.ApiKey = "";
   if (typeof apiKey === "string" && apiKey !== "") {
-    DP_ApiKey = apiKey.substring(1, apiKey.length);
+    window.H2buffer.ApiKey = apiKey.substring(1, apiKey.length);
   }
 
-  var loc_setting = getLocalData('setting');
+  let loc_setting = getLocalData('setting');
   if (loc_setting && loc_setting.substring(0, 2) === '{"') {
     try {
-      DP_settings = JSON.parse(loc_setting);
+      window.H2buffer.Settings = JSON.parse(loc_setting);
       parseSetting();
       readLinkData();
 
       // read config data only if old
-      var loc_settime = getLocalData('settingTime');
+      let loc_settime = getLocalData('settingTime');
       if (loc_settime === null || parseInt(loc_settime) + 3600000 <= Date.now()) {
         // read data in delay of 1 sec
         setTimeout(requestSettings, 1000);
@@ -2241,10 +2238,10 @@ $(document).ready(function() {
   window.Highcharts.defaultOptions.symbols.push('star');
 
 
-  var select;
-  var option;
-  var i;
-  var key;
+  let select;
+  let option;
+  let i;
+  let key;
 
   // aggregation options
   select = document.getElementById("Select-Aggregation");
@@ -2284,12 +2281,12 @@ $(document).ready(function() {
 
   // DashType options
   select = document.getElementById("Select-DashType");
-  for (i = 0; i < DP_DashType.length; i++) {
+  for (i = 0; i < window.H2buffer.DashType.length; i++) {
     option = document.createElement("option");
     if (window.ChhLanguage.default.historian['dashtype' + i]) {
       option.text = window.ChhLanguage.default.historian['dashtype' + i];
     } else {
-      option.text = DP_DashType[i];
+      option.text = window.H2buffer.DashType[i];
     }
     option.value = 'D' + i;
     select.add(option);
@@ -2382,10 +2379,10 @@ $(document).ready(function() {
 
   // FontSize options
   select = document.getElementById("Select-FontSize");
-  for (key in window.DP_FontSizes) {
+  for (key in window.window.H2buffer.FontSizes) {
     option = document.createElement("option");
-    option.text = window.ChhLanguage.default.historian.fontsize + "-" + DP_FontSizes[key].toString();
-    option.value = DP_FontSizes[key];
+    option.text = window.ChhLanguage.default.historian.fontsize + "-" + window.H2buffer.FontSizes[key].toString();
+    option.value = window.H2buffer.FontSizes[key];
     select.add(option);
   }
 
@@ -2471,17 +2468,17 @@ $(document).ready(function() {
       proceed.apply(this, Array.prototype.slice.call(arguments, 1));
 
       $(legend.group.element).on('wheel', function(event) {
-        if (Scroll_Legend) {
+        if (window.H2buffer.Scroll_Legend) {
           let e = legend.chart.pointer.normalize(event);
           e.originalEvent.deltaY < 0 ? legend.scroll(-1, animation) : legend.scroll(1, animation);
         }
-        Scroll_Legend = !Scroll_Legend;
+        window.H2buffer.Scroll_Legend = !window.H2buffer.Scroll_Legend;
       });
     });
   }(window.Highcharts));
 
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-    if (DP_Theme === 'standard') {
+    if (window.H2buffer.Theme === 'standard') {
       createChart();
     }
   });
@@ -2510,30 +2507,30 @@ function setStockToolLang() {
 
 // *******************
 function changeEventRaumFilter() {
-  var filter_raum = document.getElementById("Select-Raum").value;
-  var filter_gewerk = document.getElementById("Select-Gewerk").value;
-  var save_active_found = false;
-  var attr2;
+  let filter_raum = document.getElementById("Select-Raum").value;
+  let filter_gewerk = document.getElementById("Select-Gewerk").value;
+  let save_active_found = false;
+  let attr2;
 
-  var series;
+  let series;
 
   // remove all old series
-  for (let i = chart.series.length - 1; i >= 0; i--) {
-    chart.series[i].remove(false);
+  for (let i = window.H2buffer.chart.series.length - 1; i >= 0; i--) {
+    window.H2buffer.chart.series[i].remove(false);
   }
 
   // add new series which are in filter
-  for (let dppoint of DP_point) {
-    if (checkFilter(filter_raum, filter_gewerk, filter_feld, DP_Limit, dppoint)) {
+  for (let dppoint of window.H2buffer.DataPoints) {
+    if (checkFilter(filter_raum, filter_gewerk, window.H2buffer.filter_feld, window.H2buffer.Limit, dppoint)) {
 
       addSerie(dppoint, '');
-      series = chart.get(dppoint.idx.toString());
+      series = window.H2buffer.chart.get(dppoint.idx.toString());
 
       // check if should be visible
-      var attr = DP_attribute.findIndex(obj => obj.id === dppoint.idx.toString());
+      let attr = window.H2buffer.DataAttr.findIndex(obj => obj.id === dppoint.idx.toString());
       if (attr !== -1) {
 
-        if (DP_attribute[attr].visible === 2) {
+        if (window.H2buffer.DataAttr[attr].visible === 2) {
           series.visible = true;
           save_active_found = true;
         } else {
@@ -2541,27 +2538,27 @@ function changeEventRaumFilter() {
         }
 
         // load comparisation series
-        var compType = DP_attribute[attr].comp;
+        let compType = window.H2buffer.DataAttr[attr].comp;
         if (compType !== 'C0') {
           // check if options exist, if not create it with default and C0
-          attr2 = DP_attribute.findIndex(obj => obj.id === compType + '_' + dppoint.idx.toString());
+          attr2 = window.H2buffer.DataAttr.findIndex(obj => obj.id === compType + '_' + dppoint.idx.toString());
           if (attr2 === -1) {
-            DP_attribute.push({
+            window.H2buffer.DataAttr.push({
               id: compType + '_' + dppoint.idx.toString(),
-              aggr: DP_attribute[attr].aggr,
-              atime: DP_attribute[attr].atime,
-              yaxis: DP_attribute[attr].yaxis,
+              aggr: window.H2buffer.DataAttr[attr].aggr,
+              atime: window.H2buffer.DataAttr[attr].atime,
+              yaxis: window.H2buffer.DataAttr[attr].yaxis,
               comp: 'C0',
-              line: DP_attribute[attr].line,
-              mark: DP_attribute[attr].mark,
-              color: DP_attribute[attr].color,
-              visible: DP_attribute[attr].visible,
+              line: window.H2buffer.DataAttr[attr].line,
+              mark: window.H2buffer.DataAttr[attr].mark,
+              color: window.H2buffer.DataAttr[attr].color,
+              visible: window.H2buffer.DataAttr[attr].visible,
               dash: 'D1',
-              width: DP_attribute[attr].width,
-              stack: DP_attribute[attr].stack,
-              factor: DP_attribute[attr].factor,
-              offset: DP_attribute[attr].offset,
-              unit: DP_attribute[attr].unit,
+              width: window.H2buffer.DataAttr[attr].width,
+              stack: window.H2buffer.DataAttr[attr].stack,
+              factor: window.H2buffer.DataAttr[attr].factor,
+              offset: window.H2buffer.DataAttr[attr].offset,
+              unit: window.H2buffer.DataAttr[attr].unit,
               shortname: '',
               buffer_data: {
                 timestamps: [],
@@ -2572,14 +2569,14 @@ function changeEventRaumFilter() {
 
             });
             // Pointer setzen
-            attr2 = DP_attribute.length - 1;
+            attr2 = window.H2buffer.DataAttr.length - 1;
           }
 
           addSerie(dppoint, compType);
 
-          series = chart.get(DP_attribute[attr2].id);
+          series = window.H2buffer.chart.get(window.H2buffer.DataAttr[attr2].id);
           if (series) {
-            if (DP_attribute[attr2].visible === 2) {
+            if (window.H2buffer.DataAttr[attr2].visible === 2) {
               series.visible = true;
               save_active_found = true;
             } else {
@@ -2598,7 +2595,7 @@ function changeEventRaumFilter() {
   } else {
     loadNewPlotBand();
     loadNewAxisInfo();
-    chart.redraw();
+    window.H2buffer.chart.redraw();
   }
 }
 
@@ -2606,12 +2603,12 @@ function changeEventRaumFilter() {
 function checkFilter(p_raum, p_gewerk, p_textfilter, p_limit, p_dp) {
 
   // Generell Filter
-  if (p_dp.historyDisabled && (DP_DataPointFilter === 0 || DP_DataPointFilter === 2)) {
+  if (p_dp.historyDisabled && (window.H2buffer.DataPointFilter === 0 || window.H2buffer.DataPointFilter === 2)) {
     return false;
   }
 
   // Generell Filter
-  if (p_dp.historyHidden && (DP_DataPointFilter === 0 || DP_DataPointFilter === 1)) {
+  if (p_dp.historyHidden && (window.H2buffer.DataPointFilter === 0 || window.H2buffer.DataPointFilter === 1)) {
     return false;
   }
 
@@ -2640,7 +2637,7 @@ function checkFilter(p_raum, p_gewerk, p_textfilter, p_limit, p_dp) {
 
   // Description Filter
   if (p_textfilter !== '') {
-    var ft = p_textfilter.split(' ');
+    let ft = p_textfilter.split(' ');
     for (let fi of ft) {
       if ((p_dp.displayName + "/" + p_dp.id.address + "/ID:" + p_dp.idx).toLowerCase().indexOf(fi) === -1) {
         return false;
@@ -2650,11 +2647,11 @@ function checkFilter(p_raum, p_gewerk, p_textfilter, p_limit, p_dp) {
 
   // only marked series are needed ?
   if (p_limit) {
-    var attr = DP_attribute.findIndex(obj => obj.id === p_dp.idx.toString());
+    let attr = window.H2buffer.DataAttr.findIndex(obj => obj.id === p_dp.idx.toString());
     if (attr === -1) {
       return false;
     }
-    if (DP_attribute[attr].visible === 0) {
+    if (window.H2buffer.DataAttr[attr].visible === 0) {
       return false;
     }
   }
@@ -2664,28 +2661,28 @@ function checkFilter(p_raum, p_gewerk, p_textfilter, p_limit, p_dp) {
 
 //********************
 function loadNewSerienData() {
-  for (let serie of chart.series) {
+  for (let serie of window.H2buffer.chart.series) {
     if (serie.visible && serie.options.group !== "nav") {
       setData(serie);
     }
   }
   loadNewPlotBand();
-  chart.redraw();
+  window.H2buffer.chart.redraw();
   loadNewAxisInfo();
   loadingInfo();
 }
 
 function loadNewAxisInfo() {
-  var yaxis_count = 0;
+  let yaxis_count = 0;
 
-  var yaxis_grid = (DP_Grid === 2 || DP_Grid === 3 || DP_Grid === 5 || DP_Grid === 6) ? 1 : 0;
-  var yaxis_mgrid = (DP_Grid === 5 || DP_Grid === 6) ? 1 : 0;
+  let yaxis_grid = (window.H2buffer.Grid === 2 || window.H2buffer.Grid === 3 || window.H2buffer.Grid === 5 || window.H2buffer.Grid === 6) ? 1 : 0;
+  let yaxis_mgrid = (window.H2buffer.Grid === 5 || window.H2buffer.Grid === 6) ? 1 : 0;
 
-  var axispos;
-  for (axispos = 0; axispos < DP_yAxis.length; axispos++) {
+  let axispos;
+  for (axispos = 0; axispos < window.H2buffer.yAxis.length; axispos++) {
 
-    var axVisible = false;
-    for (let serie of chart.yAxis[axispos].series) {
+    let axVisible = false;
+    for (let serie of window.H2buffer.chart.yAxis[axispos].series) {
       if (serie.visible) {
         axVisible = true;
         break;
@@ -2695,22 +2692,22 @@ function loadNewAxisInfo() {
     if (axVisible) {
       yaxis_count++;
 
-      var axiscolor = null;
-      if (DP_yAxis[axispos].color === 0) {
+      let axiscolor = null;
+      if (window.H2buffer.yAxis[axispos].color === 0) {
         axiscolor = window.Highcharts.defaultOptions.yAxis.lineColor;
-      } else if (DP_yAxis[axispos].color === 1 && chart.yAxis[axispos].series.length > 0) {
-        for (let serie of chart.yAxis[axispos].series) {
+      } else if (window.H2buffer.yAxis[axispos].color === 1 && window.H2buffer.chart.yAxis[axispos].series.length > 0) {
+        for (let serie of window.H2buffer.chart.yAxis[axispos].series) {
           if (serie.visible) {
             axiscolor = serie.color;
             break;
           }
         }
-      } else if (DP_yAxis[axispos].color > 1 && DP_yAxis[axispos].color < chart.options.colors.length + 2) {
-        axiscolor = chart.options.colors[DP_yAxis[axispos].color - 2];
+      } else if (window.H2buffer.yAxis[axispos].color > 1 && window.H2buffer.yAxis[axispos].color < window.H2buffer.chart.options.colors.length + 2) {
+        axiscolor = window.H2buffer.chart.options.colors[window.H2buffer.yAxis[axispos].color - 2];
       }
-      if (axiscolor !== null && axiscolor !== chart.yAxis[axispos].options.lineColor) {
+      if (axiscolor !== null && axiscolor !== window.H2buffer.chart.yAxis[axispos].options.lineColor) {
 
-        chart.yAxis[axispos].update({
+        window.H2buffer.chart.yAxis[axispos].update({
           lineColor: axiscolor,
           labels: {
             style: {
@@ -2726,34 +2723,34 @@ function loadNewAxisInfo() {
           // set gridlines only on 1
           gridLineWidth: (yaxis_count === 1) ? yaxis_grid : 0,
           minorGridLineWidth: (yaxis_count === 1) ? yaxis_mgrid : 0,
-          minorTickInterval: (DP_Grid === 5 || DP_Grid === 6) ? 'auto' : null,
+          minorTickInterval: (window.H2buffer.Grid === 5 || window.H2buffer.Grid === 6) ? 'auto' : null,
           visible: true
         }, false);
       } else {
-        chart.yAxis[axispos].update({
+        window.H2buffer.chart.yAxis[axispos].update({
           // set gridlines only on 1
           gridLineWidth: (yaxis_count === 1) ? yaxis_grid : 0,
           minorGridLineWidth: (yaxis_count === 1) ? yaxis_mgrid : 0,
-          minorTickInterval: (DP_Grid === 5 || DP_Grid === 6) ? 'auto' : null,
+          minorTickInterval: (window.H2buffer.Grid === 5 || window.H2buffer.Grid === 6) ? 'auto' : null,
           visible: true
         }, false);
 
       }
 
-      if (DP_yAxis[axispos].limit === 0 || DP_yAxis[axispos].limit === 1 ) {
-        chart.yAxis[axispos].setExtremes(null, null);
-      } else if (DP_yAxis[axispos].limit === 2) {
+      if (window.H2buffer.yAxis[axispos].limit === 0 || window.H2buffer.yAxis[axispos].limit === 1 ) {
+        window.H2buffer.chart.yAxis[axispos].setExtremes(null, null);
+      } else if (window.H2buffer.yAxis[axispos].limit === 2) {
         // set extrem if config Dynamic or HARD
-        chart.yAxis[axispos].setExtremes(parseFloat(DP_yAxis[axispos].min), parseFloat(DP_yAxis[axispos].max));
+        window.H2buffer.chart.yAxis[axispos].setExtremes(parseFloat(window.H2buffer.yAxis[axispos].min), parseFloat(window.H2buffer.yAxis[axispos].max));
       }
 
     } else {
-      chart.yAxis[axispos].update({
+      window.H2buffer.chart.yAxis[axispos].update({
         visible: false
       }, false);
     }
   }
-  chart.redraw();
+  window.H2buffer.chart.redraw();
 
   // Reset Axis Click Event
   $('.highcharts-yaxis').off("click", function() { clickShowDialogYAxis(this); });
@@ -2769,49 +2766,49 @@ function loadNewPlotBand() {
   // add plotband for every day 00-06 and 20-24 gray, 06-20 yellow mean day
 
   // remove all PlotBands from xAxis[0]
-  for (var band = chart.xAxis[0].plotLinesAndBands.length - 1; band >= 0; band--) {
-    var band_id = chart.xAxis[0].plotLinesAndBands[band].id;
-    if (chart.xAxis[0].plotLinesAndBands[band].options.to) {
-      chart.xAxis[0].removePlotBand(band_id);
+  for (let band = window.H2buffer.chart.xAxis[0].plotLinesAndBands.length - 1; band >= 0; band--) {
+    let band_id = window.H2buffer.chart.xAxis[0].plotLinesAndBands[band].id;
+    if (window.H2buffer.chart.xAxis[0].plotLinesAndBands[band].options.to) {
+      window.H2buffer.chart.xAxis[0].removePlotBand(band_id);
     } else {
-      chart.xAxis[0].removePlotLine(band_id);
+      window.H2buffer.chart.xAxis[0].removePlotLine(band_id);
     }
   }
 
-  var loopDate;
-  var start;
-  var id = 1;
+  let loopDate;
+  let start;
+  let id = 1;
 
   // Define whole workarea ...
-  let minDate = chart.xAxis.reduce((a,b)=>a.min>b.min?a:b).min;
-  let maxDate = chart.xAxis.reduce((a,b)=>a.max>b.max?a:b).max;
-  if (!minDate || minDate > Zeitraum_Start.getTime()) {
-    minDate = Zeitraum_Start.getTime();
+  let minDate = window.H2buffer.chart.xAxis.reduce((a,b)=>a.min>b.min?a:b).min;
+  let maxDate = window.H2buffer.chart.xAxis.reduce((a,b)=>a.max>b.max?a:b).max;
+  if (!minDate || minDate > window.H2buffer.ZR_Start.getTime()) {
+    minDate = window.H2buffer.ZR_Start.getTime();
   }
-  if (!maxDate || maxDate < Zeitraum_Ende.getTime()) {
-    maxDate = Zeitraum_Ende.getTime();
+  if (!maxDate || maxDate < window.H2buffer.ZR_Ende.getTime()) {
+    maxDate = window.H2buffer.ZR_Ende.getTime();
   }
   // do nothing for over 35 days
   if (maxDate-minDate > 35*86400000) {
   // gray in night, day yellow
-  } else if (DP_DayLight === 1) {
+  } else if (window.H2buffer.DayLight === 1) {
     for (loopDate = minDate; loopDate <= maxDate; loopDate += 86400000) {
       start = new Date(loopDate);
-      chart.xAxis[0].addPlotBand({
+      window.H2buffer.chart.xAxis[0].addPlotBand({
         color: 'rgba(239,232,231,0.5)',
         //            color: '#EFE8E7',
         from: start.setHours(0, 0, 0, 0),
         to: start.setHours(6, 0, 0, 0),
         id: ('DayLight1' + id.toString()),
       });
-      chart.xAxis[0].addPlotBand({
+      window.H2buffer.chart.xAxis[0].addPlotBand({
         color: 'rgba(251,252,227,0.5)',
         //            color: '#fbfce3',
         from: start.setHours(6, 0, 0, 0),
         to: start.setHours(20, 0, 0, 0),
         id: ('DayLight2' + id.toString()),
       });
-      chart.xAxis[0].addPlotBand({
+      window.H2buffer.chart.xAxis[0].addPlotBand({
         color: 'rgba(239,232,231,0.5)',
         //            color: '#EFE8E7',
         from: start.setHours(20, 0, 0, 0),
@@ -2821,16 +2818,16 @@ function loadNewPlotBand() {
       id++;
     }
     // only line at 06:00 and 20:00
-  } else if (DP_DayLight === 2) {
+  } else if (window.H2buffer.DayLight === 2) {
     for (loopDate = minDate; loopDate <= maxDate; loopDate += 86400000) {
       start = new Date(loopDate);
-      chart.xAxis[0].addPlotLine({
+      window.H2buffer.chart.xAxis[0].addPlotLine({
         color: '#EFE8E7',
         value: start.setHours(6, 0, 0, 0),
         width: 2,
         id: ('DayLight1' + id.toString()),
       });
-      chart.xAxis[0].addPlotBand({
+      window.H2buffer.chart.xAxis[0].addPlotBand({
         color: '#EFE8E7',
         value: start.setHours(20, 0, 0, 0),
         width: 2,
@@ -2839,10 +2836,10 @@ function loadNewPlotBand() {
       id++;
     }
     // only line at 00:00
-  } else if (DP_DayLight === 3) {
+  } else if (window.H2buffer.DayLight === 3) {
     for (loopDate = minDate; loopDate <= maxDate; loopDate += 86400000) {
       start = new Date(loopDate);
-      chart.xAxis[0].addPlotLine({
+      window.H2buffer.chart.xAxis[0].addPlotLine({
         color: '#EFE8E7',
         value: start.setHours(0, 0, 0, 0),
         width: 2,
@@ -2855,7 +2852,7 @@ function loadNewPlotBand() {
 
 //********************
 function createUrl() {
-  var url = location.pathname + "?";
+  let url = location.pathname + "?";
 
   // Add Periode Parameter
   url += generateUrl();
@@ -2868,9 +2865,9 @@ function createUrl() {
 function generateUrl() {
 
   // Add Periode Parameter
-  let url = 'periode=' + (Math.round(((Zeitraum_Ende - Zeitraum_Start) / (60 * 60 * 1000)) * 100) / 100).toString();
+  let url = 'periode=' + (Math.round(((window.H2buffer.ZR_Ende - window.H2buffer.ZR_Start) / (60 * 60 * 1000)) * 100) / 100).toString();
 
-  var url2 = createUrlSerie();
+  let url2 = createUrlSerie();
   if (url2.length > 0) {
     url += '&dp=' + url2.substring(0, url2.length - 1);
   }
@@ -2882,41 +2879,41 @@ function generateUrl() {
   }
 
   url += '&setting=';
-  url += 'L' + DP_Legend.toString();
-  url += '|N' + DP_Navigator.toString();
-  url += '|P' + DP_Labels.toString();
-  url += '|D' + DP_DayLight.toString();
-  url += '|G' + DP_Grid.toString();
-  url += '|F' + DP_ShowFilter.toString();
-  url += '|I' + DP_DataPointFilter.toString();
-  url += '|B' + DP_Theme;
-  url += '|O' + DP_FontSize;
-  url += '|C' + DP_CrossHair.toString();
-  url += '|M' + DP_ToolTip.toString();
-  url += '|H' + DP_HighLight.toString();
-  url += '|R' + DP_AutoRefresh;
-  url += '|T' + encodeURIComponent(DP_Title).replace(/'/g, '%27');
-  url += '|S' + encodeURIComponent(DP_Subtitle).replace(/'/g, '%27');
+  url += 'L' + window.H2buffer.Legend.toString();
+  url += '|N' + window.H2buffer.Navigator.toString();
+  url += '|P' + window.H2buffer.Labels.toString();
+  url += '|D' + window.H2buffer.DayLight.toString();
+  url += '|G' + window.H2buffer.Grid.toString();
+  url += '|F' + window.H2buffer.ShowFilter.toString();
+  url += '|I' + window.H2buffer.DataPointFilter.toString();
+  url += '|B' + window.H2buffer.Theme;
+  url += '|O' + window.H2buffer.FontSize;
+  url += '|C' + window.H2buffer.CrossHair.toString();
+  url += '|M' + window.H2buffer.ToolTip.toString();
+  url += '|H' + window.H2buffer.HighLight.toString();
+  url += '|R' + window.H2buffer.AutoRefresh;
+  url += '|T' + encodeURIComponent(window.H2buffer.Title).replace(/'/g, '%27');
+  url += '|S' + encodeURIComponent(window.H2buffer.Subtitle).replace(/'/g, '%27');
 
   // Add Room to Link if needed
-  var filter_raum = document.getElementById("Select-Raum").value;
+  let filter_raum = document.getElementById("Select-Raum").value;
   if (filter_raum !== 'ALLES') {
     url += '&room=' + filter_raum;
   }
 
   // Add Gewerk to Link if needed
-  var filter_gewerk = document.getElementById("Select-Gewerk").value;
+  let filter_gewerk = document.getElementById("Select-Gewerk").value;
   if (filter_gewerk !== 'ALLES') {
     url += '&function=' + filter_gewerk;
   }
 
   // Add FilterFeld to Link if needed
-  if (filter_feld !== '') {
-    url += '&filterkey=' + filter_feld;
+  if (window.H2buffer.filter_feld !== '') {
+    url += '&filterkey=' + window.H2buffer.filter_feld;
   }
 
   // Add Zoom if not full
-  var extremes = chart.xAxis[0].getExtremes();
+  let extremes = window.H2buffer.chart.xAxis[0].getExtremes();
   if (extremes.max < extremes.dataMax || extremes.min > extremes.dataMin) {
     url += '&zoom=' + (Math.round(((extremes.max - extremes.min) / (60 * 60 * 1000)) * 100) / 100).toString();
   }
@@ -2929,39 +2926,39 @@ function createUrlSerie() {
   let DP_pos;
   let url2 = '';
   // Add DP Filter if some selected
-  for (let lserie of chart.series) {
+  for (let lserie of window.H2buffer.chart.series) {
     if (lserie.options.group !== "nav" && lserie.options.name !== 'MinMax') {
       // add Attribute if exist
-      let attr = DP_attribute.findIndex(obj => obj.id === lserie.options.id.toString());
+      let attr = window.H2buffer.DataAttr.findIndex(obj => obj.id === lserie.options.id.toString());
       if (attr !== -1) {
-        if (DP_attribute[attr].visible === 2 || (DP_attribute[attr].visible === 1 && DP_Limit)) {
+        if (window.H2buffer.DataAttr[attr].visible === 2 || (window.H2buffer.DataAttr[attr].visible === 1 && window.H2buffer.Limit)) {
           url2 += lserie.options.id;
-          url2 += '|' + DP_attribute[attr].aggr;
-          url2 += '|' + DP_attribute[attr].atime;
-          url2 += '|' + DP_attribute[attr].yaxis;
-          url2 += '|' + DP_attribute[attr].line;
-          url2 += '|' + DP_attribute[attr].color;
-          url2 += '|' + DP_attribute[attr].comp;
-          url2 += '|' + DP_attribute[attr].mark;
-          url2 += '|' + DP_attribute[attr].dash;
-          url2 += '|' + DP_attribute[attr].width;
-          url2 += '|S' + DP_attribute[attr].stack;
-          url2 += '|X' + DP_attribute[attr].factor;
-          url2 += '|O' + DP_attribute[attr].offset;
+          url2 += '|' + window.H2buffer.DataAttr[attr].aggr;
+          url2 += '|' + window.H2buffer.DataAttr[attr].atime;
+          url2 += '|' + window.H2buffer.DataAttr[attr].yaxis;
+          url2 += '|' + window.H2buffer.DataAttr[attr].line;
+          url2 += '|' + window.H2buffer.DataAttr[attr].color;
+          url2 += '|' + window.H2buffer.DataAttr[attr].comp;
+          url2 += '|' + window.H2buffer.DataAttr[attr].mark;
+          url2 += '|' + window.H2buffer.DataAttr[attr].dash;
+          url2 += '|' + window.H2buffer.DataAttr[attr].width;
+          url2 += '|S' + window.H2buffer.DataAttr[attr].stack;
+          url2 += '|X' + window.H2buffer.DataAttr[attr].factor;
+          url2 += '|O' + window.H2buffer.DataAttr[attr].offset;
           // check if still default unit, otherwise add to url
           if (lserie.options.id.substr(0, 1) === 'C') {
-            DP_pos = DP_point.findIndex(obj => obj.idx.toString() === lserie.options.id.split('_')[1].toString());
+            DP_pos = window.H2buffer.DataPoints.findIndex(obj => obj.idx.toString() === lserie.options.id.split('_')[1].toString());
           } else {
-            DP_pos = DP_point.findIndex(obj => obj.idx.toString() === lserie.options.id.toString());
+            DP_pos = window.H2buffer.DataPoints.findIndex(obj => obj.idx.toString() === lserie.options.id.toString());
           }
-          if (DP_pos === -1 || DP_point[DP_pos].attributes.unit !== DP_attribute[attr].unit) {
-            url2 += '|U' + DP_attribute[attr].unit.replaceAll("%", "§").replaceAll('&', 'µ');
+          if (DP_pos === -1 || window.H2buffer.DataPoints[DP_pos].attributes.unit !== window.H2buffer.DataAttr[attr].unit) {
+            url2 += '|U' + window.H2buffer.DataAttr[attr].unit.replaceAll("%", "§").replaceAll('&', 'µ');
           }
-          if (DP_attribute[attr].shortname !== '') {
-            url2 += '|N' + DP_attribute[attr].shortname.replaceAll("%", "§").replaceAll('&', 'µ');
+          if (window.H2buffer.DataAttr[attr].shortname !== '') {
+            url2 += '|N' + window.H2buffer.DataAttr[attr].shortname.replaceAll("%", "§").replaceAll('&', 'µ');
           }
 
-          url2 += '|V' + DP_attribute[attr].visible;
+          url2 += '|V' + window.H2buffer.DataAttr[attr].visible;
           url2 += ',';
         }
       }
@@ -2974,18 +2971,18 @@ function createUrlSerie() {
 //********************
 function createUrlAxis() {
   let url2 = '';
-  for (let axispos = 0; axispos < DP_yAxis.length; axispos++) {
-    if (chart.yAxis[axispos].visible && chart.yAxis[axispos].hasVisibleSeries) {
+  for (let axispos = 0; axispos < window.H2buffer.yAxis.length; axispos++) {
+    if (window.H2buffer.chart.yAxis[axispos].visible && window.H2buffer.chart.yAxis[axispos].hasVisibleSeries) {
       url2 += 'Y' + axispos;
-      url2 += '|P' + ((DP_yAxis[axispos].position) ? '1' : '0');
-      url2 += '|C' + DP_yAxis[axispos].type;
-      url2 += '|A' + DP_yAxis[axispos].limit;
-      url2 += '|L' + DP_yAxis[axispos].min;
-      url2 += '|H' + DP_yAxis[axispos].max;
-      url2 += '|G' + DP_yAxis[axispos].tick;
-      url2 += '|F' + DP_yAxis[axispos].color;
-      if (DP_yAxis[axispos].text) {
-        url2 += '|T' + DP_yAxis[axispos].text.replaceAll("%", "§").replaceAll('&', 'µ');
+      url2 += '|P' + ((window.H2buffer.yAxis[axispos].position) ? '1' : '0');
+      url2 += '|C' + window.H2buffer.yAxis[axispos].type;
+      url2 += '|A' + window.H2buffer.yAxis[axispos].limit;
+      url2 += '|L' + window.H2buffer.yAxis[axispos].min;
+      url2 += '|H' + window.H2buffer.yAxis[axispos].max;
+      url2 += '|G' + window.H2buffer.yAxis[axispos].tick;
+      url2 += '|F' + window.H2buffer.yAxis[axispos].color;
+      if (window.H2buffer.yAxis[axispos].text) {
+        url2 += '|T' + window.H2buffer.yAxis[axispos].text.replaceAll("%", "§").replaceAll('&', 'µ');
       }else {
         url2 += '|T';
       }
@@ -2997,22 +2994,22 @@ function createUrlAxis() {
 
 //********************
 function autoRefresh() {
-  if (DP_AutoRefresh > 0) {
+  if (window.H2buffer.AutoRefresh > 0) {
     setTimeout(autoRefresh, 1000);
-    if (DP_Navigator < 3) {
-      document.getElementById('autorefresh').innerHTML = ' - ' + window.ChhLanguage.default.historian.autorefreshText + ':' + AutoRefreshCount + ' Sek.';
+    if (window.H2buffer.Navigator < 3) {
+      document.getElementById('autorefresh').innerHTML = ' - ' + window.ChhLanguage.default.historian.autorefreshText + ':' + window.H2buffer.AutoRefreshCount + ' Sek.';
     }
-    AutoRefreshCount--;
-    if (AutoRefreshCount <= 0) {
-      AutoRefreshCount = DP_AutoRefresh;
-      var dauer = Zeitraum_Ende.getTime() - Zeitraum_Start.getTime();
-      Zeitraum_Ende = new Date(Date.now());
-      Zeitraum_Start = new Date(Zeitraum_Ende - (new Date(dauer)));
+    window.H2buffer.AutoRefreshCount--;
+    if (window.H2buffer.AutoRefreshCount <= 0) {
+      window.H2buffer.AutoRefreshCount = window.H2buffer.AutoRefresh;
+      let dauer = window.H2buffer.ZR_Ende.getTime() - window.H2buffer.ZR_Start.getTime();
+      window.H2buffer.ZR_Ende = new Date(Date.now());
+      window.H2buffer.ZR_Start = new Date(window.H2buffer.ZR_Ende - (new Date(dauer)));
 
       // Add Zoom if not full
-      var extremes = chart.xAxis[0].getExtremes();
+      let extremes = window.H2buffer.chart.xAxis[0].getExtremes();
       if (extremes.max < extremes.dataMax || extremes.min > extremes.dataMin) {
-         DP_Zoom = (Math.round(((extremes.max - extremes.min) / (60 * 60 * 1000)) * 100) / 100);
+         window.H2buffer.Zoom = (Math.round(((extremes.max - extremes.min) / (60 * 60 * 1000)) * 100) / 100);
       }
 
       loadNewSerienData();
@@ -3024,28 +3021,28 @@ function autoRefresh() {
 
 //********************
 function loadingInfo() {
-  if (DP_Queue.length > 0) {
-    chart.showLoading();
+  if (window.H2buffer.Queue.length > 0) {
+    window.H2buffer.chart.showLoading();
   } else {
-    chart.hideLoading();
-    if (DP_Button_Jump) {
-      chart.xAxis[0].setExtremes(Zeitraum_Start.getTime(), Zeitraum_Ende.getTime(), true);
-      DP_Button_Jump = false;
-    } else if (DP_Zoom > 0) {
-      let newStart = new Date(Zeitraum_Ende - (new Date(3600 * 1000 * DP_Zoom)));
-      chart.xAxis[0].setExtremes(newStart.getTime(), Zeitraum_Ende.getTime(), true);
-      DP_Zoom = 0;
+    window.H2buffer.chart.hideLoading();
+    if (window.H2buffer.Button_Jump) {
+      window.H2buffer.chart.xAxis[0].setExtremes(window.H2buffer.ZR_Start.getTime(), window.H2buffer.ZR_Ende.getTime(), true);
+      window.H2buffer.Button_Jump = false;
+    } else if (window.H2buffer.Zoom > 0) {
+      let newStart = new Date(window.H2buffer.ZR_Ende - (new Date(3600 * 1000 * window.H2buffer.Zoom)));
+      window.H2buffer.chart.xAxis[0].setExtremes(newStart.getTime(), window.H2buffer.ZR_Ende.getTime(), true);
+      window.H2buffer.Zoom = 0;
     }
   }
-  if (DP_Queue.length > 0 && DP_Navigator < 3) {
-    if (DP_Loading !== DP_Queue.length) {
-      document.getElementById('loading').innerHTML = ' (Loading - ' + DP_Queue.length + ') <img src="loading.gif" alt="loading" height="20" width="20">';
-      DP_Loading = DP_Queue.length;
+  if (window.H2buffer.Queue.length > 0 && window.H2buffer.Navigator < 3) {
+    if (window.H2buffer.Loading !== window.H2buffer.Queue.length) {
+      document.getElementById('loading').innerHTML = ' (Loading - ' + window.H2buffer.Queue.length + ') <img src="loading.gif" alt="loading" height="20" width="20">';
+      window.H2buffer.Loading = window.H2buffer.Queue.length;
     }
     setTimeout(loadingInfo, 500);
-  } else if (DP_Loading > 0) {
+  } else if (window.H2buffer.Loading > 0) {
     document.getElementById('loading').innerHTML = '';
-    DP_Loading = 0;
+    window.H2buffer.Loading = 0;
   }
 }
 
@@ -3053,12 +3050,12 @@ function loadingInfo() {
 //********************
 function addAggregationMinMax(serieObj) {
 
-  var arr_dp = [];
+  let arr_dp = [];
 
   // first delete all linked series
-  for (var i = chart.series.length - 1; i >= 0; i--) {
-    if (serieObj.options.id === chart.series[i].options.linkedTo && chart.series[i].options.name === 'MinMax') {
-      chart.series[i].remove(false);
+  for (let i = window.H2buffer.chart.series.length - 1; i >= 0; i--) {
+    if (serieObj.options.id === window.H2buffer.chart.series[i].options.linkedTo && window.H2buffer.chart.series[i].options.name === 'MinMax') {
+      window.H2buffer.chart.series[i].remove(false);
     }
   }
 
@@ -3066,7 +3063,7 @@ function addAggregationMinMax(serieObj) {
     arr_dp.push([p[0], p[1], p[1]]);
   });
 
-  chart.addSeries({
+  window.H2buffer.chart.addSeries({
     name: 'MinMax',
     fillOpacity: 0.4,
     color: serieObj.color,
@@ -3101,59 +3098,61 @@ function showDialogLine(serieObj) {
       document.getElementById("compare").style.display = '';
     }
 
-    var techName = '';
+    let techName = '';
     let DP_pos;
     if (serieObj.options.id.substr(0, 1) === 'C') {
-      DP_pos = DP_point.findIndex(obj => obj.idx.toString() === serieObj.options.id.split('_')[1].toString());
+      DP_pos = window.H2buffer.DataPoints.findIndex(obj => obj.idx.toString() === serieObj.options.id.split('_')[1].toString());
     } else {
-      DP_pos = DP_point.findIndex(obj => obj.idx.toString() === serieObj.options.id.toString());
+      DP_pos = window.H2buffer.DataPoints.findIndex(obj => obj.idx.toString() === serieObj.options.id.toString());
     }
 
     if (DP_pos === -1) {
       techName = 'n/a';
-    } else if (DP_point[DP_pos].id.interfaceId === "SysVar") {
+    } else if (window.H2buffer.DataPoints[DP_pos].id.interfaceId === "SysVar") {
       techName = '<br/>Systemvariable';
     } else {
-      techName = '<br/>' + DP_point[DP_pos].id.interfaceId + '.' + DP_point[DP_pos].id.address + '.' + DP_point[DP_pos].id.identifier;
+      techName = '<br/>' + window.H2buffer.DataPoints[DP_pos].id.interfaceId + '.'
+                         + window.H2buffer.DataPoints[DP_pos].id.address + '.'
+                         + window.H2buffer.DataPoints[DP_pos].id.identifier;
     }
 
-    DP_PopupID = serieObj.options.id.toString();
+    window.H2buffer.PopupID = serieObj.options.id.toString();
 
-    var attr = DP_attribute.findIndex(obj => obj.id === serieObj.options.id.toString());
+    let attr = window.H2buffer.DataAttr.findIndex(obj => obj.id === serieObj.options.id.toString());
     if (attr === -1) {
 
-      var ArrAttr;
+      let ArrAttr;
       if (DP_pos === -1) {
-        ArrAttr = defaultAttrib(-1, serieObj.colorIndex, DP_PopupID);
+        ArrAttr = defaultAttrib(-1, serieObj.colorIndex, window.H2buffer.PopupID);
       } else {
-        ArrAttr = defaultAttrib(DP_point[DP_pos], serieObj.colorIndex, DP_PopupID);
+        ArrAttr = defaultAttrib(window.H2buffer.DataPoints[DP_pos], serieObj.colorIndex, window.H2buffer.PopupID);
       }
 
-      DP_attribute.push(ArrAttr);
+      window.H2buffer.DataAttr.push(ArrAttr);
 
-      attr = DP_attribute.length - 1;
+      attr = window.H2buffer.DataAttr.length - 1;
 
     }
 
     // set value on Popup
     document.getElementsByClassName("modal-title")[0].innerHTML = serieObj.name + techName;
 
-    document.getElementById("Select-Aggregation").value = DP_attribute[attr].aggr;
-    document.getElementById("Select-AggrTime").value = DP_attribute[attr].atime;
-    document.getElementById("Select-Yaxis").value = DP_attribute[attr].yaxis;
-    document.getElementById("Select-Compare").value = DP_attribute[attr].comp;
-    document.getElementById("Select-Stacking").value = DP_attribute[attr].stack;
-    document.getElementById("Select-Line").value = DP_attribute[attr].line;
-    document.getElementById("Select-Color").value = DP_attribute[attr].color;
-    document.getElementById("Select-Marker").value = DP_attribute[attr].mark;
-    document.getElementById("Select-DashType").value = DP_attribute[attr].dash;
-    document.getElementById("Select-LineWidth").value = DP_attribute[attr].width;
-    document.getElementById("Line-Factor").value = DP_attribute[attr].factor;
-    document.getElementById("Line-OffSet").value = DP_attribute[attr].offset;
-    document.getElementById("Line-Unit").value = DP_attribute[attr].unit;
-    document.getElementById("Line-ShortName").value = DP_attribute[attr].shortname;
+    document.getElementById("Select-Aggregation").value = window.H2buffer.DataAttr[attr].aggr;
+    document.getElementById("Select-AggrTime").value = window.H2buffer.DataAttr[attr].atime;
+    document.getElementById("Select-Yaxis").value = window.H2buffer.DataAttr[attr].yaxis;
+    document.getElementById("Select-Compare").value = window.H2buffer.DataAttr[attr].comp;
+    document.getElementById("Select-Stacking").value = window.H2buffer.DataAttr[attr].stack;
+    document.getElementById("Select-Line").value = window.H2buffer.DataAttr[attr].line;
+    document.getElementById("Select-Color").value = window.H2buffer.DataAttr[attr].color;
+    document.getElementById("Select-Marker").value = window.H2buffer.DataAttr[attr].mark;
+    document.getElementById("Select-DashType").value = window.H2buffer.DataAttr[attr].dash;
+    document.getElementById("Select-LineWidth").value = window.H2buffer.DataAttr[attr].width;
+    document.getElementById("Line-Factor").value = window.H2buffer.DataAttr[attr].factor;
+    document.getElementById("Line-OffSet").value = window.H2buffer.DataAttr[attr].offset;
+    document.getElementById("Line-Unit").value = window.H2buffer.DataAttr[attr].unit;
+    document.getElementById("Line-ShortName").value = window.H2buffer.DataAttr[attr].shortname;
 
-    document.getElementById("Select-Color").style.backgroundColor = chart.options.colors[parseInt(document.getElementById("Select-Color").value.substr(1, 2))];
+    document.getElementById("Select-Color").style.backgroundColor = window.H2buffer.chart.options.colors[parseInt(document.getElementById("Select-Color").value.substr(1, 2))];
 
     $("#LinePopup").modal();
   }
@@ -3175,54 +3174,54 @@ function saveLine() {
 
   getDialogLine();
 
-  var attr = DP_attribute.findIndex(obj => obj.id === DP_PopupID);
+  let attr = window.H2buffer.DataAttr.findIndex(obj => obj.id === window.H2buffer.PopupID);
   if (attr === -1) {
     return;
   }
-  var strCustom = '';
-  strCustom += DP_attribute[attr].aggr;
-  strCustom += '|' + DP_attribute[attr].atime;
-  strCustom += '|' + DP_attribute[attr].yaxis;
-  strCustom += '|' + DP_attribute[attr].line;
-  strCustom += '|' + DP_attribute[attr].color;
-  strCustom += '|' + DP_attribute[attr].comp;
-  strCustom += '|' + DP_attribute[attr].mark;
-  strCustom += '|' + DP_attribute[attr].dash;
-  strCustom += '|' + DP_attribute[attr].width;
-  strCustom += '|S' + DP_attribute[attr].stack;
-  strCustom += '|X' + DP_attribute[attr].factor;
-  strCustom += '|O' + DP_attribute[attr].offset;
-  strCustom += '|U' + encodeURIComponent(DP_attribute[attr].unit).replace(/'/g, '%27');
-  strCustom += '|N' + encodeURIComponent(DP_attribute[attr].shortname).replace(/'/g, '%27');
+  let strCustom = '';
+  strCustom += window.H2buffer.DataAttr[attr].aggr;
+  strCustom += '|' + window.H2buffer.DataAttr[attr].atime;
+  strCustom += '|' + window.H2buffer.DataAttr[attr].yaxis;
+  strCustom += '|' + window.H2buffer.DataAttr[attr].line;
+  strCustom += '|' + window.H2buffer.DataAttr[attr].color;
+  strCustom += '|' + window.H2buffer.DataAttr[attr].comp;
+  strCustom += '|' + window.H2buffer.DataAttr[attr].mark;
+  strCustom += '|' + window.H2buffer.DataAttr[attr].dash;
+  strCustom += '|' + window.H2buffer.DataAttr[attr].width;
+  strCustom += '|S' + window.H2buffer.DataAttr[attr].stack;
+  strCustom += '|X' + window.H2buffer.DataAttr[attr].factor;
+  strCustom += '|O' + window.H2buffer.DataAttr[attr].offset;
+  strCustom += '|U' + encodeURIComponent(window.H2buffer.DataAttr[attr].unit).replace(/'/g, '%27');
+  strCustom += '|N' + encodeURIComponent(window.H2buffer.DataAttr[attr].shortname).replace(/'/g, '%27');
 
-  var DP_pos = DP_point.findIndex(obj => obj.idx.toString() === DP_PopupID);
-  var key = 'POINT' + DP_PopupID;
+  let DP_pos = window.H2buffer.DataPoints.findIndex(obj => obj.idx.toString() === window.H2buffer.PopupID);
+  let key = 'POINT' + window.H2buffer.PopupID;
 
   // define customer if still NULL
-  if (!DP_point[DP_pos].attributes.custom) {
-    DP_point[DP_pos].attributes.custom = {};
+  if (!window.H2buffer.DataPoints[DP_pos].attributes.custom) {
+    window.H2buffer.DataPoints[DP_pos].attributes.custom = {};
   }
 
-  if (DP_point[DP_pos].attributes.custom.HighChart !== strCustom) {
+  if (window.H2buffer.DataPoints[DP_pos].attributes.custom.HighChart !== strCustom) {
 
-    DP_point[DP_pos].attributes.custom.HighChart = strCustom;
+    window.H2buffer.DataPoints[DP_pos].attributes.custom.HighChart = strCustom;
 
     // Save local cache for start performance
-    setLocalData('DataPoints', JSON.stringify(DP_point));
+    setLocalData('DataPoints', JSON.stringify(window.H2buffer.DataPoints));
     setLocalData('DataPointsTime', Date.now());
 
-    var url = 'http://' + H2_server + ':' + H2_port;
+    let url = 'http://' + window.H2buffer.server + ':' + window.H2buffer.port;
     url += '/query/jsonrpc.gy';
-    url += (DP_ApiKey === "") ? "" : "?" + DP_ApiKey;
+    url += (window.H2buffer.ApiKey === "") ? "" : "?" + window.H2buffer.ApiKey;
 
-    var postData = {
+    let postData = {
       id: key,
       method: 'updateDataPoint',
       params: [{
         'id': {
-          'interfaceId': DP_point[DP_pos].id.interfaceId,
-          'address': DP_point[DP_pos].id.address,
-          'identifier': DP_point[DP_pos].id.identifier
+          'interfaceId': window.H2buffer.DataPoints[DP_pos].id.interfaceId,
+          'address': window.H2buffer.DataPoints[DP_pos].id.address,
+          'identifier': window.H2buffer.DataPoints[DP_pos].id.identifier
         },
         'attributes': { 'custom': { 'HighChart': strCustom } }
       }]
@@ -3257,35 +3256,37 @@ $("#DialogBtnClose").click(function() {
 
 //Show Dialog
 function getDialogLine() {
-  var attr = DP_attribute.findIndex(obj => obj.id === DP_PopupID);
+  let attr = window.H2buffer.DataAttr.findIndex(obj => obj.id === window.H2buffer.PopupID);
 
-  if (DP_attribute[attr].comp !== document.getElementById("Select-Compare").value && document.getElementById("Select-Compare").value !== 'C0' && DP_attribute[attr].comp !== 'C0') {
+  if (window.H2buffer.DataAttr[attr].comp !== document.getElementById("Select-Compare").value
+       && document.getElementById("Select-Compare").value !== 'C0'
+       && window.H2buffer.DataAttr[attr].comp !== 'C0') {
     // change comparisation ID on old one, search any old one to update ID
-    var attrC = DP_attribute.findIndex(obj => obj.id.substr(0, 1) === 'C' && obj.id.split('_')[1] === DP_PopupID);
+    let attrC = window.H2buffer.DataAttr.findIndex(obj => obj.id.substr(0, 1) === 'C' && obj.id.split('_')[1] === window.H2buffer.PopupID);
     if (attrC !== -1) {
-      DP_attribute[attrC].id = document.getElementById("Select-Compare").value + '_' + DP_PopupID;
+      window.H2buffer.DataAttr[attrC].id = document.getElementById("Select-Compare").value + '_' + window.H2buffer.PopupID;
     }
   }
 
   // get value on Popup
-  DP_attribute[attr].aggr = document.getElementById("Select-Aggregation").value;
-  DP_attribute[attr].atime = document.getElementById("Select-AggrTime").value;
-  DP_attribute[attr].yaxis = document.getElementById("Select-Yaxis").value;
-  DP_attribute[attr].comp = document.getElementById("Select-Compare").value;
-  DP_attribute[attr].stack = parseInt(document.getElementById("Select-Stacking").value);
-  DP_attribute[attr].line = document.getElementById("Select-Line").value;
-  DP_attribute[attr].color = document.getElementById("Select-Color").value;
-  DP_attribute[attr].mark = document.getElementById("Select-Marker").value;
-  DP_attribute[attr].dash = document.getElementById("Select-DashType").value;
-  DP_attribute[attr].width = document.getElementById("Select-LineWidth").value;
-  DP_attribute[attr].factor = parseFloat(document.getElementById("Line-Factor").value);
-  DP_attribute[attr].offset = parseFloat(document.getElementById("Line-OffSet").value);
-  DP_attribute[attr].unit = document.getElementById("Line-Unit").value;
-  DP_attribute[attr].shortname = document.getElementById("Line-ShortName").value;
+  window.H2buffer.DataAttr[attr].aggr = document.getElementById("Select-Aggregation").value;
+  window.H2buffer.DataAttr[attr].atime = document.getElementById("Select-AggrTime").value;
+  window.H2buffer.DataAttr[attr].yaxis = document.getElementById("Select-Yaxis").value;
+  window.H2buffer.DataAttr[attr].comp = document.getElementById("Select-Compare").value;
+  window.H2buffer.DataAttr[attr].stack = parseInt(document.getElementById("Select-Stacking").value);
+  window.H2buffer.DataAttr[attr].line = document.getElementById("Select-Line").value;
+  window.H2buffer.DataAttr[attr].color = document.getElementById("Select-Color").value;
+  window.H2buffer.DataAttr[attr].mark = document.getElementById("Select-Marker").value;
+  window.H2buffer.DataAttr[attr].dash = document.getElementById("Select-DashType").value;
+  window.H2buffer.DataAttr[attr].width = document.getElementById("Select-LineWidth").value;
+  window.H2buffer.DataAttr[attr].factor = parseFloat(document.getElementById("Line-Factor").value);
+  window.H2buffer.DataAttr[attr].offset = parseFloat(document.getElementById("Line-OffSet").value);
+  window.H2buffer.DataAttr[attr].unit = document.getElementById("Line-Unit").value;
+  window.H2buffer.DataAttr[attr].shortname = document.getElementById("Line-ShortName").value;
 
   // ignor 0 values for faktor
-  if (isNaN(DP_attribute[attr].factor) || DP_attribute[attr].factor === 0.0) {
-    DP_attribute[attr].factor = 1;
+  if (isNaN(window.H2buffer.DataAttr[attr].factor) || window.H2buffer.DataAttr[attr].factor === 0.0) {
+    window.H2buffer.DataAttr[attr].factor = 1;
   }
 
   $("#LinePopup").modal('hide');
@@ -3298,21 +3299,21 @@ function showDialogSettings() {
 
   // set value on Popup
   document.getElementsByClassName("modal-title2")[0].innerHTML = window.ChhLanguage.default.historian.settings;
-  document.getElementById("Select-Legend").value = DP_Legend.toString();
-  document.getElementById("Select-Navigator").value = DP_Navigator.toString();
-  document.getElementById("Select-Label").value = DP_Labels.toString();
-  document.getElementById("Select-Layout").value = DP_DayLight.toString();
-  document.getElementById("Select-Grid").value = DP_Grid.toString();
-  document.getElementById("Select-Content").value = DP_ShowFilter.toString();
-  document.getElementById("Select-DataPoint").value = DP_DataPointFilter.toString();
-  document.getElementById("Select-Theme").value = DP_Theme;
-  document.getElementById("Select-FontSize").value = DP_FontSize;
-  document.getElementById("Select-CrossHair").value = DP_CrossHair.toString();
-  document.getElementById("Select-ToolTip").value = DP_ToolTip.toString();
-  document.getElementById("Select-HighLight").value = DP_HighLight.toString();
-  document.getElementById("Line-Refresh").value = DP_AutoRefresh;
-  document.getElementById("Line-Title").value = DP_Title;
-  document.getElementById("Line-Subtitle").value = DP_Subtitle;
+  document.getElementById("Select-Legend").value = window.H2buffer.Legend.toString();
+  document.getElementById("Select-Navigator").value = window.H2buffer.Navigator.toString();
+  document.getElementById("Select-Label").value = window.H2buffer.Labels.toString();
+  document.getElementById("Select-Layout").value = window.H2buffer.DayLight.toString();
+  document.getElementById("Select-Grid").value = window.H2buffer.Grid.toString();
+  document.getElementById("Select-Content").value = window.H2buffer.ShowFilter.toString();
+  document.getElementById("Select-DataPoint").value = window.H2buffer.DataPointFilter.toString();
+  document.getElementById("Select-Theme").value = window.H2buffer.Theme;
+  document.getElementById("Select-FontSize").value = window.H2buffer.FontSize;
+  document.getElementById("Select-CrossHair").value = window.H2buffer.CrossHair.toString();
+  document.getElementById("Select-ToolTip").value = window.H2buffer.ToolTip.toString();
+  document.getElementById("Select-HighLight").value = window.H2buffer.HighLight.toString();
+  document.getElementById("Line-Refresh").value = window.H2buffer.AutoRefresh;
+  document.getElementById("Line-Title").value = window.H2buffer.Title;
+  document.getElementById("Line-Subtitle").value = window.H2buffer.Subtitle;
 
   $("#SettingPopup").modal();
 }
@@ -3334,49 +3335,49 @@ function saveSetting() {
 
   getDialogSetting();
 
-  var strCustom = '';
-  strCustom += 'L' + DP_Legend.toString();
-  strCustom += '|N' + DP_Navigator.toString();
-  strCustom += '|P' + DP_Labels.toString();
-  strCustom += '|D' + DP_DayLight.toString();
-  strCustom += '|G' + DP_Grid.toString();
-  strCustom += '|F' + DP_ShowFilter.toString();
-  strCustom += '|I' + DP_DataPointFilter.toString();
-  strCustom += '|B' + DP_Theme;
-  strCustom += '|O' + DP_FontSize;
-  strCustom += '|C' + DP_CrossHair.toString();
-  strCustom += '|M' + DP_ToolTip.toString();
-  strCustom += '|H' + DP_HighLight.toString();
-  strCustom += '|R' + DP_AutoRefresh;
-  strCustom += '|T' + encodeURIComponent(DP_Title).replace(/'/g, '%27');
-  strCustom += '|S' + encodeURIComponent(DP_Subtitle).replace(/'/g, '%27');
+  let strCustom = '';
+  strCustom += 'L' + window.H2buffer.Legend.toString();
+  strCustom += '|N' + window.H2buffer.Navigator.toString();
+  strCustom += '|P' + window.H2buffer.Labels.toString();
+  strCustom += '|D' + window.H2buffer.DayLight.toString();
+  strCustom += '|G' + window.H2buffer.Grid.toString();
+  strCustom += '|F' + window.H2buffer.ShowFilter.toString();
+  strCustom += '|I' + window.H2buffer.DataPointFilter.toString();
+  strCustom += '|B' + window.H2buffer.Theme;
+  strCustom += '|O' + window.H2buffer.FontSize;
+  strCustom += '|C' + window.H2buffer.CrossHair.toString();
+  strCustom += '|M' + window.H2buffer.ToolTip.toString();
+  strCustom += '|H' + window.H2buffer.HighLight.toString();
+  strCustom += '|R' + window.H2buffer.AutoRefresh;
+  strCustom += '|T' + encodeURIComponent(window.H2buffer.Title).replace(/'/g, '%27');
+  strCustom += '|S' + encodeURIComponent(window.H2buffer.Subtitle).replace(/'/g, '%27');
 
   // Save to Global Settings
-  DP_settings.Setting = strCustom;
+  window.H2buffer.Settings.Setting = strCustom;
 
   saveSettingsH2();
 }
 
 function saveSettingsH2() {
 
-  var key = 'SETTING';
-  var strSetNew = JSON.stringify(DP_settings);
-  var strSetOld = JSON.stringify(DP_settings_old);
+  let key = 'SETTING';
+  let strSetNew = JSON.stringify(window.H2buffer.Settings);
+  let strSetOld = JSON.stringify(window.H2buffer.Settings_old);
 
   if (strSetNew !== strSetOld) {
 
     setLocalData('setting', strSetNew);
     setLocalData('settingTime', Date.now());
 
-    DP_settings_old = JSON.parse(strSetNew);
+    window.H2buffer.Settings_old = JSON.parse(strSetNew);
 
-    var url = 'http://' + H2_server + ':' + H2_port;
+    let url = 'http://' + window.H2buffer.server + ':' + window.H2buffer.port;
     url += '/query/jsonrpc.gy';
-    url += (DP_ApiKey === "") ? "" : "?" + DP_ApiKey;
+    url += (window.H2buffer.ApiKey === "") ? "" : "?" + window.H2buffer.ApiKey;
 
     strSetNew = strSetNew.replace(/'/g, "'");
 
-    var postData = {
+    let postData = {
       id: key,
       method: 'setConfig',
       params: ['HighChart', strSetNew]
@@ -3406,104 +3407,104 @@ function getDialogSetting() {
 
   $("#SettingPopup").modal('hide');
 
-  var filterrefresh = false;
-  var chartrefresh = false;
+  let filterrefresh = false;
+  let chartrefresh = false;
 
   // Legend
-  if (DP_Legend.toString() !== document.getElementById("Select-Legend").value) {
-    DP_Legend = parseInt(document.getElementById("Select-Legend").value);
+  if (window.H2buffer.Legend.toString() !== document.getElementById("Select-Legend").value) {
+    window.H2buffer.Legend = parseInt(document.getElementById("Select-Legend").value);
     chartrefresh = true;
   }
 
   // Navigator
-  if (DP_Navigator.toString() !== document.getElementById("Select-Navigator").value) {
-    DP_Navigator = parseInt(document.getElementById("Select-Navigator").value);
+  if (window.H2buffer.Navigator.toString() !== document.getElementById("Select-Navigator").value) {
+    window.H2buffer.Navigator = parseInt(document.getElementById("Select-Navigator").value);
     chartrefresh = true;
   }
 
   // Title
-  if (DP_Title !== document.getElementById("Line-Title").value) {
-    DP_Title = document.getElementById("Line-Title").value;
+  if (window.H2buffer.Title !== document.getElementById("Line-Title").value) {
+    window.H2buffer.Title = document.getElementById("Line-Title").value;
     chartrefresh = true;
   }
 
   // Subtitle
-  if (DP_Subtitle !== document.getElementById("Line-Subtitle").value) {
-    DP_Subtitle = document.getElementById("Line-Subtitle").value;
+  if (window.H2buffer.Subtitle !== document.getElementById("Line-Subtitle").value) {
+    window.H2buffer.Subtitle = document.getElementById("Line-Subtitle").value;
     chartrefresh = true;
   }
 
   // Labels
-  if (DP_Labels.toString() !== document.getElementById("Select-Label").value) {
-    DP_Labels = parseInt(document.getElementById("Select-Label").value);
+  if (window.H2buffer.Labels.toString() !== document.getElementById("Select-Label").value) {
+    window.H2buffer.Labels = parseInt(document.getElementById("Select-Label").value);
     filterrefresh = true;
   }
 
   // Layout
-  if (DP_DayLight.toString() !== document.getElementById("Select-Layout").value) {
-    DP_DayLight = parseInt(document.getElementById("Select-Layout").value);
+  if (window.H2buffer.DayLight.toString() !== document.getElementById("Select-Layout").value) {
+    window.H2buffer.DayLight = parseInt(document.getElementById("Select-Layout").value);
     filterrefresh = true;
   }
 
   // Grid
-  if (DP_Grid.toString() !== document.getElementById("Select-Grid").value) {
-    DP_Grid = parseInt(document.getElementById("Select-Grid").value);
+  if (window.H2buffer.Grid.toString() !== document.getElementById("Select-Grid").value) {
+    window.H2buffer.Grid = parseInt(document.getElementById("Select-Grid").value);
     chartSetOptions();
     filterrefresh = true;
   }
 
   // FilterLine
-  if (DP_ShowFilter.toString() !== document.getElementById("Select-Content").value) {
-    DP_ShowFilter = parseInt(document.getElementById("Select-Content").value);
+  if (window.H2buffer.ShowFilter.toString() !== document.getElementById("Select-Content").value) {
+    window.H2buffer.ShowFilter = parseInt(document.getElementById("Select-Content").value);
     showFilterLine();
     chartSetOptions();
     filterrefresh = true;
   }
 
   // DataPointFilter
-  if (DP_DataPointFilter.toString() !== document.getElementById("Select-DataPoint").value) {
-    DP_DataPointFilter = parseInt(document.getElementById("Select-DataPoint").value);
+  if (window.H2buffer.DataPointFilter.toString() !== document.getElementById("Select-DataPoint").value) {
+    window.H2buffer.DataPointFilter = parseInt(document.getElementById("Select-DataPoint").value);
     chartrefresh = true;
   }
 
   // Theme
-  if (DP_Theme !== document.getElementById("Select-Theme").value) {
-    DP_Theme = document.getElementById("Select-Theme").value;
+  if (window.H2buffer.Theme !== document.getElementById("Select-Theme").value) {
+    window.H2buffer.Theme = document.getElementById("Select-Theme").value;
     chartrefresh = true;
   }
 
   // FontSize
-  if (DP_FontSize.toString() !== document.getElementById("Select-FontSize").value) {
-    DP_FontSize = parseInt(document.getElementById("Select-FontSize").value);
+  if (window.H2buffer.FontSize.toString() !== document.getElementById("Select-FontSize").value) {
+    window.H2buffer.FontSize = parseInt(document.getElementById("Select-FontSize").value);
     chartrefresh = true;
   }
 
   // CrossHair
-  if (DP_CrossHair.toString() !== document.getElementById("Select-CrossHair").value) {
-    DP_CrossHair = parseInt(document.getElementById("Select-CrossHair").value);
+  if (window.H2buffer.CrossHair.toString() !== document.getElementById("Select-CrossHair").value) {
+    window.H2buffer.CrossHair = parseInt(document.getElementById("Select-CrossHair").value);
     chartrefresh = true;
   }
 
   // ToolTip
-  if (DP_ToolTip.toString() !== document.getElementById("Select-ToolTip").value) {
-    DP_ToolTip = parseInt(document.getElementById("Select-ToolTip").value);
+  if (window.H2buffer.ToolTip.toString() !== document.getElementById("Select-ToolTip").value) {
+    window.H2buffer.ToolTip = parseInt(document.getElementById("Select-ToolTip").value);
     chartrefresh = true;
   }
 
   // HighLight
-  if (DP_HighLight.toString() !== document.getElementById("Select-HighLight").value) {
-    DP_HighLight= parseInt(document.getElementById("Select-HighLight").value);
+  if (window.H2buffer.HighLight.toString() !== document.getElementById("Select-HighLight").value) {
+    window.H2buffer.HighLight= parseInt(document.getElementById("Select-HighLight").value);
     chartrefresh = true;
   }
 
   // AutoRefresh
-  if (DP_AutoRefresh !== parseInt(document.getElementById("Line-Refresh").value)) {
-    H2_refreshSec = parseInt(document.getElementById("Line-Refresh").value);
-    AutoRefreshCount = H2_refreshSec;
-    if (DP_AutoRefresh === 0 && H2_refreshSec > 0) {
+  if (window.H2buffer.AutoRefresh !== parseInt(document.getElementById("Line-Refresh").value)) {
+    window.H2buffer.refreshSec = parseInt(document.getElementById("Line-Refresh").value);
+    window.H2buffer.AutoRefreshCount = window.H2buffer.refreshSec;
+    if (window.H2buffer.AutoRefresh === 0 && window.H2buffer.refreshSec > 0) {
       setTimeout(autoRefresh, 1000);
     }
-    DP_AutoRefresh = H2_refreshSec;
+    window.H2buffer.AutoRefresh = window.H2buffer.refreshSec;
   }
 
   if (chartrefresh) {
@@ -3526,7 +3527,7 @@ function showDialogFav() {
 
 // genearte Fav-List on Popup
 
-  if (DP_settings.Favorites) {
+  if (window.H2buffer.Settings.Favorites) {
     let favList = document.getElementById('favList');
     if (favList.childNodes && favList.childNodes.length > 0) {
       favList.removeChild(favList.childNodes[0]);
@@ -3537,14 +3538,14 @@ function showDialogFav() {
     mytable.setAttribute("style","border: 0px; margin-top: 22px;");
     let mytablebody = document.createElement("tbody");
 
-    for(let i = 0; i<DP_settings.Favorites.length;i++) {
+    for(let i = 0; i<window.H2buffer.Settings.Favorites.length;i++) {
       let mycurrent_row = document.createElement("tr");
 
       let mycurrent_cell1 = document.createElement("td");
       mycurrent_cell1.setAttribute("style","border: 0px;");
 
       let currenttext1 = document.createElement("button");
-      currenttext1.innerHTML = decodeURIComponent(DP_settings.Favorites[i].Name);
+      currenttext1.innerHTML = decodeURIComponent(window.H2buffer.Settings.Favorites[i].Name);
       currenttext1.setAttribute("class","bnt btn-default");
       currenttext1.setAttribute("onclick","executeFav("+i+");");
       currenttext1.setAttribute("draggable","true");
@@ -3587,7 +3588,7 @@ function allowDrop(ev) {
 
 // Drag function for FAV
 function drag(ev, pos) {
-  DP_Drag_Pos = pos;
+  window.H2buffer.Drag_Pos = pos;
   ev.dataTransfer.setData('text', ev.target.id);
 }
 
@@ -3595,13 +3596,13 @@ function drag(ev, pos) {
 function drop(ev, pos) {
   ev.stopPropagation();
 
-  let arr = DP_settings.Favorites[DP_Drag_Pos];
+  let arr = window.H2buffer.Settings.Favorites[window.H2buffer.Drag_Pos];
 
   // löscht alten Position
-  DP_settings.Favorites.splice(DP_Drag_Pos,1);
+  window.H2buffer.Settings.Favorites.splice(window.H2buffer.Drag_Pos,1);
 
   // insert neue Position
-  DP_settings.Favorites.splice(pos, 0, arr );
+  window.H2buffer.Settings.Favorites.splice(pos, 0, arr );
 
   // Save to H2 database
   saveSettingsH2();
@@ -3636,9 +3637,9 @@ function deleteFav(favorit) {
 
  $("#FavPopup").modal('hide');
 
-  if (DP_settings.Favorites[favorit]) {
+  if (window.H2buffer.Settings.Favorites[favorit]) {
   // delete Favorite entry on position
-    DP_settings.Favorites.splice(favorit,1);
+    window.H2buffer.Settings.Favorites.splice(favorit,1);
 
   // Save to H2 database
     saveSettingsH2();
@@ -3648,10 +3649,10 @@ function deleteFav(favorit) {
 function executeFav(favorit) {
  $("#FavPopup").modal('hide');
 
-  if (DP_settings.Favorites[favorit]) {
+  if (window.H2buffer.Settings.Favorites[favorit]) {
 
 // execute Favorit
-    var url = location.pathname + "?" + decodeURIComponent(DP_settings.Favorites[favorit].Url);
+    let url = location.pathname + "?" + decodeURIComponent(window.H2buffer.Settings.Favorites[favorit].Url);
     window.open(url,"_self");
 
   }
@@ -3664,10 +3665,10 @@ function getDialogFav() {
   // Favorite Title
   if (document.getElementById("Line-Title4").value) {
 
-    if (!DP_settings.Favorites) {
-      DP_settings.Favorites = [];
+    if (!window.H2buffer.Settings.Favorites) {
+      window.H2buffer.Settings.Favorites = [];
     }
-    DP_settings.Favorites.push({ Name: encodeURIComponent(document.getElementById("Line-Title4").value).replace(/'/g, '%27'),
+    window.H2buffer.Settings.Favorites.push({ Name: encodeURIComponent(document.getElementById("Line-Title4").value).replace(/'/g, '%27'),
                                  Url: encodeURIComponent(generateUrl()).replace(/'/g, '%27') });
 
     saveSettingsH2();
@@ -3683,64 +3684,70 @@ $("#Dialog2BtnClose").click(function() {
 function showFilterLine() {
 
   // ajust height of content to screen height
-  if (DP_ShowFilter === 0) {
+  if (window.H2buffer.ShowFilter === 0) {
     document.getElementById("filter").style.display = "none";
     $('nav.navbar.navbar-default')[0].style.display = "none";
-  } else if (DP_ShowFilter === 1) {
+  } else if (window.H2buffer.ShowFilter === 1) {
     document.getElementById("filter").style.display = "block";
     $('nav.navbar.navbar-default')[0].style.display = "block";
-  } else if (DP_ShowFilter === 2) {
+  } else if (window.H2buffer.ShowFilter === 2) {
     document.getElementById("filter").style.display = "block";
     $('nav.navbar.navbar-default')[0].style.display = "none";
-  } else if (DP_ShowFilter === 3) {
+  } else if (window.H2buffer.ShowFilter === 3) {
     document.getElementById("filter").style.display = "none";
     $('nav.navbar.navbar-default')[0].style.display = "block";
   }
 
   document.getElementById("container").setAttribute("style", "height:" + calcContSize().toString() + "px");
 
-  if (chart) {
-    chart.setSize(null, null, false);
+  if (window.H2buffer.chart) {
+    window.H2buffer.chart.setSize(null, null, false);
   }
 }
 
 function defineLegend() {
-  var ret = {};
-  if (DP_Legend === 0) {
+  let ret = {};
+  if (window.H2buffer.Legend === 0) {
     ret = {
       enabled: false,
     };
-  } else if (DP_Legend === 2) {
+  } else if (window.H2buffer.Legend === 2) {
     ret = {
       enabled: true,
       layout: 'vertical',
       align: 'right',
       verticalAlign: 'top',
       floating: false,
-      y: (DP_Navigator < 4) ? -30 : 0,
-      maxHeight: $(window).height() - (DP_ShowFilter === 0 ? 90 : 0) - (DP_ShowFilter === 1 ? 200 : 0) - (DP_ShowFilter === 2 ? 120 : 0) - (DP_ShowFilter === 3 ? 180 : 0)
+      y: (window.H2buffer.Navigator < 4) ? -30 : 0,
+      maxHeight: $(window).height() - (window.H2buffer.ShowFilter === 0 ? 90 : 0)
+                                    - (window.H2buffer.ShowFilter === 1 ? 200 : 0)
+                                    - (window.H2buffer.ShowFilter === 2 ? 120 : 0)
+                                    - (window.H2buffer.ShowFilter === 3 ? 180 : 0)
     };
-  } else if (DP_Legend === 3) {
+  } else if (window.H2buffer.Legend === 3) {
     ret = {
       enabled: true,
       layout: 'horizontal',
       align: 'center',
       verticalAlign: 'top',
       floating: true,
-      y: 10 + (DP_Title === '' ? 0 : DP_FontSize + 20) + (DP_Subtitle === '' ? 0 : (DP_FontSize/6+5) + 15),
+      y: 10 + (window.H2buffer.Title === '' ? 0 : window.H2buffer.FontSize + 20) + (window.H2buffer.Subtitle === '' ? 0 : (window.H2buffer.FontSize/6+5) + 15),
       maxHeight: 200
     };
-  } else if (DP_Legend === 4) {
+  } else if (window.H2buffer.Legend === 4) {
     ret = {
       enabled: true,
       layout: 'horizontal',
       align: 'center',
       verticalAlign: 'bottom',
       floating: true,
-      y: -30 - DP_FontSize - ( DP_Navigator === 0 ? 20+DP_FontSize*4.5 : 0 ) - ( DP_Navigator === 1 ? 15+DP_FontSize*3.5 : 0 ) - ( DP_Navigator === 2 ? 11+DP_FontSize*2 : 0 )  ,
+      y: -30 - window.H2buffer.FontSize
+             - ( window.H2buffer.Navigator === 0 ? 20+window.H2buffer.FontSize*4.5 : 0 )
+             - ( window.H2buffer.Navigator === 1 ? 15+window.H2buffer.FontSize*3.5 : 0 )
+             - ( window.H2buffer.Navigator === 2 ? 11+window.H2buffer.FontSize*2 : 0 ),
       maxHeight: 200
     };
-  } else if (DP_Legend === 5) {
+  } else if (window.H2buffer.Legend === 5) {
     ret = {
       enabled: true,
       layout: 'horizontal',
@@ -3750,7 +3757,7 @@ function defineLegend() {
       y: 0,
       maxHeight: 200
     };
-  } else if (DP_Legend === 6) {
+  } else if (window.H2buffer.Legend === 6) {
     ret = {
       enabled: true,
       layout: 'horizontal',
@@ -3760,7 +3767,7 @@ function defineLegend() {
       y: 0,
       maxHeight: 200
     };
-    // on DP_Legend = 1 and default
+    // on window.H2buffer.Legend = 1 and default
   } else {
     ret = {
       enabled: true,
@@ -3768,8 +3775,11 @@ function defineLegend() {
       align: 'left',
       verticalAlign: 'top',
       floating: false,
-      y: (DP_Navigator < 4) ? -30 : 0,
-      maxHeight: $(window).height() - (DP_ShowFilter === 0 ? 90 : 0) - (DP_ShowFilter === 1 ? 200 : 0) - (DP_ShowFilter === 2 ? 120 : 0) - (DP_ShowFilter === 3 ? 180 : 0)
+      y: (window.H2buffer.Navigator < 4) ? -30 : 0,
+      maxHeight: $(window).height() - (window.H2buffer.ShowFilter === 0 ? 90 : 0)
+                                    - (window.H2buffer.ShowFilter === 1 ? 200 : 0)
+                                    - (window.H2buffer.ShowFilter === 2 ? 120 : 0)
+                                    - (window.H2buffer.ShowFilter === 3 ? 180 : 0)
     };
   }
   ret['x'] = 0;
@@ -3783,17 +3793,17 @@ function showDialogYAxis(id) {
   document.getElementsByClassName("modal-title3")[0].innerHTML = window.ChhLanguage.default.historian.axissetting + ' ' + id.substr(5, 2);
 
   // find axis object
-  var axispos = parseInt(id.substr(5, 2));
-  if (axispos >= 0 && axispos < chart.options.yAxis.length) {
-    DP_PopupAxisPos = axispos;
-    document.getElementById("Line-Title3").value = DP_yAxis[DP_PopupAxisPos].text;
-    document.getElementById("Select-Position").value = DP_yAxis[DP_PopupAxisPos].position ? '1' : '0';
-    document.getElementById("Line-Min").value = DP_yAxis[DP_PopupAxisPos].min;
-    document.getElementById("Line-Max").value = DP_yAxis[DP_PopupAxisPos].max;
-    document.getElementById("Line-TickAmount").value = DP_yAxis[DP_PopupAxisPos].tick;
-    document.getElementById("Select-AxisColor").value = DP_yAxis[DP_PopupAxisPos].color;
-    document.getElementById("Select-Limit").value = DP_yAxis[DP_PopupAxisPos].limit;
-    document.getElementById("Select-AxisType").value = DP_yAxis[DP_PopupAxisPos].type;
+  let axispos = parseInt(id.substr(5, 2));
+  if (axispos >= 0 && axispos < window.H2buffer.chart.options.yAxis.length) {
+    window.H2buffer.PopupAxisPos = axispos;
+    document.getElementById("Line-Title3").value = window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].text;
+    document.getElementById("Select-Position").value = window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].position ? '1' : '0';
+    document.getElementById("Line-Min").value = window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].min;
+    document.getElementById("Line-Max").value = window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].max;
+    document.getElementById("Line-TickAmount").value = window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].tick;
+    document.getElementById("Select-AxisColor").value = window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].color;
+    document.getElementById("Select-Limit").value = window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].limit;
+    document.getElementById("Select-AxisType").value = window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].type;
 
   } else {
     return;
@@ -3814,18 +3824,18 @@ $("#Dialog3BtnOK").click(function() {
 $("#AxisDefault").click(function() {
   getDialogAxis();
 
-  var strCustom = '';
-  strCustom += 'P' + ((DP_yAxis[DP_PopupAxisPos].position) ? '1' : '0');
-  strCustom += '|C' + DP_yAxis[DP_PopupAxisPos].type;
-  strCustom += '|A' + DP_yAxis[DP_PopupAxisPos].limit;
-  strCustom += '|L' + DP_yAxis[DP_PopupAxisPos].min;
-  strCustom += '|H' + DP_yAxis[DP_PopupAxisPos].max;
-  strCustom += '|G' + DP_yAxis[DP_PopupAxisPos].tick;
-  strCustom += '|F' + DP_yAxis[DP_PopupAxisPos].color;
-  strCustom += '|T' + encodeURIComponent(DP_yAxis[DP_PopupAxisPos].text).replace(/'/g, '%27');
+  let strCustom = '';
+  strCustom += 'P' + ((window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].position) ? '1' : '0');
+  strCustom += '|C' + window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].type;
+  strCustom += '|A' + window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].limit;
+  strCustom += '|L' + window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].min;
+  strCustom += '|H' + window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].max;
+  strCustom += '|G' + window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].tick;
+  strCustom += '|F' + window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].color;
+  strCustom += '|T' + encodeURIComponent(window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].text).replace(/'/g, '%27');
 
   // Save to global Settings
-  DP_settings['YAXIS' + DP_PopupAxisPos] = strCustom;
+  window.H2buffer.Settings['YAXIS' + window.H2buffer.PopupAxisPos] = strCustom;
 
   saveSettingsH2();
 
@@ -3861,24 +3871,24 @@ function getDialogAxis() {
     };
   }
 
-  chart.yAxis[DP_PopupAxisPos].update(newOptions);
+  window.H2buffer.chart.yAxis[window.H2buffer.PopupAxisPos].update(newOptions);
 
-  DP_yAxis[DP_PopupAxisPos].text = document.getElementById("Line-Title3").value;
-  DP_yAxis[DP_PopupAxisPos].position = (parseInt(document.getElementById("Select-Position").value) === 0) ? false : true;
-  DP_yAxis[DP_PopupAxisPos].limit = parseInt(document.getElementById("Select-Limit").value);
-  DP_yAxis[DP_PopupAxisPos].type = parseInt(document.getElementById("Select-AxisType").value);
-  DP_yAxis[DP_PopupAxisPos].min = parseFloat(document.getElementById("Line-Min").value);
-  DP_yAxis[DP_PopupAxisPos].max = parseFloat(document.getElementById("Line-Max").value);
-  DP_yAxis[DP_PopupAxisPos].tick = parseInt(document.getElementById("Line-TickAmount").value);
-  DP_yAxis[DP_PopupAxisPos].color = parseInt(document.getElementById("Select-AxisColor").value);
+  window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].text = document.getElementById("Line-Title3").value;
+  window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].position = (parseInt(document.getElementById("Select-Position").value) === 0) ? false : true;
+  window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].limit = parseInt(document.getElementById("Select-Limit").value);
+  window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].type = parseInt(document.getElementById("Select-AxisType").value);
+  window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].min = parseFloat(document.getElementById("Line-Min").value);
+  window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].max = parseFloat(document.getElementById("Line-Max").value);
+  window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].tick = parseInt(document.getElementById("Line-TickAmount").value);
+  window.H2buffer.yAxis[window.H2buffer.PopupAxisPos].color = parseInt(document.getElementById("Select-AxisColor").value);
 
   // Yaxis options
   $("#Select-Yaxis").empty();
-  var select = document.getElementById("Select-Yaxis");
-  for (var i = 0; i < DP_yAxis.length; i++) {
-    var option = document.createElement("option");
-    if (DP_yAxis[i].text !== "" && DP_yAxis[i].text !== null) {
-      option.text = DP_yAxis[i].text;
+  let select = document.getElementById("Select-Yaxis");
+  for (let i = 0; i < window.H2buffer.yAxis.length; i++) {
+    let option = document.createElement("option");
+    if (window.H2buffer.yAxis[i].text !== "" && window.H2buffer.yAxis[i].text !== null) {
+      option.text = window.H2buffer.yAxis[i].text;
     } else {
       option.text = window.ChhLanguage.default.historian['yaxis' + i];
     }
@@ -3898,31 +3908,31 @@ $("#Dialog3BtnClose").click(function() {
 
 // define Y-Axis array
 function defineYAxis() {
-  var arr = [];
-  for (var y = 0; y < DP_yAxis.length; y++) {
+  let arr = [];
+  for (let y = 0; y < window.H2buffer.yAxis.length; y++) {
     let newOptions = {
       id: 'AXISY' + y,
       className: 'axisy' + y,
-      type: (DP_yAxis[y].type === 1) ? 'logarithmic' : 'linear',
+      type: (window.H2buffer.yAxis[y].type === 1) ? 'logarithmic' : 'linear',
       title: {
-        text: DP_yAxis[y].text
+        text: window.H2buffer.yAxis[y].text
       },
       lineWidth: 2,
       // showEmpty: false,
-      opposite: DP_yAxis[y].position,
-      tickAmount: DP_yAxis[y].tick,
-      min: (DP_yAxis[y].limit === 2) ? DP_yAxis[y].min : null,
-      max: (DP_yAxis[y].limit === 2) ? DP_yAxis[y].max : null,
-      softMin: (DP_yAxis[y].limit === 1) ? DP_yAxis[y].min : null,
-      softMax: (DP_yAxis[y].limit === 1) ? DP_yAxis[y].max : null,
-      startOnTick: (DP_yAxis[y].limit === 2) ? false : true,
-      endOnTick: (DP_yAxis[y].limit === 2) ? false : true,
+      opposite: window.H2buffer.yAxis[y].position,
+      tickAmount: window.H2buffer.yAxis[y].tick,
+      min: (window.H2buffer.yAxis[y].limit === 2) ? window.H2buffer.yAxis[y].min : null,
+      max: (window.H2buffer.yAxis[y].limit === 2) ? window.H2buffer.yAxis[y].max : null,
+      softMin: (window.H2buffer.yAxis[y].limit === 1) ? window.H2buffer.yAxis[y].min : null,
+      softMax: (window.H2buffer.yAxis[y].limit === 1) ? window.H2buffer.yAxis[y].max : null,
+      startOnTick: (window.H2buffer.yAxis[y].limit === 2) ? false : true,
+      endOnTick: (window.H2buffer.yAxis[y].limit === 2) ? false : true,
       allowDecimals: true,
       visible: false,
       tickPositioner: null,
       crosshair: defineCrosshairY(),
     };
-    if (DP_yAxis[y].limit === 2) {
+    if (window.H2buffer.yAxis[y].limit === 2) {
       newOptions.tickPositioner =  function () {
         const axis = this;
         return axis.tickPositions.map((pos) => tickPos(axis,pos));
@@ -3944,12 +3954,12 @@ function tickPos(axis,pos) {
 }
 
 function showDialogYAxisUpdatColor() {
-  var colorPos = parseInt(document.getElementById("Select-AxisColor").value);
+  let colorPos = parseInt(document.getElementById("Select-AxisColor").value);
   if (colorPos === 0 || colorPos === 1) {
     document.getElementById("Select-AxisColor").style.backgroundColor = window.Highcharts.defaultOptions.yAxis.lineColor;
   } else {
     colorPos -= 2;   // set back -2
-    document.getElementById("Select-AxisColor").style.backgroundColor = chart.options.colors[colorPos];
+    document.getElementById("Select-AxisColor").style.backgroundColor = window.H2buffer.chart.options.colors[colorPos];
   }
 }
 
@@ -3991,7 +4001,7 @@ function chartSetOptions() {
           }
         },
         afterPrint: function () {
-          this.update(DP_Theme_Setting);
+          this.update(window.H2buffer.Theme_Setting);
           chartSetOptions();
           chartSetElements();
         }
@@ -4007,14 +4017,14 @@ function chartSetOptions() {
         relativeTo: 'plot',
         theme: {
           style: {
-            'font-size': DP_FontSize.toString() + "px"
+            'font-size': window.H2buffer.FontSize.toString() + "px"
           },
         },
       },
     },
 
     rangeSelector: {
-      enabled: (DP_Navigator < 4) ? true : false,
+      enabled: (window.H2buffer.Navigator < 4) ? true : false,
       buttons: [{
         count: 30,
         type: 'minute',
@@ -4077,14 +4087,15 @@ function chartSetOptions() {
       y: 10,
     },
     navigator: {
-      enabled: (DP_Navigator === 0 || DP_Navigator === 1) ? true : false,
+      enabled: (window.H2buffer.Navigator === 0 || window.H2buffer.Navigator === 1) ? true : false,
     },
     scrollbar: {
-      enabled: (DP_Navigator === 0 || DP_Navigator === 2) ? true : false,
+      enabled: (window.H2buffer.Navigator === 0 || window.H2buffer.Navigator === 2) ? true : false,
     },
     credits: {
-      enabled: (DP_Navigator < 3) ? true : false,
-      text: '(c) wak - H2-HighChart version ' + H2_version + ' - verwendet Highstock http://www.highcharts.com - Kommerzielle Nutzung untersagt',
+      enabled: (window.H2buffer.Navigator < 3) ? true : false,
+      text: '(c) wak - H2-HighChart version ' + window.H2buffer.version + ' - verwendet Highstock v' +
+            window.Highcharts.version + ' http://www.highcharts.com - Kommerzielle Nutzung untersagt',
       href: 'https://github.com/wakr70/CCU-Historian-HC'
     },
 
@@ -4092,7 +4103,7 @@ function chartSetOptions() {
       buttons: {
         contextButton: {
           symbol: "menu",
-          enabled: (DP_Navigator < 4) ? true : false,
+          enabled: (window.H2buffer.Navigator < 4) ? true : false,
           menuItems: [{
             text: window.ChhLanguage.default.historian.favoritTxt,
             onclick: function() {
@@ -4104,14 +4115,14 @@ function chartSetOptions() {
               showDialogSettings();
             }
           }, {
-            text: (DP_Limit) ? window.ChhLanguage.default.historian.limitactive : window.ChhLanguage.default.historian.limitdeactive,
+            text: (window.H2buffer.Limit) ? window.ChhLanguage.default.historian.limitactive : window.ChhLanguage.default.historian.limitdeactive,
             onclick: function() {
-              if (DP_Limit) {
+              if (window.H2buffer.Limit) {
                 $('.highcharts-contextmenu')[0].children[0].children[2].innerHTML = window.ChhLanguage.default.historian.limitdeactive;
-                DP_Limit = false;
+                window.H2buffer.Limit = false;
               } else {
                 $('.highcharts-contextmenu')[0].children[0].children[2].innerHTML = window.ChhLanguage.default.historian.limitactive;
-                DP_Limit = true;
+                window.H2buffer.Limit = true;
               }
               changeEventRaumFilter();
               return true;
@@ -4134,11 +4145,11 @@ function chartSetOptions() {
     },
 
     title: {
-      text: DP_Title,
+      text: window.H2buffer.Title,
       floating: false,
     },
     subtitle: {
-      text: DP_Subtitle,
+      text: window.H2buffer.Subtitle,
       floating: false,
     },
 
@@ -4146,9 +4157,9 @@ function chartSetOptions() {
       crosshair: defineCrosshairX(),
       type: 'datetime',
       ordinal: false,
-      gridLineWidth: (DP_Grid === 1 || DP_Grid === 3 || DP_Grid === 4 || DP_Grid === 6) ? 1 : 0,
-      minorGridLineWidth: (DP_Grid === 4 || DP_Grid === 6) ? 1 : 0,
-      minorTickInterval: (DP_Grid === 4 || DP_Grid === 6) ? 'auto' : null,
+      gridLineWidth: (window.H2buffer.Grid === 1 || window.H2buffer.Grid === 3 || window.H2buffer.Grid === 4 || window.H2buffer.Grid === 6) ? 1 : 0,
+      minorGridLineWidth: (window.H2buffer.Grid === 4 || window.H2buffer.Grid === 6) ? 1 : 0,
+      minorTickInterval: (window.H2buffer.Grid === 4 || window.H2buffer.Grid === 6) ? 'auto' : null,
       dataMax: Date.now(),
       events: {
         afterSetExtremes: function() {
@@ -4176,21 +4187,21 @@ function chartSetOptions() {
                 setData(this);
               }
               if (this.visible) {
-                attr = DP_attribute.findIndex(obj => obj.id === this.options.id.toString());
+                attr = window.H2buffer.DataAttr.findIndex(obj => obj.id === this.options.id.toString());
                 if (attr !== -1) {
-                  DP_attribute[attr].visible = (DP_Limit) ? 1 : 0;
-                  if (DP_attribute[attr].aggr === 'A3') {
-                    for (var i = chart.series.length - 1; i >= 0; i--) {
-                      if (this.options.id === chart.series[i].options.linkedTo && chart.series[i].options.name === 'MinMax') {
-                        chart.series[i].remove(false);
+                  window.H2buffer.DataAttr[attr].visible = (window.H2buffer.Limit) ? 1 : 0;
+                  if (window.H2buffer.DataAttr[attr].aggr === 'A3') {
+                    for (let i = window.H2buffer.chart.series.length - 1; i >= 0; i--) {
+                      if (this.options.id === window.H2buffer.chart.series[i].options.linkedTo && window.H2buffer.chart.series[i].options.name === 'MinMax') {
+                        window.H2buffer.chart.series[i].remove(false);
                       }
                     }
                   }
                 }
               } else {
-                attr = DP_attribute.findIndex(obj => obj.id === this.options.id.toString());
+                attr = window.H2buffer.DataAttr.findIndex(obj => obj.id === this.options.id.toString());
                 if (attr !== -1) {
-                  DP_attribute[attr].visible = 2;
+                  window.H2buffer.DataAttr[attr].visible = 2;
                 }
               }
               return true;
@@ -4226,7 +4237,7 @@ function chartSetOptions() {
     }],
     navigation: {
       buttonOptions: {
-        enabled: (DP_Navigator < 4) ? true : false,
+        enabled: (window.H2buffer.Navigator < 4) ? true : false,
       },
       bindings: {
         myText: myText
@@ -4249,29 +4260,29 @@ function chartSetOptions() {
     }
   };
 
-  chart = window.Highcharts.stockChart('container', options );
-  if (!chart) {
+  window.H2buffer.chart = window.Highcharts.stockChart('container', options );
+  if (!window.H2buffer.chart) {
     alert( 'HighChart Option error!');
   }
 }
 
 function defineCrosshairX() {
   let ret = false;
-  if(DP_CrossHair === 1) {
+  if(window.H2buffer.CrossHair === 1) {
      ret = { width: 1, snap: true };
-  } else if (DP_CrossHair === 3) {
+  } else if (window.H2buffer.CrossHair === 3) {
      ret = { width: 1, snap: true };
-  } else if (DP_CrossHair === 4) {
+  } else if (window.H2buffer.CrossHair === 4) {
      ret = { width: 1, snap: false };
-  } else if (DP_CrossHair === 6) {
+  } else if (window.H2buffer.CrossHair === 6) {
      ret = { width: 1, snap: false };
-  } else if (DP_CrossHair === 7) {
+  } else if (window.H2buffer.CrossHair === 7) {
      ret = { width: 3, snap: true };
-  } else if (DP_CrossHair === 9) {
+  } else if (window.H2buffer.CrossHair === 9) {
      ret = { width: 3, snap: true };
-  } else if (DP_CrossHair === 10) {
+  } else if (window.H2buffer.CrossHair === 10) {
      ret = { width: 3, snap: false };
-  } else if (DP_CrossHair === 12) {
+  } else if (window.H2buffer.CrossHair === 12) {
      ret = { width: 3, snap: false };
   }
   return ret;
@@ -4279,21 +4290,21 @@ function defineCrosshairX() {
 
 function defineCrosshairY() {
   let ret = false;
-  if (DP_CrossHair === 2) {
+  if (window.H2buffer.CrossHair === 2) {
      ret= { width: 1, snap: true };
-  } else if (DP_CrossHair === 3) {
+  } else if (window.H2buffer.CrossHair === 3) {
      ret = { width: 1, snap: true };
-  } else if (DP_CrossHair === 5) {
+  } else if (window.H2buffer.CrossHair === 5) {
      ret = { width: 1, snap: false };
-  } else if (DP_CrossHair === 6) {
+  } else if (window.H2buffer.CrossHair === 6) {
      ret = { width: 1, snap: false };
-  } else if(DP_CrossHair === 8) {
+  } else if(window.H2buffer.CrossHair === 8) {
      ret = { width: 3, snap: true };
-  } else if(DP_CrossHair === 9) {
+  } else if(window.H2buffer.CrossHair === 9) {
      ret = { width: 3, snap: true };
-  } else if(DP_CrossHair === 11) {
+  } else if(window.H2buffer.CrossHair === 11) {
      ret = { width: 3, snap: false };
-  } else if(DP_CrossHair === 12) {
+  } else if(window.H2buffer.CrossHair === 12) {
      ret = { width: 3, snap: false };
   }
   return ret;
@@ -4301,17 +4312,17 @@ function defineCrosshairY() {
 
 function defineHighLight() {
   let ret = { hover: { enabled: true, lineWidthPlus: 0 }, inactive: { enabled: false, opacity: 1 } };
-  if (DP_HighLight === 1) {
+  if (window.H2buffer.HighLight === 1) {
      ret= { hover: { enabled: true, lineWidthPlus: 1 }, inactive: { enabled: true, opacity: 0.2 } };
-  } else if (DP_HighLight === 2) {
+  } else if (window.H2buffer.HighLight === 2) {
      ret= { hover: { enabled: true, lineWidthPlus: 1 }, inactive: { enabled: true, opacity: 0.5 } };
-  } else if (DP_HighLight === 3) {
+  } else if (window.H2buffer.HighLight === 3) {
      ret= { hover: { enabled: true, lineWidthPlus: 1 }, inactive: { enabled: false, opacity: 1 } };
-  } else if (DP_HighLight === 4) {
+  } else if (window.H2buffer.HighLight === 4) {
      ret= { hover: { enabled: true, lineWidthPlus: 3 }, inactive: { enabled: true, opacity: 0.2 } };
-  } else if (DP_HighLight === 5) {
+  } else if (window.H2buffer.HighLight === 5) {
      ret= { hover: { enabled: true, lineWidthPlus: 3 }, inactive: { enabled: true, opacity: 0.5 } };
-  } else if (DP_HighLight === 6) {
+  } else if (window.H2buffer.HighLight === 6) {
      ret= { hover: { enabled: true, lineWidthPlus: 3 }, inactive: { enabled: false, opacity: 1 } };
   }
   return ret;
@@ -4320,21 +4331,21 @@ function defineHighLight() {
 function defineToolTip() {
   let ret = { enabled: false };
 
-  if (DP_ToolTip === 1) {
+  if (window.H2buffer.ToolTip === 1) {
      ret = { enabled: true,
              formatter: null,
              shared: false,
              split: true,
              valueDecimals: 2,
-           }
-  } else if (DP_ToolTip === 2) {
+           };
+  } else if (window.H2buffer.ToolTip === 2) {
      ret = { enabled: true,
              formatter: null,
              shared: false,
              split: false,
              valueDecimals: 2,
-           }
-  } else if (DP_ToolTip === 3) {
+           };
+  } else if (window.H2buffer.ToolTip === 3) {
      ret = { enabled: true,
              formatter: function () { return [''].concat( this.points ? this.points.map(function (point) {
                                                                              if (point.series.name === 'MinMax') {
@@ -4348,12 +4359,12 @@ function defineToolTip() {
                                                                                 point.series.tooltipOptions.valueSuffix + "</b>";
                                                                              }
                                                                            }) : []
-                                    )} ,
+                                    );} ,
              shared: false,
              split: true,
              valueDecimals: 2,
-           }
-  } else if (DP_ToolTip === 4) {
+           };
+  } else if (window.H2buffer.ToolTip === 4) {
      ret = { enabled: true,
              formatter: function () {    if (this.series.name === 'MinMax') {
                                              return this.point.series.name + ': <b>' +
@@ -4369,19 +4380,19 @@ function defineToolTip() {
              shared: false,
              split: false,
              valueDecimals: 2,
-           }
-  } else if (DP_ToolTip === 5) {
+           };
+  } else if (window.H2buffer.ToolTip === 5) {
      ret = { enabled: true,
              formatter: function () { let xDate = new Date( this.x );
                                       return this.points.reduce(function (s, point) {
                                            if (point.series.name === 'MinMax') {
-                                               return s + '<br/>' + point.series.name + ': ' + 
-                                                      window.Highcharts.numberFormat(point.point.low, 2, ",", ".") + " - " + 
-                                                      window.Highcharts.numberFormat(point.point.high, 2, ",", ".") + " " + 
+                                               return s + '<br/>' + point.series.name + ': ' +
+                                                      window.Highcharts.numberFormat(point.point.low, 2, ",", ".") + " - " +
+                                                      window.Highcharts.numberFormat(point.point.high, 2, ",", ".") + " " +
                                                       point.series.tooltipOptions.valueSuffix ;
                                            } else {
                                                return s + '<br/>' + point.series.name + ': ' +
-                                                      window.Highcharts.numberFormat(point.y, 2, ",", ".") + " " + 
+                                                      window.Highcharts.numberFormat(point.y, 2, ",", ".") + " " +
                                                       point.series.tooltipOptions.valueSuffix ;
                                            }
                                     }, '<b>' + window.Highcharts.dateFormat('%A, %e. %b %Y, %H:%M', xDate) + '</b>'); },
@@ -4389,28 +4400,28 @@ function defineToolTip() {
              split: false,
              valueDecimals: 2,
 
-           }
+           };
   }
   return ret;
 }
 
 function showAggrText() {
-  var attr;
-  var aggrType;
-  if (DP_Navigator < 3) {
-    for (let lserie of chart.series) {
+  let attr;
+  let aggrType;
+  if (window.H2buffer.Navigator < 3) {
+    for (let lserie of window.H2buffer.chart.series) {
       if (lserie.visible && lserie.options.group !== "nav") {
-        var grouping = lserie.currentDataGrouping;
+        let grouping = lserie.currentDataGrouping;
         if (grouping) {
           let text = grouping.unitName + ((grouping.count > 1) ? '2' : '').toString();
           if (window.ChhLanguage.default.historian['aggr' + text]) {
             text = window.ChhLanguage.default.historian['aggr' + text];
           }
           if (lserie.options.id) {
-            attr = DP_attribute.findIndex(obj => obj.id === lserie.options.id.toString());
+            attr = window.H2buffer.DataAttr.findIndex(obj => obj.id === lserie.options.id.toString());
             aggrType = 0;
             if (attr !== -1) {
-              aggrType = parseInt(DP_attribute[attr].aggr.substr(1, 2));
+              aggrType = parseInt(window.H2buffer.DataAttr[attr].aggr.substr(1, 2));
             }
           }
 
@@ -4445,46 +4456,46 @@ function showAggrText() {
 function chartSetElements() {
 
   // dark themes need black borders, update to like chart background
-  if ((typeof chart.options.chart.backgroundColor) === 'string') {
-    $('body').css('background-color', chart.options.chart.backgroundColor);
-  } else if ((typeof chart.options.background2) === 'string') {
-    $('body').css('background-color', chart.options.background2);
-  } else if ((typeof chart.options.chart.borderColor) === 'string') {
-    $('body').css('background-color', chart.options.chart.borderColor);
+  if ((typeof window.H2buffer.chart.options.chart.backgroundColor) === 'string') {
+    $('body').css('background-color', window.H2buffer.chart.options.chart.backgroundColor);
+  } else if ((typeof window.H2buffer.chart.options.background2) === 'string') {
+    $('body').css('background-color', window.H2buffer.chart.options.background2);
+  } else if ((typeof window.H2buffer.chart.options.chart.borderColor) === 'string') {
+    $('body').css('background-color', window.H2buffer.chart.options.chart.borderColor);
   }
-  $('#message').css('color', chart.options.labels.style.color);
+  $('#message').css('color', window.H2buffer.chart.options.labels.style.color);
 
-  if ((typeof DP_Theme_Setting.background2) === 'string') {
-    $('.navbar-default').css('background-color', DP_Theme_Setting.background2);
-    $('.btn-default').css('background-color', DP_Theme_Setting.background2);
-    $('.form-select-h2').css('background-color', DP_Theme_Setting.background2);
-    $('.form-input-h2').css('background-color', DP_Theme_Setting.background2);
-    $('div.modal-content').css('background-color', DP_Theme_Setting.background2);
+  if ((typeof window.H2buffer.Theme_Setting.background2) === 'string') {
+    $('.navbar-default').css('background-color', window.H2buffer.Theme_Setting.background2);
+    $('.btn-default').css('background-color', window.H2buffer.Theme_Setting.background2);
+    $('.form-select-h2').css('background-color', window.H2buffer.Theme_Setting.background2);
+    $('.form-input-h2').css('background-color', window.H2buffer.Theme_Setting.background2);
+    $('div.modal-content').css('background-color', window.H2buffer.Theme_Setting.background2);
   }
-  if ((typeof DP_Theme_Setting.textColor) === 'string') {
-    $('.navbar-default').css('color', DP_Theme_Setting.textColor);
-    $('.btn-default').css('color', DP_Theme_Setting.textColor);
-    $('.btn-default').css('border-color', DP_Theme_Setting.textColor);
-    $('.form-select-h2').css('color', DP_Theme_Setting.textColor);
-    $('.form-select-h2').css('border-color', DP_Theme_Setting.textColor);
-    $('.form-input-h2').css('color', DP_Theme_Setting.textColor);
-    $('.form-input-h2').css('border-color', DP_Theme_Setting.textColor);
-    $('div.modal-content').css('color', DP_Theme_Setting.textColor);
-    $('div.modal-content').css('border-color', DP_Theme_Setting.textColor);
+  if ((typeof window.H2buffer.Theme_Setting.textColor) === 'string') {
+    $('.navbar-default').css('color', window.H2buffer.Theme_Setting.textColor);
+    $('.btn-default').css('color', window.H2buffer.Theme_Setting.textColor);
+    $('.btn-default').css('border-color', window.H2buffer.Theme_Setting.textColor);
+    $('.form-select-h2').css('color', window.H2buffer.Theme_Setting.textColor);
+    $('.form-select-h2').css('border-color', window.H2buffer.Theme_Setting.textColor);
+    $('.form-input-h2').css('color', window.H2buffer.Theme_Setting.textColor);
+    $('.form-input-h2').css('border-color', window.H2buffer.Theme_Setting.textColor);
+    $('div.modal-content').css('color', window.H2buffer.Theme_Setting.textColor);
+    $('div.modal-content').css('border-color', window.H2buffer.Theme_Setting.textColor);
   }
 
-  var select;
-  var option;
-  var i;
+  let select;
+  let option;
+  let i;
 
   $("#Select-Color").empty();
   // Color options
   select = document.getElementById("Select-Color");
-  for (i = 0; i < chart.options.colors.length; i++) {
+  for (i = 0; i < window.H2buffer.chart.options.colors.length; i++) {
     option = document.createElement("option");
     option.text = 'Color ' + i;
     option.value = 'F' + i;
-    option.style.backgroundColor = chart.options.colors[i];
+    option.style.backgroundColor = window.H2buffer.chart.options.colors[i];
     select.add(option);
   }
 
@@ -4496,34 +4507,34 @@ function chartSetElements() {
   option.value = 'M0';
   select.add(option);
 
-  for (i = 0; i < chart.options.symbols.length; i++) {
+  for (i = 0; i < window.H2buffer.chart.options.symbols.length; i++) {
     option = document.createElement("option");
-    option.text = chart.options.symbols[i];
+    option.text = window.H2buffer.chart.options.symbols[i];
     option.value = 'M' + (i + 1);
     select.add(option);
   }
-  for (i = 0; i < chart.options.symbols.length; i++) {
+  for (i = 0; i < window.H2buffer.chart.options.symbols.length; i++) {
     option = document.createElement("option");
-    option.text = chart.options.symbols[i] + '-RS';
-    option.value = 'M' + (i + 1 + chart.options.symbols.length);
+    option.text = window.H2buffer.chart.options.symbols[i] + '-RS';
+    option.value = 'M' + (i + 1 + window.H2buffer.chart.options.symbols.length);
     select.add(option);
   }
-  for (i = 0; i < chart.options.symbols.length; i++) {
+  for (i = 0; i < window.H2buffer.chart.options.symbols.length; i++) {
     option = document.createElement("option");
-    option.text = chart.options.symbols[i] + '-RW';
-    option.value = 'M' + (i + 1 + chart.options.symbols.length * 2);
+    option.text = window.H2buffer.chart.options.symbols[i] + '-RW';
+    option.value = 'M' + (i + 1 + window.H2buffer.chart.options.symbols.length * 2);
     select.add(option);
   }
-  for (i = 0; i < chart.options.symbols.length; i++) {
+  for (i = 0; i < window.H2buffer.chart.options.symbols.length; i++) {
     option = document.createElement("option");
-    option.text = chart.options.symbols[i] + '-FS';
-    option.value = 'M' + (i + 1 + chart.options.symbols.length * 3);
+    option.text = window.H2buffer.chart.options.symbols[i] + '-FS';
+    option.value = 'M' + (i + 1 + window.H2buffer.chart.options.symbols.length * 3);
     select.add(option);
   }
-  for (i = 0; i < chart.options.symbols.length; i++) {
+  for (i = 0; i < window.H2buffer.chart.options.symbols.length; i++) {
     option = document.createElement("option");
-    option.text = chart.options.symbols[i] + '-FW';
-    option.value = 'M' + (i + 1 + chart.options.symbols.length * 4);
+    option.text = window.H2buffer.chart.options.symbols[i] + '-FW';
+    option.value = 'M' + (i + 1 + window.H2buffer.chart.options.symbols.length * 4);
     select.add(option);
   }
 
@@ -4540,17 +4551,17 @@ function chartSetElements() {
   option.value = '1';
   option.style.backgroundColor = window.Highcharts.defaultOptions.yAxis.lineColor;
   select.add(option);
-  for (i = 0; i < chart.options.colors.length; i++) {
+  for (i = 0; i < window.H2buffer.chart.options.colors.length; i++) {
     option = document.createElement("option");
     option.text = 'Color ' + (i);
     option.value = (i + 2).toString();
-    option.style.backgroundColor = chart.options.colors[i];
+    option.style.backgroundColor = window.H2buffer.chart.options.colors[i];
     select.add(option);
   }
 
 
 // disable StockTools Button on hide Menue-Buttons
-  if (DP_Navigator < 4) {
+  if (window.H2buffer.Navigator < 4) {
     $(".highcharts-stocktools-wrapper").css("display", "block");
   } else {
     $(".highcharts-stocktools-wrapper").css("display", "none");
@@ -4560,8 +4571,8 @@ function chartSetElements() {
 
     document.getElementById("container").setAttribute("style", "height:" + calcContSize().toString() + "px");
 
-    chart.legend.update(defineLegend());
-    chart.reflow();
+    window.H2buffer.chart.legend.update(defineLegend());
+    window.H2buffer.chart.reflow();
 
   });
 
@@ -4578,9 +4589,9 @@ function eventSingleRegister(el_name,ev_name,ev_func) {
   return true;
 }
 
-// *** set function for Filter_Feld
+// *** set function for window.H2buffer.filter_feld
 eventSingleRegister("#filterFeld", "keyup", function() {
-  filter_feld = $(this).val().toLowerCase();
+  window.H2buffer.filter_feld = $(this).val().toLowerCase();
   changeEventRaumFilter();
 });
 
@@ -4614,7 +4625,7 @@ eventSingleRegister("#bntFavorit", "click", function() {
 
 // *** update background color on Field Select-Color
 eventSingleRegister("#Select-Color", "change", function() {
-  document.getElementById("Select-Color").style.backgroundColor = chart.options.colors[parseInt(document.getElementById("Select-Color").value.substr(1, 2))];
+  document.getElementById("Select-Color").style.backgroundColor = window.H2buffer.chart.options.colors[parseInt(document.getElementById("Select-Color").value.substr(1, 2))];
 });
 
 //*** update background color on Field Select-Color
@@ -4623,12 +4634,12 @@ eventSingleRegister("#Select-AxisColor", "change", function() {
 });
 
 function refreshClick() {
-  Zeitraum_Ende = new Date(Date.now());
+  window.H2buffer.ZR_Ende = new Date(Date.now());
 
   // Add Zoom if not full
-  var extremes = chart.xAxis[0].getExtremes();
+  let extremes = window.H2buffer.chart.xAxis[0].getExtremes();
   if (extremes.max < extremes.dataMax || extremes.min > extremes.dataMin) {
-     DP_Zoom = (Math.round(((extremes.max - extremes.min) / (60 * 60 * 1000)) * 100) / 100);
+     window.H2buffer.Zoom = (Math.round(((extremes.max - extremes.min) / (60 * 60 * 1000)) * 100) / 100);
   }
 
   loadNewSerienData();
@@ -4638,7 +4649,7 @@ function refreshClick() {
 // save to Local Browser Storage
 function setLocalData(cname, cvalue) {
   try {
-    let storage_name = H2_server + '_'+ H2_port + '_' + H2_version + '_' + cname;
+    let storage_name = window.H2buffer.server + '_'+ window.H2buffer.port + '_' + window.H2buffer.version + '_' + cname;
     localStorage.setItem(storage_name, cvalue);
   } catch { }
 }
@@ -4646,7 +4657,7 @@ function setLocalData(cname, cvalue) {
 // read Local Browser Storage to speed up 1 display
 function getLocalData(cname) {
   try {
-    let storage_name = H2_server + '_'+ H2_port + '_' + H2_version + '_' + cname;
+    let storage_name = window.H2buffer.server + '_'+ window.H2buffer.port + '_' + window.H2buffer.version + '_' + cname;
     return localStorage.getItem(storage_name);
   } catch {
     return "";
@@ -4659,11 +4670,11 @@ function checkZeitraum(rangInfo) {
   if (isNaN(range)) {
     range = 10*356*24*60*60*1000;   // bug fix for button ALL display last 5 years
   }
-  var datNew = new Date(Zeitraum_Ende - (new Date(range)));
-// Patch for remove zoom reset: if (Zeitraum_Start > datNew) {
-    Zeitraum_Start = datNew;
+  let datNew = new Date(window.H2buffer.ZR_Ende - (new Date(range)));
+// Patch for remove zoom reset: if (window.H2buffer.ZR_Start > datNew) {
+    window.H2buffer.ZR_Start = datNew;
     loadNewSerienData();
-    DP_Button_Jump = true;
+    window.H2buffer.Button_Jump = true;
     return false;
 // Patch for remove zoom reset: }
 // Patch for remove zoom reset: return true;
@@ -4675,22 +4686,22 @@ function calcContSize() {
   let font_factor;
   let cont_height;
 
-  font_factor = DP_FontSize / 14;
+  font_factor = window.H2buffer.FontSize / 14;
 
-  if (DP_Navigator === 4 || DP_Navigator === 3) {
+  if (window.H2buffer.Navigator === 4 || window.H2buffer.Navigator === 3) {
     nav_height = 10;
   } else {
     nav_height = 55;
   }
   nav_height = Math.round(nav_height * font_factor);
 
-  if (DP_ShowFilter === 0) {
+  if (window.H2buffer.ShowFilter === 0) {
     char_height = 0;
-  } else if (DP_ShowFilter === 1) {
+  } else if (window.H2buffer.ShowFilter === 1) {
     char_height = 105;
-  } else if (DP_ShowFilter === 2) {
+  } else if (window.H2buffer.ShowFilter === 2) {
     char_height = 35;
-  } else if (DP_ShowFilter === 3) {
+  } else if (window.H2buffer.ShowFilter === 3) {
     char_height = 70;
   }
   char_height = Math.round(char_height * font_factor);
@@ -4743,10 +4754,10 @@ function toolTipInfo(sobj) {
 
     let lAggrType = '';
     if (sobj.series.options.id) {
-      let attr = DP_attribute.findIndex(obj => obj.id === sobj.series.options.id.toString());
+      let attr = window.H2buffer.DataAttr.findIndex(obj => obj.id === sobj.series.options.id.toString());
       lAggrType = 0;
       if (attr !== -1) {
-        lAggrType = parseInt(DP_attribute[attr].aggr.substr(1, 2));
+        lAggrType = parseInt(window.H2buffer.DataAttr[attr].aggr.substr(1, 2));
       }
     }
 
@@ -4805,9 +4816,9 @@ function toolTipInfo(sobj) {
 
 function chartSetFontSize() {
 
-  let Size_N = DP_FontSize.toString() + "px";
-  let Size_S = Math.round(DP_FontSize / 6 * 5).toString() + "px";
-  let Size_H = Math.round(DP_FontSize / 2).toString() + "px";
+  let Size_N = window.H2buffer.FontSize.toString() + "px";
+  let Size_S = Math.round(window.H2buffer.FontSize / 6 * 5).toString() + "px";
+  let Size_H = Math.round(window.H2buffer.FontSize / 2).toString() + "px";
 
   let Fontsize = {
     title: { style: { "fontSize": Size_N } },
@@ -4827,7 +4838,7 @@ function chartSetFontSize() {
     legend: {
       itemStyle: { fontSize: Size_S },
       navigation: {
-        arrowSize: Math.round(DP_FontSize / 6 * 5),
+        arrowSize: Math.round(window.H2buffer.FontSize / 6 * 5),
         style: { fontSize: Size_S }
       },
       title: { style: { fontSize: Size_N } }
@@ -4836,105 +4847,105 @@ function chartSetFontSize() {
     labels: { style: { fontSize: Size_S } },
     rangeSelector: {
       buttonTheme: { // styles for the buttons
-        style: { fontSize: Size_S } //width: (DP_FontSize*2+20).toString() + "px", height: (DP_FontSize+20).toString() + "px" }
+        style: { fontSize: Size_S } //width: (window.H2buffer.FontSize*2+20).toString() + "px", height: (window.H2buffer.FontSize+20).toString() + "px" }
       },
-//      height: (DP_FontSize + 20).toString() + "px",
-      buttonSpacing: Math.round( DP_FontSize - 7 ),
+//      height: (window.H2buffer.FontSize + 20).toString() + "px",
+      buttonSpacing: Math.round( window.H2buffer.FontSize - 7 ),
     },
-    navigator: { height: DP_FontSize * 3 },
-    scrollbar: { height: DP_FontSize     },
+    navigator: { height: window.H2buffer.FontSize * 3 },
+    scrollbar: { height: window.H2buffer.FontSize     },
     navigation: {
 //      annotationsOptions: { labelOptions: { style: { "font-size": Size_H } } },
       buttonOptions: {
-        symbolSize: DP_FontSize,
-        height: DP_FontSize + 8,
-        width: DP_FontSize + 10
+        symbolSize: window.H2buffer.FontSize,
+        height: window.H2buffer.FontSize + 8,
+        width: window.H2buffer.FontSize + 10
       },
       menuItemStyle: { "font-size": Size_S }
     }
   };
 
-  DP_Theme_Setting = window.Highcharts.merge(DP_Theme_Setting, Fontsize);
+  window.H2buffer.Theme_Setting = window.Highcharts.merge(window.H2buffer.Theme_Setting, Fontsize);
 
 
 // calculate Font Sizes from Setting
-  if (DP_FontSize) {
-    $('body').css('font-size', DP_FontSize.toString() + "px");
-    $('.form-select-h2').css('font-size', DP_FontSize.toString() + "px");
-    $('.form-input-h2').css('font-size', DP_FontSize.toString() + "px");
-    $('.modal-title').css('font-size', DP_FontSize.toString() + "px");
-    $('.modal-title2').css('font-size', DP_FontSize.toString() + "px");
-    $('.modal-title3').css('font-size', DP_FontSize.toString() + "px");
-    $('.btn-default').css('font-size', DP_FontSize.toString() + "px");
-    $('.LinePopup-text').css('width', 140 + (DP_FontSize * 6) + "px");
-    $('.modal-dialog').css('width', 400 + (DP_FontSize * 17) + "px");
-    $('.close').css('font-size', (DP_FontSize/2*3).toString() + "px");
-    $('.navbar-brand').css('font-size', (DP_FontSize + 4).toString() + "px");
-    $('.highcharts-button-box').css('height', (DP_FontSize + 4).toString() + "px");
-    $('#bntFavorit').css('width', 16 + (DP_FontSize * 6) + "px");
+  if (window.H2buffer.FontSize) {
+    $('body').css('font-size', window.H2buffer.FontSize.toString() + "px");
+    $('.form-select-h2').css('font-size', window.H2buffer.FontSize.toString() + "px");
+    $('.form-input-h2').css('font-size', window.H2buffer.FontSize.toString() + "px");
+    $('.modal-title').css('font-size', window.H2buffer.FontSize.toString() + "px");
+    $('.modal-title2').css('font-size', window.H2buffer.FontSize.toString() + "px");
+    $('.modal-title3').css('font-size', window.H2buffer.FontSize.toString() + "px");
+    $('.btn-default').css('font-size', window.H2buffer.FontSize.toString() + "px");
+    $('.LinePopup-text').css('width', 140 + (window.H2buffer.FontSize * 6) + "px");
+    $('.modal-dialog').css('width', 400 + (window.H2buffer.FontSize * 17) + "px");
+    $('.close').css('font-size', (window.H2buffer.FontSize/2*3).toString() + "px");
+    $('.navbar-brand').css('font-size', (window.H2buffer.FontSize + 4).toString() + "px");
+    $('.highcharts-button-box').css('height', (window.H2buffer.FontSize + 4).toString() + "px");
+    $('#bntFavorit').css('width', 16 + (window.H2buffer.FontSize * 6) + "px");
 
     let dStyle = document.querySelector('style');
 
     dStyle.innerHTML =  '.highcharts-toggle-toolbar.highcharts-arrow-left  { \n'+
-                        '  width: ' + (DP_FontSize + 6).toString() + 'px;\n' +
-                        '  height: ' + (DP_FontSize + 6).toString() + 'px;\n' +
-                        '  background-color: ' + DP_Theme_Setting.background2 + ';\n' +
+                        '  width: ' + (window.H2buffer.FontSize + 6).toString() + 'px;\n' +
+                        '  height: ' + (window.H2buffer.FontSize + 6).toString() + 'px;\n' +
+                        '  background-color: ' + window.H2buffer.Theme_Setting.background2 + ';\n' +
                         '}\n' +
                         '.highcharts-toggle-toolbar.highcharts-arrow-left.highcharts-arrow-right {\n' +
-                        '  width: ' + (DP_FontSize + 6).toString() + 'px;\n' +
-                        '  height: ' + (DP_FontSize + 6).toString() + 'px;\n' +
-                        '  background-color: ' + DP_Theme_Setting.background2 + ';\n' +
+                        '  width: ' + (window.H2buffer.FontSize + 6).toString() + 'px;\n' +
+                        '  height: ' + (window.H2buffer.FontSize + 6).toString() + 'px;\n' +
+                        '  background-color: ' + window.H2buffer.Theme_Setting.background2 + ';\n' +
                         '}\n' +
                         'div.highcharts-bindings-wrapper li > span.highcharts-menu-item-btn { \n'+
-                        '  background-size: ' + (DP_FontSize + 20).toString() + 'px 100%;\n' +
+                        '  background-size: ' + (window.H2buffer.FontSize + 20).toString() + 'px 100%;\n' +
 //                        '  filter: invert(100%);\n' +
 //                        '  -webkit-filter: invert(100%);\n' +
                         '}\n';
 
     dStyle.innerHTML += 'div.highcharts-menu-wrapper, div.highcharts-bindings-wrapper ul { \n'+
-                        '  width: ' + (DP_FontSize + 20).toString() + 'px;\n' +
+                        '  width: ' + (window.H2buffer.FontSize + 20).toString() + 'px;\n' +
                         '}\n' +
                         'li.highcharts-segment > ul.highcharts-submenu-wrapper { \n'+
-                        '  width: ' + (DP_FontSize + 20).toString() + 'px;\n' +
-                        '  background: ' + DP_Theme_Setting.background2 + ';\n' +
+                        '  width: ' + (window.H2buffer.FontSize + 20).toString() + 'px;\n' +
+                        '  background: ' + window.H2buffer.Theme_Setting.background2 + ';\n' +
                         '}\n' +
                         'div.highcharts-bindings-wrapper .highcharts-stocktools-toolbar li { \n'+
-                        '  height: ' + (DP_FontSize + 20).toString() + 'px;\n' +
-                        '  background-color: ' + DP_Theme_Setting.background2 + ';\n' +
+                        '  height: ' + (window.H2buffer.FontSize + 20).toString() + 'px;\n' +
+                        '  background-color: ' + window.H2buffer.Theme_Setting.background2 + ';\n' +
                         '}\n';
 // Indicator Separator Height
     dStyle.innerHTML += 'div.highcharts-bindings-wrapper .highcharts-stocktools-toolbar li.highcharts-separator {\n' +
-                        '  height: ' + (DP_FontSize).toString() + 'px;\n' +
+                        '  height: ' + (window.H2buffer.FontSize).toString() + 'px;\n' +
                         '}\n';
 
     dStyle.innerHTML += 'div#filter select, div#filter input, div#filter button { \n'+
-                        '  height: ' + (34 / 14 * DP_FontSize).toString() + 'px;\n' +
+                        '  height: ' + (34 / 14 * window.H2buffer.FontSize).toString() + 'px;\n' +
                         '}\n';
 // Indicator Popup Colors:
     dStyle.innerHTML += '.highcharts-indicator-list {\n'+
-                        '  background: ' + DP_Theme_Setting.background2 + ';\n'+
-                        '  color: ' + DP_Theme_Setting.textColor + ';\n'+
+                        '  background: ' + window.H2buffer.Theme_Setting.background2 + ';\n'+
+                        '  color: ' + window.H2buffer.Theme_Setting.textColor + ';\n'+
                         '}\n';
     dStyle.innerHTML += '.highcharts-input-search-indicators-label {\n'+
-                        '  color: ' + DP_Theme_Setting.textColor + ';\n'+
-                        '  background: ' + DP_Theme_Setting.background2 + ';\n'+
+                        '  color: ' + window.H2buffer.Theme_Setting.textColor + ';\n'+
+                        '  background: ' + window.H2buffer.Theme_Setting.background2 + ';\n'+
                         '}\n';
     dStyle.innerHTML += '.highcharts-popup {\n'+
-                        '  background-color: ' + DP_Theme_Setting.background2 + ';\n'+
-                        '  color: ' + DP_Theme_Setting.textColor + ';\n'+
-                        '  border: 1px solid ' + DP_Theme_Setting.chart.borderColor + ';\n'+
+                        '  background-color: ' + window.H2buffer.Theme_Setting.background2 + ';\n'+
+                        '  color: ' + window.H2buffer.Theme_Setting.textColor + ';\n'+
+                        '  border: 1px solid ' + window.H2buffer.Theme_Setting.chart.borderColor + ';\n'+
                         '}\n';
 // RangeSelektor Button selektionSize
     dStyle.innerHTML += 'rect.highcharts-button-box {\n'+
-                        '  width: ' + (DP_FontSize + 20).toString() + 'px;\n'+
-                        '  height: ' + (DP_FontSize + 10).toString() + 'px;\n'+
-                        '  x: ' + Math.round((DP_FontSize - 14)/2*-1).toString() + 'px;\n'+
-                        '  y: ' + Math.round((DP_FontSize - 14)/2*-1).toString() + 'px;\n'+
+                        '  width: ' + (window.H2buffer.FontSize + 20).toString() + 'px;\n'+
+                        '  height: ' + (window.H2buffer.FontSize + 10).toString() + 'px;\n'+
+                        '  x: ' + Math.round((window.H2buffer.FontSize - 14)/2*-1).toString() + 'px;\n'+
+                        '  y: ' + Math.round((window.H2buffer.FontSize - 14)/2*-1).toString() + 'px;\n'+
                         '}\n';
 // Zoom text box
     dStyle.innerHTML += '.highcharts-reset-zoom rect.highcharts-button-box {\n'+
-                        '  width: ' + (DP_FontSize + 135).toString() + 'px;\n'+
-                        '  height: ' + (DP_FontSize + 20).toString() + 'px;\n'+
+                        '  width: ' + (window.H2buffer.FontSize + 135).toString() + 'px;\n'+
+                        '  height: ' + (window.H2buffer.FontSize + 20).toString() + 'px;\n'+
                         '}\n';
 // Bug Menue Button hide footer
     dStyle.innerHTML += 'div#container{\n'+
