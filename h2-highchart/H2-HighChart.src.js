@@ -8,7 +8,7 @@
 /* eslint-env browser */
 
 window.H2buffer = {
-         version: 'v6.7',  // Version
+         version: 'v6.8',  // Version
 // Setup H2 Database Services, default set to same server as this webpage and port 8082
          server: location.hostname,
          port: (location.port === "") ? "80" : location.port,
@@ -4832,7 +4832,7 @@ function chartSetFontSize() {
       title: { style: { "fontSize": Size_N } },
     },
     tooltip: {
-      headerFormat: "<span style=\"font-size: " + Size_N + "\">{point.key}</span><br/>",
+      headerFormat: (window.H2buffer.ToolTip === 1)?"<span style=\"font-size: " + Size_N + "\">{point.key}</span><br/>":"",
       style: { fontSize: Size_S }
     },
     legend: {
