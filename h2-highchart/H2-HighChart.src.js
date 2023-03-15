@@ -8,7 +8,7 @@
 /* eslint-env browser */
 
 window.H2buffer = {
-         version: 'v6.8',  // Version
+         version: 'v6.9',  // Version
 // Setup H2 Database Services, default set to same server as this webpage and port 8082
          server: location.hostname,
          port: (location.port === "") ? "80" : location.port,
@@ -655,6 +655,7 @@ function addSerie(DP, DP_type) {
     borderWidth: 2,
     stacking: (stacking === 0) ? null : 'normal',
     stack: (stacking === 0) ? null : ('group' + stacking),
+    findNearestPointBy: 'xy',
     data: [],
     tooltip: {
       valueDecimals: valueDecimals,
