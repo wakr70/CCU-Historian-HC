@@ -144,6 +144,7 @@ window.DP_Themes = {
       },
       itemHiddenStyle: {
         color: "#cccccc",
+        textDecoration: "none"
       },
       itemHoverStyle: {
         color: "#000000"

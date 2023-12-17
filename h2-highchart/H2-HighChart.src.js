@@ -8,7 +8,7 @@
 /* eslint-env browser */
 
 window.H2buffer = {
-         version: 'v6.9',  // Version
+         version: 'v7.0',  // Version
 // Setup H2 Database Services, default set to same server as this webpage and port 8082
          server: location.hostname,
          port: (location.port === "") ? "80" : location.port,
@@ -3072,6 +3072,7 @@ function addAggregationMinMax(serieObj) {
     linkedTo: serieObj.options.id,
     type: 'arearange',
     lineWidth: 1,
+    findNearestPointBy: 'xy',
     dataGrouping: {
       enabled: true,
       forced: true,
@@ -4176,6 +4177,7 @@ function chartSetOptions() {
 
     plotOptions: {
       series: {
+        cursor: 'pointer',
         states: defineHighLight(),
         events: {
           legendItemClick: function(event) {
