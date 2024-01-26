@@ -8,50 +8,50 @@
 /* eslint-env browser */
 
 window.H2buffer = {
-         version: 'v7.0',  // Version
-// Setup H2 Database Services, default set to same server as this webpage and port 8082
-         server: location.hostname,
-         port: (location.port === "") ? "80" : location.port,
-         ApiKey: "",
-         refreshSec: 60,   // Refresh Time is enabled
-         AutoRefresh: 0,
-         AutoRefreshCount: 0,
-         chart: undefined,
-         FontSizes: [8,10,12,14,16,18,20,24,30,40,50,60,70,80,100],
-         DashType: ['Solid', 'Dash', 'DashDot', 'Dot', 'LongDash', 'LongDashDot', 'LongDashDotDot',
-                    'ShortDash', 'ShortDashDot', 'ShortDashDotDot', 'ShortDot'],
-         CrossHair: 1,
-         Legend: 1,
-         ToolTip: 1,
-         HighLight: 1,
-         Navigator: 0,
-         Labels: 0,
-         Grid: 2,
-         DayLight: 1,
-         filter_feld: '',
-         Scroll_Legend: true,
-         ShowFilter: 1,
-         Limit: false,
-         Theme: 'standard',
-         Theme_Setting: undefined,
-         FontSize: 14,
-         Title: '',
-         Subtitle: '',
-         Loading: 0,
-         Button_Jump: false,
-         PopupID: undefined,
-         PopupAxisPos: undefined,
-         Queue: [],
-         ColorNext: 0,
-         Drag_Pos: 0,
-         Zoom: -1,
-         Settings_old: {},
-         Settings: {},
-         DataPointFilter: 0,
-         ZR_Ende: new Date(Date.now()),
-         ZR_Start: new Date(Date.now() - (new Date(86400000 * 1))),
-         DataPoints: [],
-         DataAttr: [],
+  version: 'v7.1',  // Version
+  // Setup H2 Database Services, default set to same server as this webpage and port 8082
+  server: location.hostname,
+  port: (location.port === "") ? "80" : location.port,
+  ApiKey: "",
+  refreshSec: 60,   // Refresh Time is enabled
+  AutoRefresh: 0,
+  AutoRefreshCount: 0,
+  chart: undefined,
+  FontSizes: [8, 10, 12, 14, 16, 18, 20, 24, 30, 40, 50, 60, 70, 80, 100],
+  DashType: ['Solid', 'Dash', 'DashDot', 'Dot', 'LongDash', 'LongDashDot', 'LongDashDotDot',
+    'ShortDash', 'ShortDashDot', 'ShortDashDotDot', 'ShortDot'],
+  CrossHair: 1,
+  Legend: 1,
+  ToolTip: 1,
+  HighLight: 1,
+  Navigator: 0,
+  Labels: 0,
+  Grid: 2,
+  DayLight: 1,
+  filter_feld: '',
+  Scroll_Legend: true,
+  ShowFilter: 1,
+  Limit: false,
+  Theme: 'standard',
+  Theme_Setting: undefined,
+  FontSize: 14,
+  Title: '',
+  Subtitle: '',
+  Loading: 0,
+  Button_Jump: false,
+  PopupID: undefined,
+  PopupAxisPos: undefined,
+  Queue: [],
+  ColorNext: 0,
+  Drag_Pos: 0,
+  Zoom: -1,
+  Settings_old: {},
+  Settings: {},
+  DataPointFilter: 0,
+  ZR_Ende: new Date(Date.now()),
+  ZR_Start: new Date(Date.now() - (new Date(86400000 * 1))),
+  DataPoints: [],
+  DataAttr: [],
 
 };
 
@@ -241,11 +241,11 @@ function createChart() {
   // Check DARK Mode
   let l_theme = window.H2buffer.Theme;
   if (l_theme === 'standard') {
-     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-       l_theme = 'standard-dark';
-     } else {
-       l_theme = 'standard-light';
-     }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      l_theme = 'standard-dark';
+    } else {
+      l_theme = 'standard-light';
+    }
   }
   if (l_theme !== 'standard-light' && window.DP_Themes[l_theme] && window.DP_Themes['standard-light']) {
     window.H2buffer.Theme_Setting = window.Highcharts.merge(window.DP_Themes['standard-light'], window.DP_Themes[l_theme]);
@@ -689,9 +689,9 @@ function defineDataLabels() {
       formatter: function() {
         let last;
         if (this.series.data.length > 0) {
-         last = this.series.data[this.series.data.length - 1];
+          last = this.series.data[this.series.data.length - 1];
         } else if (this.series.points.length > 0) {
-         last = this.series.points[this.series.points.length - 1];
+          last = this.series.points[this.series.points.length - 1];
         }
         if (last && last.category) {
           if (this.point.category === last.category) {
@@ -910,21 +910,21 @@ function bufferSerienData(id, data) {
   setSerienData(attrIDX, serie);
 
   // check how to display by button ALL, get oldest timestamp of new data
-  if ((window.H2buffer.ZR_Ende - window.H2buffer.ZR_Start) > (367*24*60*60*1000)) {
+  if ((window.H2buffer.ZR_Ende - window.H2buffer.ZR_Start) > (367 * 24 * 60 * 60 * 1000)) {
     let data_min = window.H2buffer.ZR_Ende.getTime();
     let found = false;
     for (let l_serie of window.H2buffer.chart.series) {
       if (l_serie.visible && l_serie.options.group !== "nav") {
         // get oldest date
-        if (l_serie.xData[0] && l_serie.xData[0] < data_min ) {
-           data_min = l_serie.xData[0];
-           found = true;
+        if (l_serie.xData[0] && l_serie.xData[0] < data_min) {
+          data_min = l_serie.xData[0];
+          found = true;
         }
       }
     }
     if (found) {
-       window.H2buffer.ZR_Start = new Date(data_min);
-       window.H2buffer.Button_Jump = true;
+      window.H2buffer.ZR_Start = new Date(data_min);
+      window.H2buffer.Button_Jump = true;
     }
   }
 
@@ -964,7 +964,7 @@ function setSerienData(p_attr, serieObj) {
     }
   }
 
-    // collect all timesstamps and Values - no aggregation
+  // collect all timesstamps and Values - no aggregation
   if (aggrType === 0) {
 
     arr = setSerienDataAggr0(p_attr, datStart, datEnd, backSec);
@@ -1361,7 +1361,7 @@ function requestInitData() {
     document.getElementById('count_text').innerHTML = "";
   }
 
-// set default global chart object
+  // set default global chart object
   window.H2buffer.chart = $('#container').highcharts();
 
   // get LocalData DataPoints
@@ -1697,66 +1697,66 @@ function readLinkDataSetting(text) {
     let text2 = text.split('|');
     for (let setting of text2) {
       switch (setting.substr(0, 1)) {
-      case 'L':
-        window.H2buffer.Legend = parseInt(setting.substr(1, 2));
-        break;
-      case 'N':
-        window.H2buffer.Navigator = parseInt(setting.substr(1, 2));
-        break;
-      case 'P':
-        window.H2buffer.Labels = parseInt(setting.substr(1, 2));
-        break;
-      case 'D':
-        window.H2buffer.DayLight = parseInt(setting.substr(1, 2));
-        break;
-      case 'G':
-        window.H2buffer.Grid = parseInt(setting.substr(1, 2));
-        break;
-      case 'F':
-        window.H2buffer.ShowFilter = parseInt(setting.substr(1, 2));
-        break;
-      case 'I':
-        window.H2buffer.DataPointFilter = parseInt(setting.substr(1, 2));
-        break;
-      case 'B':
-        window.H2buffer.Theme = setting.substr(1, 30);
-        if (window.H2buffer.Theme === 'standard_groß') {    // check old version
-          window.H2buffer.Theme = 'standard-light';
-          window.H2buffer.FontSize = 20;
-        } else if (window.H2buffer.Theme === 'standard_groesser') {     // check old version
-          window.H2buffer.Theme = 'standard-light';
-          window.H2buffer.FontSize = 30;
-        }
-        break;
-      case 'O':
-        window.H2buffer.FontSize = parseInt(setting.substr(1, 3));
-        break;
-      case 'C':
-        window.H2buffer.CrossHair = parseInt(setting.substr(1, 3));
-        break;
-      case 'M':
-        window.H2buffer.ToolTip = parseInt(setting.substr(1, 3));
-        break;
-      case 'H':
-        window.H2buffer.HighLight = parseInt(setting.substr(1, 3));
-        break;
-      case 'R':
-        window.H2buffer.refreshSec = parseInt(setting.substr(1, 10));
-        break;
-      case 'T':
-        try {
-          window.H2buffer.Title = decodeURIComponent(setting.substr(1, 50));
-        } catch {
-          window.H2buffer.Title = setting.substr(1, 50);
-        }
-        break;
-      case 'S':
-        try {
-          window.H2buffer.Subtitle = decodeURIComponent(setting.substr(1, 60));
-        } catch {
-          window.H2buffer.Subtitle = setting.substr(1, 60);
-        }
-        break;
+        case 'L':
+          window.H2buffer.Legend = parseInt(setting.substr(1, 2));
+          break;
+        case 'N':
+          window.H2buffer.Navigator = parseInt(setting.substr(1, 2));
+          break;
+        case 'P':
+          window.H2buffer.Labels = parseInt(setting.substr(1, 2));
+          break;
+        case 'D':
+          window.H2buffer.DayLight = parseInt(setting.substr(1, 2));
+          break;
+        case 'G':
+          window.H2buffer.Grid = parseInt(setting.substr(1, 2));
+          break;
+        case 'F':
+          window.H2buffer.ShowFilter = parseInt(setting.substr(1, 2));
+          break;
+        case 'I':
+          window.H2buffer.DataPointFilter = parseInt(setting.substr(1, 2));
+          break;
+        case 'B':
+          window.H2buffer.Theme = setting.substr(1, 30);
+          if (window.H2buffer.Theme === 'standard_groß') {    // check old version
+            window.H2buffer.Theme = 'standard-light';
+            window.H2buffer.FontSize = 20;
+          } else if (window.H2buffer.Theme === 'standard_groesser') {     // check old version
+            window.H2buffer.Theme = 'standard-light';
+            window.H2buffer.FontSize = 30;
+          }
+          break;
+        case 'O':
+          window.H2buffer.FontSize = parseInt(setting.substr(1, 3));
+          break;
+        case 'C':
+          window.H2buffer.CrossHair = parseInt(setting.substr(1, 3));
+          break;
+        case 'M':
+          window.H2buffer.ToolTip = parseInt(setting.substr(1, 3));
+          break;
+        case 'H':
+          window.H2buffer.HighLight = parseInt(setting.substr(1, 3));
+          break;
+        case 'R':
+          window.H2buffer.refreshSec = parseInt(setting.substr(1, 10));
+          break;
+        case 'T':
+          try {
+            window.H2buffer.Title = decodeURIComponent(setting.substr(1, 50));
+          } catch {
+            window.H2buffer.Title = setting.substr(1, 50);
+          }
+          break;
+        case 'S':
+          try {
+            window.H2buffer.Subtitle = decodeURIComponent(setting.substr(1, 60));
+          } catch {
+            window.H2buffer.Subtitle = setting.substr(1, 60);
+          }
+          break;
       }
     }
   }
@@ -1828,12 +1828,12 @@ function parseDataPoints() {
       // nur noch DP Werte
       if (nv[0].toLowerCase() === 'dp') {
         text = decodeURIComponent(nv[1]).toLowerCase().split(',');
-        parseDataPointsDP(text,nv);
+        parseDataPointsDP(text, nv);
 
         // parameter YAXIS
       } else if (nv[0].toLowerCase() === 'yaxis') {
         text = decodeURIComponent(nv[1]).toLowerCase().split(',');
-        parseDataPointsAxis(text,nv);
+        parseDataPointsAxis(text, nv);
 
         // parameter Raum
       } else if (nv[0].toLowerCase() === 'room') {
@@ -1922,8 +1922,8 @@ function parseDataPointFill() {
   // Alle Serien aufbauen und Räume & Gewerke sammeln nur für anzeigbare
   for (let dp of window.H2buffer.DataPoints) {
 
-// nur valide DPs
-   if (checkFilter("ALLES", "ALLES", "", null, dp)) {
+    // nur valide DPs
+    if (checkFilter("ALLES", "ALLES", "", null, dp)) {
 
       // Räme sammeln
       if (dp.attributes.room !== null) {
@@ -1961,7 +1961,7 @@ function parseDataPointFill() {
   }
 
   // Sort on Rooms
-  DP_rooms.sort( sortLowercase );
+  DP_rooms.sort(sortLowercase);
 
   $("#Select-Raum").empty();
   let select = document.getElementById("Select-Raum");
@@ -1978,7 +1978,7 @@ function parseDataPointFill() {
   }
 
   // Sort on Gewerk
-  DP_gewerk.sort( sortLowercase );
+  DP_gewerk.sort(sortLowercase);
 
   $("#Select-Gewerk").empty();
   select = document.getElementById("Select-Gewerk");
@@ -2015,7 +2015,7 @@ function parseDataPointsZoom() {
 }
 
 /*****/
-function parseDataPointsDP(text,nv) {
+function parseDataPointsDP(text, nv) {
   for (let j = 0; j < text.length; j++) {
     let text2 = text[j].toUpperCase().split('|');
     let dp_id = text2[0];
@@ -2079,7 +2079,7 @@ function parseDataPointsDP(text,nv) {
 }
 
 /*****/
-function parseDataPointsAxis(text,nv) {
+function parseDataPointsAxis(text, nv) {
   for (let j = 0; j < text.length; j++) {
     let text2 = text[j].toUpperCase().split('|');
     let axis_id = parseInt(text2[0].substr(1, 2));
@@ -2738,7 +2738,7 @@ function loadNewAxisInfo() {
 
       }
 
-      if (window.H2buffer.yAxis[axispos].limit === 0 || window.H2buffer.yAxis[axispos].limit === 1 ) {
+      if (window.H2buffer.yAxis[axispos].limit === 0 || window.H2buffer.yAxis[axispos].limit === 1) {
         window.H2buffer.chart.yAxis[axispos].setExtremes(null, null);
       } else if (window.H2buffer.yAxis[axispos].limit === 2) {
         // set extrem if config Dynamic or HARD
@@ -2781,8 +2781,8 @@ function loadNewPlotBand() {
   let id = 1;
 
   // Define whole workarea ...
-  let minDate = window.H2buffer.chart.xAxis.reduce((a,b)=>a.min>b.min?a:b).min;
-  let maxDate = window.H2buffer.chart.xAxis.reduce((a,b)=>a.max>b.max?a:b).max;
+  let minDate = window.H2buffer.chart.xAxis.reduce((a, b) => a.min > b.min ? a : b).min;
+  let maxDate = window.H2buffer.chart.xAxis.reduce((a, b) => a.max > b.max ? a : b).max;
   if (!minDate || minDate > window.H2buffer.ZR_Start.getTime()) {
     minDate = window.H2buffer.ZR_Start.getTime();
   }
@@ -2790,8 +2790,8 @@ function loadNewPlotBand() {
     maxDate = window.H2buffer.ZR_Ende.getTime();
   }
   // do nothing for over 35 days
-  if (maxDate-minDate > 35*86400000) {
-  // gray in night, day yellow
+  if (maxDate - minDate > 35 * 86400000) {
+    // gray in night, day yellow
   } else if (window.H2buffer.DayLight === 1) {
     for (loopDate = minDate; loopDate <= maxDate; loopDate += 86400000) {
       start = new Date(loopDate);
@@ -2984,7 +2984,7 @@ function createUrlAxis() {
       url2 += '|F' + window.H2buffer.yAxis[axispos].color;
       if (window.H2buffer.yAxis[axispos].text) {
         url2 += '|T' + window.H2buffer.yAxis[axispos].text.replaceAll("%", "§").replaceAll('&', 'µ');
-      }else {
+      } else {
         url2 += '|T';
       }
       url2 += ',';
@@ -3010,7 +3010,7 @@ function autoRefresh() {
       // Add Zoom if not full
       let extremes = window.H2buffer.chart.xAxis[0].getExtremes();
       if (extremes.max < extremes.dataMax || extremes.min > extremes.dataMin) {
-         window.H2buffer.Zoom = (Math.round(((extremes.max - extremes.min) / (60 * 60 * 1000)) * 100) / 100);
+        window.H2buffer.Zoom = (Math.round(((extremes.max - extremes.min) / (60 * 60 * 1000)) * 100) / 100);
       }
 
       loadNewSerienData();
@@ -3114,8 +3114,8 @@ function showDialogLine(serieObj) {
       techName = '<br/>Systemvariable';
     } else {
       techName = '<br/>' + window.H2buffer.DataPoints[DP_pos].id.interfaceId + '.'
-                         + window.H2buffer.DataPoints[DP_pos].id.address + '.'
-                         + window.H2buffer.DataPoints[DP_pos].id.identifier;
+        + window.H2buffer.DataPoints[DP_pos].id.address + '.'
+        + window.H2buffer.DataPoints[DP_pos].id.identifier;
     }
 
     window.H2buffer.PopupID = serieObj.options.id.toString();
@@ -3261,8 +3261,8 @@ function getDialogLine() {
   let attr = window.H2buffer.DataAttr.findIndex(obj => obj.id === window.H2buffer.PopupID);
 
   if (window.H2buffer.DataAttr[attr].comp !== document.getElementById("Select-Compare").value
-       && document.getElementById("Select-Compare").value !== 'C0'
-       && window.H2buffer.DataAttr[attr].comp !== 'C0') {
+    && document.getElementById("Select-Compare").value !== 'C0'
+    && window.H2buffer.DataAttr[attr].comp !== 'C0') {
     // change comparisation ID on old one, search any old one to update ID
     let attrC = window.H2buffer.DataAttr.findIndex(obj => obj.id.substr(0, 1) === 'C' && obj.id.split('_')[1] === window.H2buffer.PopupID);
     if (attrC !== -1) {
@@ -3495,7 +3495,7 @@ function getDialogSetting() {
 
   // HighLight
   if (window.H2buffer.HighLight.toString() !== document.getElementById("Select-HighLight").value) {
-    window.H2buffer.HighLight= parseInt(document.getElementById("Select-HighLight").value);
+    window.H2buffer.HighLight = parseInt(document.getElementById("Select-HighLight").value);
     chartrefresh = true;
   }
 
@@ -3527,7 +3527,7 @@ function showDialogFav() {
   document.getElementById("Text-Title4").innerHTML = window.ChhLanguage.default.historian.favoritName;
   document.getElementById("favAdd").innerHTML = window.ChhLanguage.default.historian.favoritNEW;
 
-// genearte Fav-List on Popup
+  // genearte Fav-List on Popup
 
   if (window.H2buffer.Settings.Favorites) {
     let favList = document.getElementById('favList');
@@ -3536,36 +3536,36 @@ function showDialogFav() {
     }
 
     let mytable = document.createElement("table");
-    mytable.setAttribute("width","100%");
-    mytable.setAttribute("style","border: 0px; margin-top: 22px;");
+    mytable.setAttribute("width", "100%");
+    mytable.setAttribute("style", "border: 0px; margin-top: 22px;");
     let mytablebody = document.createElement("tbody");
 
-    for(let i = 0; i<window.H2buffer.Settings.Favorites.length;i++) {
+    for (let i = 0; i < window.H2buffer.Settings.Favorites.length; i++) {
       let mycurrent_row = document.createElement("tr");
 
       let mycurrent_cell1 = document.createElement("td");
-      mycurrent_cell1.setAttribute("style","border: 0px;");
+      mycurrent_cell1.setAttribute("style", "border: 0px;");
 
       let currenttext1 = document.createElement("button");
       currenttext1.innerHTML = decodeURIComponent(window.H2buffer.Settings.Favorites[i].Name);
-      currenttext1.setAttribute("class","bnt btn-default");
-      currenttext1.setAttribute("onclick","executeFav("+i+");");
-      currenttext1.setAttribute("draggable","true");
-      currenttext1.setAttribute("ondragstart","drag(event,"+i+")");
-      currenttext1.setAttribute("ondrop","drop(event,"+i+")");
-      currenttext1.setAttribute("ondragover","allowDrop(event,"+i+")");
-      currenttext1.setAttribute("style","width: 90%;");
+      currenttext1.setAttribute("class", "bnt btn-default");
+      currenttext1.setAttribute("onclick", "executeFav(" + i + ");");
+      currenttext1.setAttribute("draggable", "true");
+      currenttext1.setAttribute("ondragstart", "drag(event," + i + ")");
+      currenttext1.setAttribute("ondrop", "drop(event," + i + ")");
+      currenttext1.setAttribute("ondragover", "allowDrop(event," + i + ")");
+      currenttext1.setAttribute("style", "width: 90%;");
 
       mycurrent_cell1.appendChild(currenttext1);
       mycurrent_row.appendChild(mycurrent_cell1);
 
       let mycurrent_cell2 = document.createElement("td");
-      mycurrent_cell2.setAttribute("style","border: 0px;");
+      mycurrent_cell2.setAttribute("style", "border: 0px;");
 
       let currenttext2 = document.createElement("button");
-      currenttext2.setAttribute("class","bnt btn-default");
-      currenttext2.setAttribute("onclick","deleteFav("+i+");");
-      currenttext2.setAttribute("style","font-size: 21px;");
+      currenttext2.setAttribute("class", "bnt btn-default");
+      currenttext2.setAttribute("onclick", "deleteFav(" + i + ");");
+      currenttext2.setAttribute("style", "font-size: 21px;");
       currenttext2.textContent = 'x';
 
       mycurrent_cell2.appendChild(currenttext2);
@@ -3576,7 +3576,7 @@ function showDialogFav() {
 
     mytable.appendChild(mytablebody);
     favList.appendChild(mytable);
-    mytable.setAttribute("border","2");
+    mytable.setAttribute("border", "2");
   }
 
   $("#FavPopup").modal();
@@ -3601,10 +3601,10 @@ function drop(ev, pos) {
   let arr = window.H2buffer.Settings.Favorites[window.H2buffer.Drag_Pos];
 
   // löscht alten Position
-  window.H2buffer.Settings.Favorites.splice(window.H2buffer.Drag_Pos,1);
+  window.H2buffer.Settings.Favorites.splice(window.H2buffer.Drag_Pos, 1);
 
   // insert neue Position
-  window.H2buffer.Settings.Favorites.splice(pos, 0, arr );
+  window.H2buffer.Settings.Favorites.splice(pos, 0, arr);
 
   // Save to H2 database
   saveSettingsH2();
@@ -3637,25 +3637,25 @@ $("#Dialog4BtnClose").click(function() {
 
 function deleteFav(favorit) {
 
- $("#FavPopup").modal('hide');
+  $("#FavPopup").modal('hide');
 
   if (window.H2buffer.Settings.Favorites[favorit]) {
-  // delete Favorite entry on position
-    window.H2buffer.Settings.Favorites.splice(favorit,1);
+    // delete Favorite entry on position
+    window.H2buffer.Settings.Favorites.splice(favorit, 1);
 
-  // Save to H2 database
+    // Save to H2 database
     saveSettingsH2();
   }
 }
 
 function executeFav(favorit) {
- $("#FavPopup").modal('hide');
+  $("#FavPopup").modal('hide');
 
   if (window.H2buffer.Settings.Favorites[favorit]) {
 
-// execute Favorit
+    // execute Favorit
     let url = location.pathname + "?" + decodeURIComponent(window.H2buffer.Settings.Favorites[favorit].Url);
-    window.open(url,"_self");
+    window.open(url, "_self");
 
   }
 }
@@ -3670,8 +3670,10 @@ function getDialogFav() {
     if (!window.H2buffer.Settings.Favorites) {
       window.H2buffer.Settings.Favorites = [];
     }
-    window.H2buffer.Settings.Favorites.push({ Name: encodeURIComponent(document.getElementById("Line-Title4").value).replace(/'/g, '%27'),
-                                 Url: encodeURIComponent(generateUrl()).replace(/'/g, '%27') });
+    window.H2buffer.Settings.Favorites.push({
+      Name: encodeURIComponent(document.getElementById("Line-Title4").value).replace(/'/g, '%27'),
+      Url: encodeURIComponent(generateUrl()).replace(/'/g, '%27')
+    });
 
     saveSettingsH2();
   }
@@ -3722,9 +3724,9 @@ function defineLegend() {
       floating: false,
       y: (window.H2buffer.Navigator < 4) ? -30 : 0,
       maxHeight: $(window).height() - (window.H2buffer.ShowFilter === 0 ? 90 : 0)
-                                    - (window.H2buffer.ShowFilter === 1 ? 200 : 0)
-                                    - (window.H2buffer.ShowFilter === 2 ? 120 : 0)
-                                    - (window.H2buffer.ShowFilter === 3 ? 180 : 0)
+        - (window.H2buffer.ShowFilter === 1 ? 200 : 0)
+        - (window.H2buffer.ShowFilter === 2 ? 120 : 0)
+        - (window.H2buffer.ShowFilter === 3 ? 180 : 0)
     };
   } else if (window.H2buffer.Legend === 3) {
     ret = {
@@ -3733,7 +3735,7 @@ function defineLegend() {
       align: 'center',
       verticalAlign: 'top',
       floating: true,
-      y: 10 + (window.H2buffer.Title === '' ? 0 : window.H2buffer.FontSize + 20) + (window.H2buffer.Subtitle === '' ? 0 : (window.H2buffer.FontSize/6+5) + 15),
+      y: 10 + (window.H2buffer.Title === '' ? 0 : window.H2buffer.FontSize + 20) + (window.H2buffer.Subtitle === '' ? 0 : (window.H2buffer.FontSize / 6 + 5) + 15),
       maxHeight: 200
     };
   } else if (window.H2buffer.Legend === 4) {
@@ -3744,9 +3746,9 @@ function defineLegend() {
       verticalAlign: 'bottom',
       floating: true,
       y: -30 - window.H2buffer.FontSize
-             - ( window.H2buffer.Navigator === 0 ? 20+window.H2buffer.FontSize*4.5 : 0 )
-             - ( window.H2buffer.Navigator === 1 ? 15+window.H2buffer.FontSize*3.5 : 0 )
-             - ( window.H2buffer.Navigator === 2 ? 11+window.H2buffer.FontSize*2 : 0 ),
+        - (window.H2buffer.Navigator === 0 ? 20 + window.H2buffer.FontSize * 4.5 : 0)
+        - (window.H2buffer.Navigator === 1 ? 15 + window.H2buffer.FontSize * 3.5 : 0)
+        - (window.H2buffer.Navigator === 2 ? 11 + window.H2buffer.FontSize * 2 : 0),
       maxHeight: 200
     };
   } else if (window.H2buffer.Legend === 5) {
@@ -3779,9 +3781,9 @@ function defineLegend() {
       floating: false,
       y: (window.H2buffer.Navigator < 4) ? -30 : 0,
       maxHeight: $(window).height() - (window.H2buffer.ShowFilter === 0 ? 90 : 0)
-                                    - (window.H2buffer.ShowFilter === 1 ? 200 : 0)
-                                    - (window.H2buffer.ShowFilter === 2 ? 120 : 0)
-                                    - (window.H2buffer.ShowFilter === 3 ? 180 : 0)
+        - (window.H2buffer.ShowFilter === 1 ? 200 : 0)
+        - (window.H2buffer.ShowFilter === 2 ? 120 : 0)
+        - (window.H2buffer.ShowFilter === 3 ? 180 : 0)
     };
   }
   ret['x'] = 0;
@@ -3867,9 +3869,9 @@ function getDialogAxis() {
     tickPositioner: null,
   };
   if (document.getElementById("Select-Limit").value === '2') {
-    newOptions.tickPositioner =  function () {
+    newOptions.tickPositioner = function() {
       const axis = this;
-      return axis.tickPositions.map((pos) => tickPos(axis,pos));
+      return axis.tickPositions.map((pos) => tickPos(axis, pos));
     };
   }
 
@@ -3935,9 +3937,9 @@ function defineYAxis() {
       crosshair: defineCrosshairY(),
     };
     if (window.H2buffer.yAxis[y].limit === 2) {
-      newOptions.tickPositioner =  function () {
+      newOptions.tickPositioner = function() {
         const axis = this;
-        return axis.tickPositions.map((pos) => tickPos(axis,pos));
+        return axis.tickPositions.map((pos) => tickPos(axis, pos));
       };
     }
     arr.push(newOptions);
@@ -3945,7 +3947,7 @@ function defineYAxis() {
   return arr;
 }
 
-function tickPos(axis,pos) {
+function tickPos(axis, pos) {
   let l_pos = pos;
   if (l_pos > axis.max) {
     l_pos = axis.max;
@@ -3987,7 +3989,7 @@ function chartSetOptions() {
 
   let myText = '';
   if (window.Highcharts.getOptions().navigation && window.Highcharts.getOptions().navigation.bindings && window.Highcharts.getOptions().navigation.bindings.labelAnnotation) {
-     myText = window.Highcharts.getOptions().navigation.bindings.labelAnnotation;
+    myText = window.Highcharts.getOptions().navigation.bindings.labelAnnotation;
   }
 
   let options = {
@@ -3996,13 +3998,13 @@ function chartSetOptions() {
     chart: {
       events: {
         load: requestInitData,
-        beforePrint: function () {
-          if ( window.DP_Themes.transparent ) {
+        beforePrint: function() {
+          if (window.DP_Themes.transparent) {
             let DP_Theme_Print = window.Highcharts.merge(window.DP_Themes['standard-light'], window.DP_Themes.transparent);
             this.update(DP_Theme_Print);
           }
         },
-        afterPrint: function () {
+        afterPrint: function() {
           this.update(window.H2buffer.Theme_Setting);
           chartSetOptions();
           chartSetElements();
@@ -4097,7 +4099,7 @@ function chartSetOptions() {
     credits: {
       enabled: (window.H2buffer.Navigator < 3) ? true : false,
       text: '(c) wak - H2-HighChart version ' + window.H2buffer.version + ' - verwendet Highstock v' +
-            window.Highcharts.version + ' http://www.highcharts.com - Kommerzielle Nutzung untersagt',
+        window.Highcharts.version + ' http://www.highcharts.com - Kommerzielle Nutzung untersagt',
       href: 'https://github.com/wakr70/CCU-Historian-HC'
     },
 
@@ -4222,7 +4224,7 @@ function chartSetOptions() {
             if (arguments[0] && arguments[0].activeAnnotation) {
               skip = true;
             }
-            if (!skip)  {
+            if (!skip) {
               showDialogLine(this);
             }
             return true;
@@ -4252,7 +4254,7 @@ function chartSetOptions() {
         buttons: ["indicators", "separator", "myText", "lines", "measure", "toggleAnnotations", "separator", "verticalLabels", "separator", "zoomChange", "fullScreen"],
         definitions: {
           zoomChange: {
-            items: ["zoomXY", "zoomY", "zoomX" ],
+            items: ["zoomXY", "zoomY", "zoomX"],
           },
           myText: {
             className: "highcharts-label-annotation",
@@ -4263,30 +4265,30 @@ function chartSetOptions() {
     }
   };
 
-  window.H2buffer.chart = window.Highcharts.stockChart('container', options );
+  window.H2buffer.chart = window.Highcharts.stockChart('container', options);
   if (!window.H2buffer.chart) {
-    alert( 'HighChart Option error!');
+    alert('HighChart Option error!');
   }
 }
 
 function defineCrosshairX() {
   let ret = false;
-  if(window.H2buffer.CrossHair === 1) {
-     ret = { width: 1, snap: true };
+  if (window.H2buffer.CrossHair === 1) {
+    ret = { width: 1, snap: true };
   } else if (window.H2buffer.CrossHair === 3) {
-     ret = { width: 1, snap: true };
+    ret = { width: 1, snap: true };
   } else if (window.H2buffer.CrossHair === 4) {
-     ret = { width: 1, snap: false };
+    ret = { width: 1, snap: false };
   } else if (window.H2buffer.CrossHair === 6) {
-     ret = { width: 1, snap: false };
+    ret = { width: 1, snap: false };
   } else if (window.H2buffer.CrossHair === 7) {
-     ret = { width: 3, snap: true };
+    ret = { width: 3, snap: true };
   } else if (window.H2buffer.CrossHair === 9) {
-     ret = { width: 3, snap: true };
+    ret = { width: 3, snap: true };
   } else if (window.H2buffer.CrossHair === 10) {
-     ret = { width: 3, snap: false };
+    ret = { width: 3, snap: false };
   } else if (window.H2buffer.CrossHair === 12) {
-     ret = { width: 3, snap: false };
+    ret = { width: 3, snap: false };
   }
   return ret;
 }
@@ -4294,21 +4296,21 @@ function defineCrosshairX() {
 function defineCrosshairY() {
   let ret = false;
   if (window.H2buffer.CrossHair === 2) {
-     ret= { width: 1, snap: true };
+    ret = { width: 1, snap: true };
   } else if (window.H2buffer.CrossHair === 3) {
-     ret = { width: 1, snap: true };
+    ret = { width: 1, snap: true };
   } else if (window.H2buffer.CrossHair === 5) {
-     ret = { width: 1, snap: false };
+    ret = { width: 1, snap: false };
   } else if (window.H2buffer.CrossHair === 6) {
-     ret = { width: 1, snap: false };
-  } else if(window.H2buffer.CrossHair === 8) {
-     ret = { width: 3, snap: true };
-  } else if(window.H2buffer.CrossHair === 9) {
-     ret = { width: 3, snap: true };
-  } else if(window.H2buffer.CrossHair === 11) {
-     ret = { width: 3, snap: false };
-  } else if(window.H2buffer.CrossHair === 12) {
-     ret = { width: 3, snap: false };
+    ret = { width: 1, snap: false };
+  } else if (window.H2buffer.CrossHair === 8) {
+    ret = { width: 3, snap: true };
+  } else if (window.H2buffer.CrossHair === 9) {
+    ret = { width: 3, snap: true };
+  } else if (window.H2buffer.CrossHair === 11) {
+    ret = { width: 3, snap: false };
+  } else if (window.H2buffer.CrossHair === 12) {
+    ret = { width: 3, snap: false };
   }
   return ret;
 }
@@ -4316,17 +4318,17 @@ function defineCrosshairY() {
 function defineHighLight() {
   let ret = { hover: { enabled: true, lineWidthPlus: 0 }, inactive: { enabled: false, opacity: 1 } };
   if (window.H2buffer.HighLight === 1) {
-     ret= { hover: { enabled: true, lineWidthPlus: 1 }, inactive: { enabled: true, opacity: 0.2 } };
+    ret = { hover: { enabled: true, lineWidthPlus: 1 }, inactive: { enabled: true, opacity: 0.2 } };
   } else if (window.H2buffer.HighLight === 2) {
-     ret= { hover: { enabled: true, lineWidthPlus: 1 }, inactive: { enabled: true, opacity: 0.5 } };
+    ret = { hover: { enabled: true, lineWidthPlus: 1 }, inactive: { enabled: true, opacity: 0.5 } };
   } else if (window.H2buffer.HighLight === 3) {
-     ret= { hover: { enabled: true, lineWidthPlus: 1 }, inactive: { enabled: false, opacity: 1 } };
+    ret = { hover: { enabled: true, lineWidthPlus: 1 }, inactive: { enabled: false, opacity: 1 } };
   } else if (window.H2buffer.HighLight === 4) {
-     ret= { hover: { enabled: true, lineWidthPlus: 3 }, inactive: { enabled: true, opacity: 0.2 } };
+    ret = { hover: { enabled: true, lineWidthPlus: 3 }, inactive: { enabled: true, opacity: 0.2 } };
   } else if (window.H2buffer.HighLight === 5) {
-     ret= { hover: { enabled: true, lineWidthPlus: 3 }, inactive: { enabled: true, opacity: 0.5 } };
+    ret = { hover: { enabled: true, lineWidthPlus: 3 }, inactive: { enabled: true, opacity: 0.5 } };
   } else if (window.H2buffer.HighLight === 6) {
-     ret= { hover: { enabled: true, lineWidthPlus: 3 }, inactive: { enabled: false, opacity: 1 } };
+    ret = { hover: { enabled: true, lineWidthPlus: 3 }, inactive: { enabled: false, opacity: 1 } };
   }
   return ret;
 }
@@ -4335,75 +4337,85 @@ function defineToolTip() {
   let ret = { enabled: false };
 
   if (window.H2buffer.ToolTip === 1) {
-     ret = { enabled: true,
-             formatter: null,
-             shared: false,
-             split: true,
-             valueDecimals: 2,
-           };
+    ret = {
+      enabled: true,
+      formatter: null,
+      shared: false,
+      split: true,
+      valueDecimals: 2,
+    };
   } else if (window.H2buffer.ToolTip === 2) {
-     ret = { enabled: true,
-             formatter: null,
-             shared: false,
-             split: false,
-             valueDecimals: 2,
-           };
+    ret = {
+      enabled: true,
+      formatter: null,
+      shared: false,
+      split: false,
+      valueDecimals: 2,
+    };
   } else if (window.H2buffer.ToolTip === 3) {
-     ret = { enabled: true,
-             formatter: function () { return [''].concat( this.points ? this.points.map(function (point) {
-                                                                             if (point.series.name === 'MinMax') {
-                                                                                return point.series.name + ': <b>' +
-                                                                                window.Highcharts.numberFormat(point.point.low, 2, ",", ".") + " - " +
-                                                                                window.Highcharts.numberFormat(point.point.high, 2, ",", ".") + " " +
-                                                                                point.series.tooltipOptions.valueSuffix + "</b>";
-                                                                             } else {
-                                                                                return point.series.name + ': <b>' +
-                                                                                window.Highcharts.numberFormat(point.y, 2, ",", ".") + " " +
-                                                                                point.series.tooltipOptions.valueSuffix + "</b>";
-                                                                             }
-                                                                           }) : []
-                                    );} ,
-             shared: false,
-             split: true,
-             valueDecimals: 2,
-           };
+    ret = {
+      enabled: true,
+      formatter: function() {
+        return [''].concat(this.points ? this.points.map(function(point) {
+          if (point.series.name === 'MinMax') {
+            return point.series.name + ': <b>' +
+              window.Highcharts.numberFormat(point.point.low, 2, ",", ".") + " - " +
+              window.Highcharts.numberFormat(point.point.high, 2, ",", ".") + " " +
+              point.series.tooltipOptions.valueSuffix + "</b>";
+          } else {
+            return point.series.name + ': <b>' +
+              window.Highcharts.numberFormat(point.y, 2, ",", ".") + " " +
+              point.series.tooltipOptions.valueSuffix + "</b>";
+          }
+        }) : []
+        );
+      },
+      shared: false,
+      split: true,
+      valueDecimals: 2,
+    };
   } else if (window.H2buffer.ToolTip === 4) {
-     ret = { enabled: true,
-             formatter: function () {    if (this.series.name === 'MinMax') {
-                                             return this.point.series.name + ': <b>' +
-                                             window.Highcharts.numberFormat(this.point.low, 2, ",", ".") + " - " +
-                                             window.Highcharts.numberFormat(this.point.high, 2, ",", ".") + " " +
-                                             this.point.series.tooltipOptions.valueSuffix + "</b>";
-                                         } else {
-                                             return this.point.series.name + ': <b>' +
-                                             window.Highcharts.numberFormat(this.point.y, 2, ",", ".") + " " +
-                                             this.point.series.tooltipOptions.valueSuffix + "</b>";
-                                         }
-                                    },
-             shared: false,
-             split: false,
-             valueDecimals: 2,
-           };
+    ret = {
+      enabled: true,
+      formatter: function() {
+        if (this.series.name === 'MinMax') {
+          return this.point.series.name + ': <b>' +
+            window.Highcharts.numberFormat(this.point.low, 2, ",", ".") + " - " +
+            window.Highcharts.numberFormat(this.point.high, 2, ",", ".") + " " +
+            this.point.series.tooltipOptions.valueSuffix + "</b>";
+        } else {
+          return this.point.series.name + ': <b>' +
+            window.Highcharts.numberFormat(this.point.y, 2, ",", ".") + " " +
+            this.point.series.tooltipOptions.valueSuffix + "</b>";
+        }
+      },
+      shared: false,
+      split: false,
+      valueDecimals: 2,
+    };
   } else if (window.H2buffer.ToolTip === 5) {
-     ret = { enabled: true,
-             formatter: function () { let xDate = new Date( this.x );
-                                      return this.points.reduce(function (s, point) {
-                                           if (point.series.name === 'MinMax') {
-                                               return s + '<br/>' + point.series.name + ': ' +
-                                                      window.Highcharts.numberFormat(point.point.low, 2, ",", ".") + " - " +
-                                                      window.Highcharts.numberFormat(point.point.high, 2, ",", ".") + " " +
-                                                      point.series.tooltipOptions.valueSuffix ;
-                                           } else {
-                                               return s + '<br/>' + point.series.name + ': ' +
-                                                      window.Highcharts.numberFormat(point.y, 2, ",", ".") + " " +
-                                                      point.series.tooltipOptions.valueSuffix ;
-                                           }
-                                    }, '<b>' + window.Highcharts.dateFormat('%A, %e. %b %Y, %H:%M', xDate) + '</b>'); },
-             shared: true,
-             split: false,
-             valueDecimals: 2,
+    ret = {
+      enabled: true,
+      formatter: function() {
+        let xDate = new Date(this.x);
+        return this.points.reduce(function(s, point) {
+          if (point.series.name === 'MinMax') {
+            return s + '<br/>' + point.series.name + ': ' +
+              window.Highcharts.numberFormat(point.point.low, 2, ",", ".") + " - " +
+              window.Highcharts.numberFormat(point.point.high, 2, ",", ".") + " " +
+              point.series.tooltipOptions.valueSuffix;
+          } else {
+            return s + '<br/>' + point.series.name + ': ' +
+              window.Highcharts.numberFormat(point.y, 2, ",", ".") + " " +
+              point.series.tooltipOptions.valueSuffix;
+          }
+        }, '<b>' + window.Highcharts.dateFormat('%A, %e. %b %Y, %H:%M', xDate) + '</b>');
+      },
+      shared: true,
+      split: false,
+      valueDecimals: 2,
 
-           };
+    };
   }
   return ret;
 }
@@ -4563,7 +4575,7 @@ function chartSetElements() {
   }
 
 
-// disable StockTools Button on hide Menue-Buttons
+  // disable StockTools Button on hide Menue-Buttons
   if (window.H2buffer.Navigator < 4) {
     $(".highcharts-stocktools-wrapper").css("display", "block");
   } else {
@@ -4582,9 +4594,9 @@ function chartSetElements() {
 }
 
 // avoid double register same event
-function eventSingleRegister(el_name,ev_name,ev_func) {
-  if (undefined !== jQuery._data( $(el_name)[0], "events" )) {
-    if (undefined !== jQuery._data( $(el_name)[0], "events" )[ev_name]) {
+function eventSingleRegister(el_name, ev_name, ev_func) {
+  if (undefined !== jQuery._data($(el_name)[0], "events")) {
+    if (undefined !== jQuery._data($(el_name)[0], "events")[ev_name]) {
       return false;
     }
   }
@@ -4610,8 +4622,8 @@ eventSingleRegister("#Select-Gewerk", "change", function() {
 
 // **********************
 eventSingleRegister("#refresh", "click", function() {
-   refreshClick();
-   return true;
+  refreshClick();
+  return true;
 });
 
 // **********************
@@ -4642,7 +4654,7 @@ function refreshClick() {
   // Add Zoom if not full
   let extremes = window.H2buffer.chart.xAxis[0].getExtremes();
   if (extremes.max < extremes.dataMax || extremes.min > extremes.dataMin) {
-     window.H2buffer.Zoom = (Math.round(((extremes.max - extremes.min) / (60 * 60 * 1000)) * 100) / 100);
+    window.H2buffer.Zoom = (Math.round(((extremes.max - extremes.min) / (60 * 60 * 1000)) * 100) / 100);
   }
 
   loadNewSerienData();
@@ -4652,7 +4664,8 @@ function refreshClick() {
 // save to Local Browser Storage
 function setLocalData(cname, cvalue) {
   try {
-    let storage_name = window.H2buffer.server + '_'+ window.H2buffer.port + '_' + window.H2buffer.version + '_' + cname;
+    checkLocalData();    
+    let storage_name = window.H2buffer.server + '_' + window.H2buffer.port + '_' + window.H2buffer.version + '_' + cname;
     localStorage.setItem(storage_name, cvalue);
   } catch { }
 }
@@ -4660,8 +4673,30 @@ function setLocalData(cname, cvalue) {
 // read Local Browser Storage to speed up 1 display
 function getLocalData(cname) {
   try {
-    let storage_name = window.H2buffer.server + '_'+ window.H2buffer.port + '_' + window.H2buffer.version + '_' + cname;
+    checkLocalData();    
+    let storage_name = window.H2buffer.server + '_' + window.H2buffer.port + '_' + window.H2buffer.version + '_' + cname;
     return localStorage.getItem(storage_name);
+  } catch {
+    return "";
+  }
+}
+
+// read Local Browser Storage to speed up 1 display
+function checkLocalData() {
+  try {
+    let storage_len = localStorage.length;
+    if (storage_len > 4) {
+      let storage_name_ver = window.H2buffer.server + '_' + window.H2buffer.port + '_' + window.H2buffer.version;
+      for (let i = 0; i < storage_len; i++) {
+        let storage_key = localStorage.key(i);
+        if (storage_key) {
+          if (!storage_key.startsWith(storage_name_ver)) {
+            localStorage.removeItem(storage_key)
+          }
+        }
+      }
+    };
+    return "";
   } catch {
     return "";
   }
@@ -4671,16 +4706,16 @@ function getLocalData(cname) {
 function checkZeitraum(rangInfo) {
   let range = rangInfo._range;
   if (isNaN(range)) {
-    range = 10*356*24*60*60*1000;   // bug fix for button ALL display last 5 years
+    range = 10 * 356 * 24 * 60 * 60 * 1000;   // bug fix for button ALL display last 5 years
   }
   let datNew = new Date(window.H2buffer.ZR_Ende - (new Date(range)));
-// Patch for remove zoom reset: if (window.H2buffer.ZR_Start > datNew) {
-    window.H2buffer.ZR_Start = datNew;
-    loadNewSerienData();
-    window.H2buffer.Button_Jump = true;
-    return false;
-// Patch for remove zoom reset: }
-// Patch for remove zoom reset: return true;
+  // Patch for remove zoom reset: if (window.H2buffer.ZR_Start > datNew) {
+  window.H2buffer.ZR_Start = datNew;
+  loadNewSerienData();
+  window.H2buffer.Button_Jump = true;
+  return false;
+  // Patch for remove zoom reset: }
+  // Patch for remove zoom reset: return true;
 }
 
 function calcContSize() {
@@ -4710,7 +4745,7 @@ function calcContSize() {
   char_height = Math.round(char_height * font_factor);
 
   cont_height = $(window).height() - nav_height - char_height;
-  return( cont_height );
+  return (cont_height);
 
 }
 
@@ -4835,7 +4870,7 @@ function chartSetFontSize() {
       title: { style: { "fontSize": Size_N } },
     },
     tooltip: {
-      headerFormat: (window.H2buffer.ToolTip === 1)?"<span style=\"font-size: " + Size_N + "\">{point.key}</span><br/>":"",
+      headerFormat: (window.H2buffer.ToolTip === 1) ? "<span style=\"font-size: " + Size_N + "\">{point.key}</span><br/>" : "",
       style: { fontSize: Size_S }
     },
     legend: {
@@ -4852,13 +4887,13 @@ function chartSetFontSize() {
       buttonTheme: { // styles for the buttons
         style: { fontSize: Size_S } //width: (window.H2buffer.FontSize*2+20).toString() + "px", height: (window.H2buffer.FontSize+20).toString() + "px" }
       },
-//      height: (window.H2buffer.FontSize + 20).toString() + "px",
-      buttonSpacing: Math.round( window.H2buffer.FontSize - 7 ),
+      //      height: (window.H2buffer.FontSize + 20).toString() + "px",
+      buttonSpacing: Math.round(window.H2buffer.FontSize - 7),
     },
     navigator: { height: window.H2buffer.FontSize * 3 },
-    scrollbar: { height: window.H2buffer.FontSize     },
+    scrollbar: { height: window.H2buffer.FontSize },
     navigation: {
-//      annotationsOptions: { labelOptions: { style: { "font-size": Size_H } } },
+      //      annotationsOptions: { labelOptions: { style: { "font-size": Size_H } } },
       buttonOptions: {
         symbolSize: window.H2buffer.FontSize,
         height: window.H2buffer.FontSize + 8,
@@ -4871,7 +4906,7 @@ function chartSetFontSize() {
   window.H2buffer.Theme_Setting = window.Highcharts.merge(window.H2buffer.Theme_Setting, Fontsize);
 
 
-// calculate Font Sizes from Setting
+  // calculate Font Sizes from Setting
   if (window.H2buffer.FontSize) {
     $('body').css('font-size', window.H2buffer.FontSize.toString() + "px");
     $('.form-select-h2').css('font-size', window.H2buffer.FontSize.toString() + "px");
@@ -4882,78 +4917,78 @@ function chartSetFontSize() {
     $('.btn-default').css('font-size', window.H2buffer.FontSize.toString() + "px");
     $('.LinePopup-text').css('width', 140 + (window.H2buffer.FontSize * 6) + "px");
     $('.modal-dialog').css('width', 400 + (window.H2buffer.FontSize * 17) + "px");
-    $('.close').css('font-size', (window.H2buffer.FontSize/2*3).toString() + "px");
+    $('.close').css('font-size', (window.H2buffer.FontSize / 2 * 3).toString() + "px");
     $('.navbar-brand').css('font-size', (window.H2buffer.FontSize + 4).toString() + "px");
     $('.highcharts-button-box').css('height', (window.H2buffer.FontSize + 4).toString() + "px");
     $('#bntFavorit').css('width', 16 + (window.H2buffer.FontSize * 6) + "px");
 
     let dStyle = document.querySelector('style');
 
-    dStyle.innerHTML =  '.highcharts-toggle-toolbar.highcharts-arrow-left  { \n'+
-                        '  width: ' + (window.H2buffer.FontSize + 6).toString() + 'px;\n' +
-                        '  height: ' + (window.H2buffer.FontSize + 6).toString() + 'px;\n' +
-                        '  background-color: ' + window.H2buffer.Theme_Setting.background2 + ';\n' +
-                        '}\n' +
-                        '.highcharts-toggle-toolbar.highcharts-arrow-left.highcharts-arrow-right {\n' +
-                        '  width: ' + (window.H2buffer.FontSize + 6).toString() + 'px;\n' +
-                        '  height: ' + (window.H2buffer.FontSize + 6).toString() + 'px;\n' +
-                        '  background-color: ' + window.H2buffer.Theme_Setting.background2 + ';\n' +
-                        '}\n' +
-                        'div.highcharts-bindings-wrapper li > span.highcharts-menu-item-btn { \n'+
-                        '  background-size: ' + (window.H2buffer.FontSize + 20).toString() + 'px 100%;\n' +
-//                        '  filter: invert(100%);\n' +
-//                        '  -webkit-filter: invert(100%);\n' +
-                        '}\n';
+    dStyle.innerHTML = '.highcharts-toggle-toolbar.highcharts-arrow-left  { \n' +
+      '  width: ' + (window.H2buffer.FontSize + 6).toString() + 'px;\n' +
+      '  height: ' + (window.H2buffer.FontSize + 6).toString() + 'px;\n' +
+      '  background-color: ' + window.H2buffer.Theme_Setting.background2 + ';\n' +
+      '}\n' +
+      '.highcharts-toggle-toolbar.highcharts-arrow-left.highcharts-arrow-right {\n' +
+      '  width: ' + (window.H2buffer.FontSize + 6).toString() + 'px;\n' +
+      '  height: ' + (window.H2buffer.FontSize + 6).toString() + 'px;\n' +
+      '  background-color: ' + window.H2buffer.Theme_Setting.background2 + ';\n' +
+      '}\n' +
+      'div.highcharts-bindings-wrapper li > span.highcharts-menu-item-btn { \n' +
+      '  background-size: ' + (window.H2buffer.FontSize + 20).toString() + 'px 100%;\n' +
+      //                        '  filter: invert(100%);\n' +
+      //                        '  -webkit-filter: invert(100%);\n' +
+      '}\n';
 
-    dStyle.innerHTML += 'div.highcharts-menu-wrapper, div.highcharts-bindings-wrapper ul { \n'+
-                        '  width: ' + (window.H2buffer.FontSize + 20).toString() + 'px;\n' +
-                        '}\n' +
-                        'li.highcharts-segment > ul.highcharts-submenu-wrapper { \n'+
-                        '  width: ' + (window.H2buffer.FontSize + 20).toString() + 'px;\n' +
-                        '  background: ' + window.H2buffer.Theme_Setting.background2 + ';\n' +
-                        '}\n' +
-                        'div.highcharts-bindings-wrapper .highcharts-stocktools-toolbar li { \n'+
-                        '  height: ' + (window.H2buffer.FontSize + 20).toString() + 'px;\n' +
-                        '  background-color: ' + window.H2buffer.Theme_Setting.background2 + ';\n' +
-                        '}\n';
-// Indicator Separator Height
+    dStyle.innerHTML += 'div.highcharts-menu-wrapper, div.highcharts-bindings-wrapper ul { \n' +
+      '  width: ' + (window.H2buffer.FontSize + 20).toString() + 'px;\n' +
+      '}\n' +
+      'li.highcharts-segment > ul.highcharts-submenu-wrapper { \n' +
+      '  width: ' + (window.H2buffer.FontSize + 20).toString() + 'px;\n' +
+      '  background: ' + window.H2buffer.Theme_Setting.background2 + ';\n' +
+      '}\n' +
+      'div.highcharts-bindings-wrapper .highcharts-stocktools-toolbar li { \n' +
+      '  height: ' + (window.H2buffer.FontSize + 20).toString() + 'px;\n' +
+      '  background-color: ' + window.H2buffer.Theme_Setting.background2 + ';\n' +
+      '}\n';
+    // Indicator Separator Height
     dStyle.innerHTML += 'div.highcharts-bindings-wrapper .highcharts-stocktools-toolbar li.highcharts-separator {\n' +
-                        '  height: ' + (window.H2buffer.FontSize).toString() + 'px;\n' +
-                        '}\n';
+      '  height: ' + (window.H2buffer.FontSize).toString() + 'px;\n' +
+      '}\n';
 
-    dStyle.innerHTML += 'div#filter select, div#filter input, div#filter button { \n'+
-                        '  height: ' + (34 / 14 * window.H2buffer.FontSize).toString() + 'px;\n' +
-                        '}\n';
-// Indicator Popup Colors:
-    dStyle.innerHTML += '.highcharts-indicator-list {\n'+
-                        '  background: ' + window.H2buffer.Theme_Setting.background2 + ';\n'+
-                        '  color: ' + window.H2buffer.Theme_Setting.textColor + ';\n'+
-                        '}\n';
-    dStyle.innerHTML += '.highcharts-input-search-indicators-label {\n'+
-                        '  color: ' + window.H2buffer.Theme_Setting.textColor + ';\n'+
-                        '  background: ' + window.H2buffer.Theme_Setting.background2 + ';\n'+
-                        '}\n';
-    dStyle.innerHTML += '.highcharts-popup {\n'+
-                        '  background-color: ' + window.H2buffer.Theme_Setting.background2 + ';\n'+
-                        '  color: ' + window.H2buffer.Theme_Setting.textColor + ';\n'+
-                        '  border: 1px solid ' + window.H2buffer.Theme_Setting.chart.borderColor + ';\n'+
-                        '}\n';
-// RangeSelektor Button selektionSize
-    dStyle.innerHTML += 'rect.highcharts-button-box {\n'+
-                        '  width: ' + (window.H2buffer.FontSize + 20).toString() + 'px;\n'+
-                        '  height: ' + (window.H2buffer.FontSize + 10).toString() + 'px;\n'+
-                        '  x: ' + Math.round((window.H2buffer.FontSize - 14)/2*-1).toString() + 'px;\n'+
-                        '  y: ' + Math.round((window.H2buffer.FontSize - 14)/2*-1).toString() + 'px;\n'+
-                        '}\n';
-// Zoom text box
-    dStyle.innerHTML += '.highcharts-reset-zoom rect.highcharts-button-box {\n'+
-                        '  width: ' + (window.H2buffer.FontSize + 135).toString() + 'px;\n'+
-                        '  height: ' + (window.H2buffer.FontSize + 20).toString() + 'px;\n'+
-                        '}\n';
-// Bug Menue Button hide footer
-    dStyle.innerHTML += 'div#container{\n'+
-                        '  z-index: auto !important;\n'+
-                        '  overflow: visible!important;\n'+
-                        '}\n';
+    dStyle.innerHTML += 'div#filter select, div#filter input, div#filter button { \n' +
+      '  height: ' + (34 / 14 * window.H2buffer.FontSize).toString() + 'px;\n' +
+      '}\n';
+    // Indicator Popup Colors:
+    dStyle.innerHTML += '.highcharts-indicator-list {\n' +
+      '  background: ' + window.H2buffer.Theme_Setting.background2 + ';\n' +
+      '  color: ' + window.H2buffer.Theme_Setting.textColor + ';\n' +
+      '}\n';
+    dStyle.innerHTML += '.highcharts-input-search-indicators-label {\n' +
+      '  color: ' + window.H2buffer.Theme_Setting.textColor + ';\n' +
+      '  background: ' + window.H2buffer.Theme_Setting.background2 + ';\n' +
+      '}\n';
+    dStyle.innerHTML += '.highcharts-popup {\n' +
+      '  background-color: ' + window.H2buffer.Theme_Setting.background2 + ';\n' +
+      '  color: ' + window.H2buffer.Theme_Setting.textColor + ';\n' +
+      '  border: 1px solid ' + window.H2buffer.Theme_Setting.chart.borderColor + ';\n' +
+      '}\n';
+    // RangeSelektor Button selektionSize
+    dStyle.innerHTML += 'rect.highcharts-button-box {\n' +
+      '  width: ' + (window.H2buffer.FontSize + 20).toString() + 'px;\n' +
+      '  height: ' + (window.H2buffer.FontSize + 10).toString() + 'px;\n' +
+      '  x: ' + Math.round((window.H2buffer.FontSize - 14) / 2 * -1).toString() + 'px;\n' +
+      '  y: ' + Math.round((window.H2buffer.FontSize - 14) / 2 * -1).toString() + 'px;\n' +
+      '}\n';
+    // Zoom text box
+    dStyle.innerHTML += '.highcharts-reset-zoom rect.highcharts-button-box {\n' +
+      '  width: ' + (window.H2buffer.FontSize + 135).toString() + 'px;\n' +
+      '  height: ' + (window.H2buffer.FontSize + 20).toString() + 'px;\n' +
+      '}\n';
+    // Bug Menue Button hide footer
+    dStyle.innerHTML += 'div#container{\n' +
+      '  z-index: auto !important;\n' +
+      '  overflow: visible!important;\n' +
+      '}\n';
   }
 }
