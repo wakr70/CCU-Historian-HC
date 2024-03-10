@@ -316,7 +316,6 @@ function defaultAttrib(DP, colorNr, idx) {
         break;
       case "TEMPERATURE":
       case "ACTUAL_TEMPERATURE":
-      case "ABS_HUMIDITY":
       case "DEW_POINT":
       case "TEMP_MAX_24H":
       case "TEMP_MIN_24H":
@@ -685,6 +684,7 @@ function defineDataLabels() {
       color: null,
       style: {
         "color": null,
+        fontSize: Math.round(window.H2buffer.FontSize / 6 * 5).toString() + "px",
       },
       formatter: function() {
         let last;
@@ -709,6 +709,7 @@ function defineDataLabels() {
       color: null,
       style: {
         "color": null,
+        fontSize: Math.round(window.H2buffer.FontSize / 6 * 5).toString() + "px",
       },
       formatter: function() {
         return window.Highcharts.numberFormat(this.y, 1);
@@ -2145,7 +2146,7 @@ $(document).ready(function() {
   }
 
   let loc_setting = getLocalData('setting');
-  if (loc_setting && loc_setting.substring(0, 2) === '{"') {
+  if (loc_setting && loc_setting.startsWith('{"')) {
     try {
       window.H2buffer.Settings = JSON.parse(loc_setting);
       parseSetting();
@@ -4823,19 +4824,19 @@ function toolTipInfo(sobj) {
 
     // get Aggregation Symbol
     txta += '<i> (<b>';
-    if (lAggrType === 1) { txta += jQuery('<div/>').html('&#x00d8; ').text(); }
+    if (lAggrType == 1) { txta += jQuery('<div/>').html('&#x00d8; ').text(); }
     // average
-    if (lAggrType === 2) { txta += jQuery('<div/>').html('&#x0394; ').text(); }
+    if (lAggrType == 2) { txta += jQuery('<div/>').html('&#x0394; ').text(); }
     // delta
-    if (lAggrType === 3) { txta += jQuery('<div/>').html('&#x03a8; ').text(); }
+    if (lAggrType == 3) { txta += jQuery('<div/>').html('&#x03a8; ').text(); }
     // min/max
-    if (lAggrType === 4) { txta += jQuery('<div/>').html('&#x01a9; ').text(); }
+    if (lAggrType == 4) { txta += jQuery('<div/>').html('&#x01a9; ').text(); }
     // sum
-    if (lAggrType === 5) { txta += jQuery('<div/>').html('&#x01ac; ').text(); }
+    if (lAggrType == 5) { txta += jQuery('<div/>').html('&#x01ac; ').text(); }
     // TIME_ON
-    if (lAggrType === 6) { txta += jQuery('<div/>').html('&#x2248; ').text(); }
+    if (lAggrType == 6) { txta += jQuery('<div/>').html('&#x2248; ').text(); }
     // delta+
-    if (lAggrType === 7) { txta += jQuery('<div/>').html('&#x2359; ').text(); }
+    if (lAggrType == 7) { txta += jQuery('<div/>').html('&#x2359; ').text(); }
 
     if (sobj.series.currentDataGrouping) {
       let text = sobj.series.currentDataGrouping.unitName + ((sobj.series.currentDataGrouping.count > 1) ? '2' : '').toString();
