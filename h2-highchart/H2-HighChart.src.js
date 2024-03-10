@@ -4697,9 +4697,9 @@ function checkLocalData() {
         }
       }
     };
-    return "";
+    return;
   } catch {
-    return "";
+    return;
   }
 }
 
