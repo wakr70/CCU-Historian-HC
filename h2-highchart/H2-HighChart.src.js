@@ -286,6 +286,7 @@ function defaultAttrib(DP, colorNr, idx) {
     offset: 0,
     unit: '',
     shortname: '',
+    script: '',    
     buffer_data: {
       timestamps: [],
       values: [],
@@ -420,6 +421,12 @@ function defaultAttrib(DP, colorNr, idx) {
         }
       }
     }
+
+    // add default script from database
+    if (DP.attributes.custom && DP.attributes.custom.Script) {
+      attr.script = decodeURIComponent(DP.attributes.custom.Script); 
+    }
+
   }
   // give back default values
   return attr;
@@ -863,7 +870,25 @@ function bufferSerienData(id, data) {
 
   let attrIDX = window.H2buffer.Queue[q_i][3];
 
-  if (data.values.length > 0) {
+  if (typeof data === 'string') {
+
+    window.H2buffer.DataAttr[attrIDX].buffer_data.buffer_start = window.H2buffer.Queue[q_i][4];
+    window.H2buffer.DataAttr[attrIDX].buffer_data.buffer_end = window.H2buffer.Queue[q_i][5];
+    window.H2buffer.DataAttr[attrIDX].buffer_data.timestamps = [];
+    window.H2buffer.DataAttr[attrIDX].buffer_data.values = [];
+
+    let lines = data.split('\r\n');
+    lines.forEach(function(p) {
+        let arrRow = p.split(',');
+        let lineDate =  new Date(arrRow[0]);
+        let lineValue = Math.round( parseFloat( arrRow[1] ) * 1000.0) / 1000.0;  
+        if (lineDate && lineValue) {
+          window.H2buffer.DataAttr[attrIDX].buffer_data.timestamps.push( lineDate.getTime() );
+          window.H2buffer.DataAttr[attrIDX].buffer_data.values.push( lineValue );
+        }
+    });
+
+  } else if (data.values.length > 0) {
 
     // correct values to round -3
     for (let i = 0; i < data.values.length; i++) {
@@ -1320,13 +1345,24 @@ function getDataH2(p_series, p_attrID, p_attr, datStart, datEnd) {
   url += '/query/jsonrpc.gy';
   url += (window.H2buffer.ApiKey === "") ? "" : "?" + window.H2buffer.ApiKey;
 
-  let postData = {
-    id: key,
-    method: 'getTimeSeriesRaw',
-    params: [p_id, datStart, datEnd]
-  };
 
-  postData = JSON.stringify(postData);
+  let postData = {}
+  if (window.H2buffer.DataAttr[p_attr].script.length>0){
+
+    let txtScript = window.H2buffer.DataAttr[p_attr].script;
+    txtScript = txtScript.replace('BeginDate', 'new Date('+datStart.toString()+')');
+    txtScript = txtScript.replace('EndDate', 'new Date('+datEnd.toString()+')');
+
+    postData = '{"id":"'+key+'","method":"executeScript","params":["'+txtScript+'",false]}'
+  } else {
+    postData = {
+      id: key,
+      method: 'getTimeSeriesRaw',
+      params: [p_id, datStart, datEnd]
+    };
+
+    postData = JSON.stringify(postData);
+  }
 
   $.ajax({
     url: url,
@@ -2066,9 +2102,9 @@ function parseDataPointsDP(text, nv) {
         } else if (text2[k].substr(0, 1) === 'V') {
           window.H2buffer.DataAttr[attrpos].visible = parseInt(text2[k].substr(1, 1));
         } else if (text2[k].substr(0, 1) === 'U') {
-          window.H2buffer.DataAttr[attrpos].unit = decodeURIComponent(nv[1]).split(',')[j].split('|')[k].substr(1, 20).replaceAll("§", "%").replaceAll('µ', '&');
+          window.H2buffer.DataAttr[attrpos].unit = decodeURIComponent(nv[1]).split(',')[j].split('|')[k].substring(1, 21).replaceAll("§", "%").replaceAll('µ', '&');
         } else if (text2[k].substr(0, 1) === 'N') {
-          window.H2buffer.DataAttr[attrpos].shortname = decodeURIComponent(nv[1]).split(',')[j].split('|')[k].substr(1, 40).replaceAll("§", "%").replaceAll('µ', '&');
+          window.H2buffer.DataAttr[attrpos].shortname = decodeURIComponent(nv[1]).split(',')[j].split('|')[k].substring(1, 41).replaceAll("§", "%").replaceAll('µ', '&');
         } else if (text2[k].substr(0, 1) === 'X') {
           window.H2buffer.DataAttr[attrpos].factor = parseFloat(text2[k].substr(1, 10));
         } else if (text2[k].substr(0, 1) === 'O') {
@@ -2120,7 +2156,7 @@ function parseDataPointsAxis(text, nv) {
           } else if (text2[k].substr(0, 1) === 'F') {
             window.H2buffer.yAxis[axis_id].color = parseInt(text2[k].substr(1, 2));
           } else if (text2[k].substr(0, 1) === 'T') {
-            window.H2buffer.yAxis[axis_id].text = decodeURIComponent(nv[1]).split(',')[j].split('|')[k].substr(1, 50).replaceAll("§", "%").replaceAll('µ', '&');
+            window.H2buffer.yAxis[axis_id].text = decodeURIComponent(nv[1]).split(',')[j].split('|')[k].substring(1, 51).replaceAll("§", "%").replaceAll('µ', '&');
           }
         }
       }
@@ -3109,6 +3145,8 @@ function showDialogLine(serieObj) {
       DP_pos = window.H2buffer.DataPoints.findIndex(obj => obj.idx.toString() === serieObj.options.id.toString());
     }
 
+    document.getElementById("script").style.display = 'none';
+
     if (DP_pos === -1) {
       techName = 'n/a';
     } else if (window.H2buffer.DataPoints[DP_pos].id.interfaceId === "SysVar") {
@@ -3117,6 +3155,11 @@ function showDialogLine(serieObj) {
       techName = '<br/>' + window.H2buffer.DataPoints[DP_pos].id.interfaceId + '.'
         + window.H2buffer.DataPoints[DP_pos].id.address + '.'
         + window.H2buffer.DataPoints[DP_pos].id.identifier;
+
+      if (window.H2buffer.DataPoints[DP_pos].id.identifier === 'SCRIPT') {
+        document.getElementById("script").style.display = 'block';
+      } 
+
     }
 
     window.H2buffer.PopupID = serieObj.options.id.toString();
@@ -3154,6 +3197,7 @@ function showDialogLine(serieObj) {
     document.getElementById("Line-OffSet").value = window.H2buffer.DataAttr[attr].offset;
     document.getElementById("Line-Unit").value = window.H2buffer.DataAttr[attr].unit;
     document.getElementById("Line-ShortName").value = window.H2buffer.DataAttr[attr].shortname;
+    document.getElementById("Line-Script").value = window.H2buffer.DataAttr[attr].script;
 
     document.getElementById("Select-Color").style.backgroundColor = window.H2buffer.chart.options.colors[parseInt(document.getElementById("Select-Color").value.substr(1, 2))];
 
@@ -3197,6 +3241,8 @@ function saveLine() {
   strCustom += '|U' + encodeURIComponent(window.H2buffer.DataAttr[attr].unit).replace(/'/g, '%27');
   strCustom += '|N' + encodeURIComponent(window.H2buffer.DataAttr[attr].shortname).replace(/'/g, '%27');
 
+  let strScript = encodeURIComponent(window.H2buffer.DataAttr[attr].script);
+  
   let DP_pos = window.H2buffer.DataPoints.findIndex(obj => obj.idx.toString() === window.H2buffer.PopupID);
   let key = 'POINT' + window.H2buffer.PopupID;
 
@@ -3205,9 +3251,10 @@ function saveLine() {
     window.H2buffer.DataPoints[DP_pos].attributes.custom = {};
   }
 
-  if (window.H2buffer.DataPoints[DP_pos].attributes.custom.HighChart !== strCustom) {
+  if (window.H2buffer.DataPoints[DP_pos].attributes.custom.HighChart !== strCustom || window.H2buffer.DataPoints[DP_pos].attributes.custom.Script !== strScript) {
 
     window.H2buffer.DataPoints[DP_pos].attributes.custom.HighChart = strCustom;
+    window.H2buffer.DataPoints[DP_pos].attributes.custom.Script    = strScript;
 
     // Save local cache for start performance
     setLocalData('DataPoints', JSON.stringify(window.H2buffer.DataPoints));
@@ -3217,18 +3264,35 @@ function saveLine() {
     url += '/query/jsonrpc.gy';
     url += (window.H2buffer.ApiKey === "") ? "" : "?" + window.H2buffer.ApiKey;
 
-    let postData = {
-      id: key,
-      method: 'updateDataPoint',
-      params: [{
-        'id': {
-          'interfaceId': window.H2buffer.DataPoints[DP_pos].id.interfaceId,
-          'address': window.H2buffer.DataPoints[DP_pos].id.address,
-          'identifier': window.H2buffer.DataPoints[DP_pos].id.identifier
-        },
-        'attributes': { 'custom': { 'HighChart': strCustom } }
-      }]
-    };
+    let postData = {}
+
+    if (strScript.length > 0) {
+      postData = {
+        id: key,
+        method: 'updateDataPoint',
+        params: [{
+          'id': {
+            'interfaceId': window.H2buffer.DataPoints[DP_pos].id.interfaceId,
+            'address': window.H2buffer.DataPoints[DP_pos].id.address,
+            'identifier': window.H2buffer.DataPoints[DP_pos].id.identifier
+          },
+          'attributes': { 'custom': { 'HighChart': strCustom, 'Script': strScript } }
+        }]
+      };
+    } else {
+      postData = {
+        id: key,
+        method: 'updateDataPoint',
+        params: [{
+          'id': {
+            'interfaceId': window.H2buffer.DataPoints[DP_pos].id.interfaceId,
+            'address': window.H2buffer.DataPoints[DP_pos].id.address,
+            'identifier': window.H2buffer.DataPoints[DP_pos].id.identifier
+          },
+          'attributes': { 'custom': { 'HighChart': strCustom } }
+        }]
+      };
+    }
 
     postData = JSON.stringify(postData);
 
@@ -3271,6 +3335,11 @@ function getDialogLine() {
     }
   }
 
+  // Script changed, reload whole data 
+  if (window.H2buffer.DataAttr[attr].script !== document.getElementById("Line-Script").value) {
+    window.H2buffer.DataAttr[attr].buffer_data = {};
+  }
+
   // get value on Popup
   window.H2buffer.DataAttr[attr].aggr = document.getElementById("Select-Aggregation").value;
   window.H2buffer.DataAttr[attr].atime = document.getElementById("Select-AggrTime").value;
@@ -3286,6 +3355,7 @@ function getDialogLine() {
   window.H2buffer.DataAttr[attr].offset = parseFloat(document.getElementById("Line-OffSet").value);
   window.H2buffer.DataAttr[attr].unit = document.getElementById("Line-Unit").value;
   window.H2buffer.DataAttr[attr].shortname = document.getElementById("Line-ShortName").value;
+  window.H2buffer.DataAttr[attr].script = document.getElementById("Line-Script").value;
 
   // ignor 0 values for faktor
   if (isNaN(window.H2buffer.DataAttr[attr].factor) || window.H2buffer.DataAttr[attr].factor === 0.0) {

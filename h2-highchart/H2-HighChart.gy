@@ -112,6 +112,10 @@ renderer.content={
                   span id: "Text-ShortName", class:"LinePopup-text", "Kurzname" 
                   input(id: "Line-ShortName", class:"form-input-h2") 
                }
+               div(id:"script", style:"display:none") {
+                  span id: "Text-ScriptName", class:"LinePopup-text", "Script" 
+                  textarea(id: "Line-Script", rows:5, cols:40, class:"form-control textpane", "")
+               }
             }
             div(class:"modal-footer") {
                button type:"button", class:"btn btn-default", id:"LineDefault", "Default"
