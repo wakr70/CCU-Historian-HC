@@ -976,6 +976,11 @@ function setSerienData(p_attr, serieObj) {
     return;
   }
 
+  // no data exists
+  if (!window.H2buffer.DataAttr[p_attr].buffer_data || !window.H2buffer.DataAttr[p_attr].buffer_data.timestamps) {
+    return;
+  }
+
   if (serieObj.options.id.toString().substr(0, 1) === 'C') {
 
     // Set backtime
@@ -1382,6 +1387,19 @@ function getDataH2(p_series, p_attrID, p_attr, datStart, datEnd) {
     success: function(result) {
       if (!result.result) {
         console.log(result);
+
+        if (result.id) {
+          // find queue entry
+          let q_i = window.H2buffer.Queue.findIndex(obj => obj[0] === result.id);
+
+          // queue clear for this one
+          window.H2buffer.Queue.splice(q_i, 1);
+
+          loadingInfo();
+        }
+        if (result.error && result.error.message) {
+          alert(result.error.message);
+        }
       } else if (result.result) {
         bufferSerienData(result.id, result.result);
       }
