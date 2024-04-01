@@ -1350,10 +1350,14 @@ function getDataH2(p_series, p_attrID, p_attr, datStart, datEnd) {
   if (window.H2buffer.DataAttr[p_attr].script.length>0){
 
     let txtScript = window.H2buffer.DataAttr[p_attr].script;
-    txtScript = txtScript.replace('BeginDate', 'new Date('+datStart.toString()+')');
-    txtScript = txtScript.replace('EndDate', 'new Date('+datEnd.toString()+')');
+    if (txtScript.toUpperCase().includes('.READ(') ) {
+      txtScript = txtScript.replace('BeginDate', 'new Date('+datStart.toString()+')');
+      txtScript = txtScript.replace('EndDate', 'new Date('+datEnd.toString()+')');
 
-    postData = '{"id":"'+key+'","method":"executeScript","params":["'+txtScript+'",false]}'
+      postData = '{"id":"'+key+'","method":"executeScript","params":["'+txtScript+'",false]}'
+    } else {
+      postData = '{"id":"'+key+'","method":"calculateTimeSeries","params":["'+txtScript+'",'+datStart.toString()+','+datEnd.toString()+']}'
+    }
   } else {
     postData = {
       id: key,
