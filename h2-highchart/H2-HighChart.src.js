@@ -8,7 +8,7 @@
 /* eslint-env browser */
 
 window.H2buffer = {
-  version: 'v7.2',  // Version
+  version: 'v7.3',  // Version
   // Setup H2 Database Services, default set to same server as this webpage and port 8082
   server: location.hostname,
   port: (location.port === "") ? "80" : location.port,
