@@ -8,7 +8,7 @@
 /* eslint-env browser */
 
 window.H2buffer = {
-  version: 'v7.3',  // Version
+  version: 'v7.4',  // Version
   // Setup H2 Database Services, default set to same server as this webpage and port 8082
   server: location.hostname,
   port: (location.port === "") ? "80" : location.port,
@@ -1355,13 +1355,22 @@ function getDataH2(p_series, p_attrID, p_attr, datStart, datEnd) {
   if (window.H2buffer.DataAttr[p_attr].script.length>0){
 
     let txtScript = window.H2buffer.DataAttr[p_attr].script;
+
     if (txtScript.toUpperCase().includes('.READ(') ) {
       txtScript = txtScript.replace('BeginDate', 'new Date('+datStart.toString()+')');
       txtScript = txtScript.replace('EndDate', 'new Date('+datEnd.toString()+')');
 
-      postData = '{"id":"'+key+'","method":"executeScript","params":["'+txtScript+'",false]}'
+      postData = {
+        id: key,
+        method: 'executeScript',
+        params: [txtScript, false]
+      };
     } else {
-      postData = '{"id":"'+key+'","method":"calculateTimeSeries","params":["'+txtScript+'",'+datStart.toString()+','+datEnd.toString()+']}'
+      postData = {
+        id: key,
+        method: 'calculateTimeSeries',
+        params: [txtScript, datStart, datEnd]
+      };
     }
   } else {
     postData = {
@@ -1369,9 +1378,9 @@ function getDataH2(p_series, p_attrID, p_attr, datStart, datEnd) {
       method: 'getTimeSeriesRaw',
       params: [p_id, datStart, datEnd]
     };
-
-    postData = JSON.stringify(postData);
   }
+
+  postData = JSON.stringify(postData);
 
   $.ajax({
     url: url,
