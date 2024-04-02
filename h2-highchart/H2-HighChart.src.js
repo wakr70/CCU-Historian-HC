@@ -1,5 +1,5 @@
 /* *********************************
- * HighChart javascripts by wak 2019-2023
+ * HighChart javascripts by wak 2019-2024
  ************************************/
 
 
@@ -8,7 +8,7 @@
 /* eslint-env browser */
 
 window.H2buffer = {
-  version: 'v7.4',  // Version
+  version: 'v7.5',  // Version
   // Setup H2 Database Services, default set to same server as this webpage and port 8082
   server: location.hostname,
   port: (location.port === "") ? "80" : location.port,
@@ -876,8 +876,11 @@ function bufferSerienData(id, data) {
     window.H2buffer.DataAttr[attrIDX].buffer_data.buffer_end = window.H2buffer.Queue[q_i][5];
     window.H2buffer.DataAttr[attrIDX].buffer_data.timestamps = [];
     window.H2buffer.DataAttr[attrIDX].buffer_data.values = [];
-
-    let lines = data.split('\r\n');
+    let sep='\r\n';
+    if (!data.includes(sep)){
+      sep='\n';
+    }
+    let lines = data.split(sep);
     lines.forEach(function(p) {
         let arrRow = p.split(',');
         let lineDate =  new Date(arrRow[0]);
@@ -1356,7 +1359,7 @@ function getDataH2(p_series, p_attrID, p_attr, datStart, datEnd) {
 
     let txtScript = window.H2buffer.DataAttr[p_attr].script;
 
-    if (txtScript.toUpperCase().includes('.READ(') ) {
+    if (txtScript.toUpperCase().includes('.READ(') || txtScript.toUpperCase().includes('BEGINDATE') ) {
       txtScript = txtScript.replace('BeginDate', 'new Date('+datStart.toString()+')');
       txtScript = txtScript.replace('EndDate', 'new Date('+datEnd.toString()+')');
 
