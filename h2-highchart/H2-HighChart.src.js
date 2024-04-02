@@ -4248,6 +4248,12 @@ function chartSetOptions() {
               createUrl();
               return true;
             },
+          }, {
+            text: "Script DP anlegen",
+            onclick: function() {
+              createScriptDp();
+              return true;
+            },
           }, "separator", "viewFullscreen", "printChart", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG", "separator", "downloadCSV", "downloadXLS", "viewData"]
         }
       }
@@ -4955,6 +4961,127 @@ function toolTipInfo(sobj) {
     txta += "<b>" + window.Highcharts.dateFormat('%A, %b %e, %H:%M:%S', xDate) + "</b>";
   }
   return txta;
+}
+
+// Show Dialog Script Create
+function createScriptDp() {
+  // set value on Popup create DP Script 
+  document.getElementsByClassName("modal-title5")[0].innerHTML = "Script DP anlegen";
+  document.getElementById("Line-dispName5").value = "Script DP";
+  document.getElementById("Line-Script5").value = "dataPoint(1).average(hourly())";
+  document.getElementById("Line-unit5").value = "kWh"
+  $("#ScriptPopup").modal();
+}
+
+// Close Dialog Settings
+$("#Dialog5BtnClose").click(function() {
+  $("#ScriptPopup").modal('hide');
+  return true;
+});
+
+// Close Dialog Settings
+$("#Dialog5BtnOK").click(function() {
+  createScriptDp_Save();
+  return true;
+});
+
+function createScriptDp_Save() {
+
+  $("#ScriptPopup").modal('hide');
+
+  let scriptDispName = document.getElementById("Line-dispName5").value;
+  let scriptRoom     = document.getElementById("Line-raum5").value;
+  let scriptFunc     = document.getElementById("Line-function5").value;
+  let scriptComment  = document.getElementById("Line-comment5").value;
+  let scriptUnit     = document.getElementById("Line-unit5").value;
+  let scriptScript   = document.getElementById("Line-Script5").value;
+
+  let user_max = 0
+  // nächste Nummer für SCRIPT-DP suchen
+  for (let dp of window.H2buffer.DataPoints) {
+    if (dp.id.identifier == 'SCRIPT') {
+      let nr=parseInt(dp.id.address.substring(0,6));
+      if(nr > user_max) {
+        user_max=nr;
+      }
+    }
+  }
+
+  // get serien data from H2 database
+  let url = 'http://' + window.H2buffer.server + ':' + window.H2buffer.port;
+  url += '/query/jsonrpc.gy';
+  url += (window.H2buffer.ApiKey === "") ? "" : "?" + window.H2buffer.ApiKey;
+  
+  let nrtxt='000000'+(user_max+1);
+  nrtxt = nrtxt.substring(nrtxt.length - 6);
+
+  let txtScript = 'createDataPoint("User", "'+ nrtxt+':1", "SCRIPT") {\n' +
+                  '  attributes.displayName="'+scriptDispName+'"\n' +
+                  '  attributes.room="'+scriptRoom+'"\n' +
+                  '  attributes.function="'+scriptFunc+'"\n' +
+                  '  attributes.comment="'+scriptComment+'"\n' +
+                  '  attributes.custom.Script="'+scriptScript+'"\n' +
+                  '  attributes.maximum=999999999\n' +
+                  '  attributes.unit="'+scriptUnit+'"\n' +
+                  '  attributes.minimum=0\n' +
+                  '  attributes.type="FLOAT"\n' +
+                  '  continuous=true\n' +
+                  '  noSynchronization=true\n' +
+                  '  historyDisabled=false\n' +
+                  '  historyHidden=false\n' +
+                  '}\n' +
+                  'def createDataPoint(interfaceId, address, identifier, configure) {\n' +
+                  '  def id=new DataPointIdentifier(interfaceId, address, identifier)\n' +
+                  '  def dp=database.getDataPoint(id)\n' +
+                  '  def exists=(dp!=null)\n' +
+                  '  if (!exists) {\n' +
+                  '    dp=new DataPoint(id: id)\n' +
+                  '  }\n' +
+                  '  configure.delegate=dp\n' +
+                  '  configure.resolveStrategy=Closure.DELEGATE_ONLY\n' +
+                  '  configure()\n' +
+                  '  dp.historyString=(dp.attributes.type=="STRING")\n' +
+                  '  if (exists) {\n' +
+                  '    database.updateDataPoint(dp)\n' +
+                  '    println "Datenpunkt $id wurde aktualisiert."\n' +
+                  '  } else {\n' +
+                  '    database.createDataPoint(dp)\n' +
+                  '    println "Datenpunkt $id wurde neu angelegt."\n' +
+                  '  }\n' +
+                  '}\n';
+
+  let postData = {
+    id: '123',
+    method: 'executeScript',
+    params: [txtScript, true]
+  };
+
+  postData = JSON.stringify(postData);
+
+  $.ajax({
+    url: url,
+    dataType: "json",
+    contentType: "application/json",
+    type: "post",
+    data: postData,
+    cache: false,
+    async: true,
+    error: function(xhr, status, error) {
+      ajaxErrorOutput(xhr, status, error);
+    },
+    success: function(result) {
+      if (!result.result) {
+        console.log(result);
+
+        if (result.error && result.error.message) {
+          alert(result.error.message);
+        }
+      } else if (result.result) {
+        alert(result.result);
+        requestData();
+      }
+    }
+  });
 }
 
 function chartSetFontSize() {
