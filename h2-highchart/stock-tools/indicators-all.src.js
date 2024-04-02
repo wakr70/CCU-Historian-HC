@@ -1,9 +1,9 @@
 /**
- * @license Highstock JS v11.2.0 (2023-10-30)
+ * @license Highstock JS v11.4.0 (2024-03-04)
  *
  * All technical indicators for Highcharts Stock
  *
- * (c) 2010-2021 Pawel Fus
+ * (c) 2010-2024 Pawel Fus
  *
  * License: www.highcharts.com/license
  */
@@ -56,24 +56,6 @@
          * @private
          */
         class SMAIndicator extends LineSeries {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.dataEventsToUnbind = void 0;
-                this.linkedParent = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -287,6 +269,11 @@
                 return;
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * The parameter allows setting line series type and use OHLC indicators.
          * Data in OHLC format is required.
@@ -349,7 +336,7 @@
              */
             compareToMain: false,
             /**
-             * Paramters used in calculation of regression series' points.
+             * Parameters used in calculation of regression series' points.
              */
             params: {
                 /**
@@ -426,22 +413,6 @@
          * @augments Highcharts.Series
          */
         class EMAIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -494,6 +465,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Exponential moving average indicator (EMA). This series requires the
          * `linkedTo` option to be set.
@@ -573,28 +549,14 @@
          * @augments Highcharts.Series
          */
         class ADIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Static Functions
              *
              * */
-            static populateAverage(xVal, yVal, yValVolume, i, _period) {
+            static populateAverage(xVal, yVal, yValVolume, i, 
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            _period) {
                 const high = yVal[i][1], low = yVal[i][2], close = yVal[i][3], volume = yValVolume[i], adY = close === high && close === low || high === low ?
                     0 :
                     ((2 * close - low - high) / (high - low)) * volume, adX = xVal[i];
@@ -638,6 +600,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Accumulation Distribution (AD). This series requires `linkedTo` option to
          * be set.
@@ -725,22 +692,6 @@
          * @augments Highcharts.Series
          */
         class AOIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -808,6 +759,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Awesome Oscillator. This series requires the `linkedTo` option to
          * be set and should be loaded after the `stock/indicators/indicators.js`
@@ -869,7 +825,7 @@
         });
         extend(AOIndicator.prototype, {
             nameBase: 'AO',
-            nameComponents: false,
+            nameComponents: void 0,
             // Columns support:
             markerAttribs: noop,
             getColumnMetrics: columnProto.getColumnMetrics,
@@ -909,7 +865,7 @@
     _registerModule(_modules, 'Stock/Indicators/MultipleLinesComposition.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /**
          *
-         *  (c) 2010-2021 Wojciech Chmiel
+         *  (c) 2010-2024 Wojciech Chmiel
          *
          *  License: www.highcharts.com/license
          *
@@ -931,11 +887,10 @@
              *
              * */
             /* *
-            *
-            *  Constants
-            *
-            * */
-            const composedMembers = [];
+             *
+             *  Constants
+             *
+             * */
             /**
              * Additional lines DOCS names. Elements of linesApiNames array should
              * be consistent with DOCS line names defined in your implementation.
@@ -958,7 +913,7 @@
              */
             const pointArrayMap = ['top', 'bottom'];
             /**
-             * Names of the lines, bewteen which the area should be plotted.
+             * Names of the lines, between which the area should be plotted.
              * If the drawing of the area should
              * be disabled for some indicators, leave this option as an empty array.
              * Names should be the same as the names in the pointArrayMap.
@@ -975,10 +930,10 @@
              */
             const pointValKey = 'top';
             /* *
-            *
-            *  Functions
-            *
-            * */
+             *
+             *  Functions
+             *
+             * */
             /**
              * Composition useful for all indicators that have more than one line.
              * Compose it with your implementation where you will provide the
@@ -990,21 +945,19 @@
              * @private
              */
             function compose(IndicatorClass) {
-                if (U.pushUnique(composedMembers, IndicatorClass)) {
-                    const proto = IndicatorClass.prototype;
-                    proto.linesApiNames = (proto.linesApiNames ||
-                        linesApiNames.slice());
-                    proto.pointArrayMap = (proto.pointArrayMap ||
-                        pointArrayMap.slice());
-                    proto.pointValKey = (proto.pointValKey ||
-                        pointValKey);
-                    proto.areaLinesNames = (proto.areaLinesNames ||
-                        areaLinesNames.slice());
-                    proto.drawGraph = indicatorDrawGraph;
-                    proto.getGraphPath = indicatorGetGraphPath;
-                    proto.toYData = indicatorToYData;
-                    proto.translate = indicatorTranslate;
-                }
+                const proto = IndicatorClass.prototype;
+                proto.linesApiNames = (proto.linesApiNames ||
+                    linesApiNames.slice());
+                proto.pointArrayMap = (proto.pointArrayMap ||
+                    pointArrayMap.slice());
+                proto.pointValKey = (proto.pointValKey ||
+                    pointValKey);
+                proto.areaLinesNames = (proto.areaLinesNames ||
+                    areaLinesNames.slice());
+                proto.drawGraph = indicatorDrawGraph;
+                proto.getGraphPath = indicatorGetGraphPath;
+                proto.toYData = indicatorToYData;
+                proto.translate = indicatorTranslate;
                 return IndicatorClass;
             }
             MultipleLinesComposition.compose = compose;
@@ -1234,22 +1187,6 @@
          * @augments Highcharts.Series
          */
         class AroonIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -1286,6 +1223,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Aroon. This series requires the `linkedTo` option to be
          * set and should be loaded after the `stock/indicators/indicators.js`.
@@ -1306,7 +1248,7 @@
          */
         AroonIndicator.defaultOptions = merge(SMAIndicator.defaultOptions, {
             /**
-             * Paramters used in calculation of aroon series points.
+             * Parameters used in calculation of aroon series points.
              *
              * @excluding index
              */
@@ -1407,22 +1349,6 @@
          * @augments Highcharts.Series
          */
         class AroonOscillatorIndicator extends AroonIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -1448,6 +1374,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Aroon Oscillator. This series requires the `linkedTo` option to be set
          * and should be loaded after the `stock/indicators/indicators.js` and
@@ -1563,22 +1494,6 @@
          * @augments Highcharts.Series
          */
         class ATRIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.points = void 0;
-                this.options = void 0;
-            }
             /* *
              *
              *  Functions
@@ -1620,6 +1535,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Average true range indicator (ATR). This series requires `linkedTo`
          * option to be set.
@@ -1714,22 +1634,6 @@
          * @augments Highcharts.Series
          */
         class BBIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -1784,6 +1688,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Bollinger bands (BB). This series requires the `linkedTo` option to be
          * set and should be loaded after the `stock/indicators/indicators.js` file.
@@ -1958,22 +1867,6 @@
          * @augments Highcharts.Series
          */
         class CCIIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.points = void 0;
-                this.options = void 0;
-            }
             /* *
              *
              *  Functions
@@ -2013,6 +1906,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Commodity Channel Index (CCI). This series requires `linkedTo` option to
          * be set.
@@ -2065,7 +1963,7 @@
     _registerModule(_modules, 'Stock/Indicators/CMF/CMFIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /* *
          *
-         *  (c) 2010-2021 Highsoft AS
+         *  (c) 2010-2024 Highsoft AS
          *
          *  Author: Sebastian Domas
          *
@@ -2100,17 +1998,6 @@
                  *
                  * */
                 super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-                this.volumeSeries = void 0;
-                this.linkedParent = void 0;
-                this.yData = void 0;
                 this.nameBase = 'Chaikin Money Flow';
             }
             /* *
@@ -2278,7 +2165,7 @@
                 index: void 0,
                 /**
                  * The id of another series to use its data as volume data for the
-                 * indiator calculation.
+                 * indicator calculation.
                  */
                 volumeSeriesID: 'volume'
             }
@@ -2312,7 +2199,7 @@
     });
     _registerModule(_modules, 'Stock/Indicators/DMI/DMIIndicator.js', [_modules['Stock/Indicators/MultipleLinesComposition.js'], _modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (MultipleLinesComposition, SeriesRegistry, U) {
         /* *
-         *  (c) 2010-2021 Rafal Sebestjanski
+         *  (c) 2010-2024 Rafal Sebestjanski
          *
          *  Directional Movement Index (DMI) indicator for Highcharts Stock
          *
@@ -2338,20 +2225,6 @@
          * @augments Highcharts.Series
          */
         class DMIIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.options = void 0;
-            }
             /* *
              *
              *  Functions
@@ -2452,6 +2325,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Directional Movement Index (DMI).
          * This series requires the `linkedTo` option to be set and should
@@ -2615,22 +2493,6 @@
          * @augments Highcharts.Series
          */
         class DPOIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *   Properties
-                 *
-                 * */
-                this.options = void 0;
-                this.data = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -2657,7 +2519,7 @@
                     sum = accumulatePoints(sum, yVal, periodIndex, index);
                     price = pick(yVal[rangeIndex][index], yVal[rangeIndex]);
                     oscillator = price - sum / period;
-                    // substracting the first period point
+                    // subtracting the first period point
                     sum = accumulatePoints(sum, yVal, j, index, true);
                     DPO.push([xVal[rangeIndex], oscillator]);
                     xData.push(xVal[rangeIndex]);
@@ -2670,6 +2532,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Detrended Price Oscillator. This series requires the `linkedTo` option to
          * be set and should be loaded after the `stock/indicators/indicators.js`.
@@ -2758,22 +2625,6 @@
          * @augments Highcharts.Series
          */
         class ChaikinIndicator extends EMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -2826,6 +2677,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Chaikin Oscillator. This series requires the `linkedTo` option to
          * be set and should be loaded after the `stock/indicators/indicators.js`.
@@ -2845,7 +2701,7 @@
          */
         ChaikinIndicator.defaultOptions = merge(EMAIndicator.defaultOptions, {
             /**
-             * Paramters used in calculation of Chaikin Oscillator
+             * Parameters used in calculation of Chaikin Oscillator
              * series points.
              *
              * @excluding index
@@ -2931,22 +2787,6 @@
          * @augments Highcharts.Series
          */
         class CMOIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -2979,7 +2819,7 @@
                         sumOfLowerValues += values[j - 1] - values[j];
                     }
                 }
-                // You might devide by 0 if all values are equal,
+                // You might divide by 0 if all values are equal,
                 // so return 0 in this case.
                 y =
                     sumOfHigherValues + sumOfLowerValues > 0 ?
@@ -2998,7 +2838,7 @@
                         sumOfLowerValues += values[i - 1] - values[i];
                     }
                     // Check, to which sum was the first value added to,
-                    // and substract this value from given sum.
+                    // and subtract this value from given sum.
                     if (values[i - period] > values[i - period - 1]) {
                         sumOfHigherValues -= firstAddedSum;
                     }
@@ -3022,6 +2862,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Chande Momentum Oscilator (CMO) technical indicator. This series
          * requires the `linkedTo` option to be set and should be loaded after
@@ -3095,23 +2940,6 @@
          * @augments Highcharts.Series
          */
         class DEMAIndicator extends EMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.EMApercent = void 0;
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -3180,6 +3008,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Double exponential moving average (DEMA) indicator. This series requires
          * `linkedTo` option to be set and should be loaded after the
@@ -3254,23 +3087,6 @@
          * @augments Highcharts.Series
          */
         class TEMAIndicator extends EMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.EMApercent = void 0;
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -3372,6 +3188,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Triple exponential moving average (TEMA) indicator. This series requires
          * `linkedTo` option to be set and should be loaded after the
@@ -3446,22 +3267,6 @@
          * @augments Highcharts.Series
          */
         class TRIXIndicator extends TEMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -3479,6 +3284,11 @@
                 }
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Triple exponential average (TRIX) oscillator. This series requires
          * `linkedTo` option to be set.
@@ -3553,22 +3363,6 @@
          * @augments Highcharts.Series
          */
         class APOIndicator extends EMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -3614,6 +3408,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Absolute Price Oscillator. This series requires the `linkedTo` option to
          * be set and should be loaded after the `stock/indicators/indicators.js`.
@@ -3633,7 +3432,7 @@
          */
         APOIndicator.defaultOptions = merge(EMAIndicator.defaultOptions, {
             /**
-             * Paramters used in calculation of Absolute Price Oscillator
+             * Parameters used in calculation of Absolute Price Oscillator
              * series points.
              *
              * @excluding period
@@ -4398,22 +4197,6 @@
          * @augments Highcharts.Series
          */
         class KeltnerChannelsIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -4468,6 +4251,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Keltner Channels. This series requires the `linkedTo` option to be set
          * and should be loaded after the `stock/indicators/indicators.js`,
@@ -4623,23 +4411,6 @@
          * @augments Highcharts.Series
          */
         class KlingerIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.points = void 0;
-                this.options = void 0;
-                this.volumeSeries = void 0;
-            }
             /* *
              *
              *  Functions
@@ -4751,6 +4522,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Klinger oscillator. This series requires the `linkedTo` option to be set
          * and should be loaded after the `stock/indicators/indicators.js` file.
@@ -4767,7 +4543,7 @@
          */
         KlingerIndicator.defaultOptions = merge(SMAIndicator.defaultOptions, {
             /**
-             * Paramters used in calculation of Klinger Oscillator.
+             * Parameters used in calculation of Klinger Oscillator.
              *
              * @excluding index, period
              */
@@ -4885,19 +4661,6 @@
          * @augments Highcharts.Series
          */
         class MACDIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                this.data = void 0;
-                this.macdZones = void 0;
-                this.options = void 0;
-                this.points = void 0;
-                this.signalZones = void 0;
-            }
             /* *
              *
              *  Functions
@@ -4939,7 +4702,6 @@
                         zones: this.macdZones.zones.concat(this.options.signalLine.zones),
                         startIndex: this.macdZones.zones.length
                     };
-                    this.resetZones = true;
                 }
                 // Reset color and index #15608.
                 this.color = originalColor;
@@ -4992,39 +4754,19 @@
                     }
                 }
                 // Modify options and generate smoothing line:
-                ['macd', 'signal'].forEach(function (lineName, i) {
+                ['macd', 'signal'].forEach((lineName, i) => {
                     indicator.points = otherSignals[i];
-                    indicator.options = merge(mainLineOptions[lineName + 'Line'].styles, gappedExtend);
-                    indicator.graph = indicator['graph' + lineName];
+                    indicator.options = merge(mainLineOptions[`${lineName}Line`]?.styles || {}, gappedExtend);
+                    indicator.graph = indicator[`graph${lineName}`];
                     // Zones extension:
-                    indicator.currentLineZone = lineName + 'Zones';
-                    indicator.zones =
-                        indicator[indicator.currentLineZone].zones;
+                    indicator.zones = (indicator[`${lineName}Zones`].zones || []).slice(indicator[`${lineName}Zones`].startIndex || 0);
                     SeriesRegistry.seriesTypes.sma.prototype.drawGraph.call(indicator);
-                    indicator['graph' + lineName] = indicator.graph;
+                    indicator[`graph${lineName}`] = indicator.graph;
                 });
                 // Restore options:
                 indicator.points = mainLinePoints;
                 indicator.options = mainLineOptions;
                 indicator.zones = histogramZones;
-                indicator.currentLineZone = void 0;
-                // indicator.graph = null;
-            }
-            getZonesGraphs(props) {
-                const allZones = super.getZonesGraphs(props);
-                let currentZones = allZones;
-                if (this.currentLineZone) {
-                    currentZones = allZones.splice(this[this.currentLineZone].startIndex + 1);
-                    if (!currentZones.length) {
-                        // Line has no zones, return basic graph "zone"
-                        currentZones = [props[0]];
-                    }
-                    else {
-                        // Add back basic prop:
-                        currentZones.splice(0, 0, props[0]);
-                    }
-                }
-                return currentZones;
             }
             applyZones() {
                 // Histogram zones are handled by drawPoints method
@@ -5116,6 +4858,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Moving Average Convergence Divergence (MACD). This series requires
          * `linkedTo` option to be set and should be loaded after the
@@ -5264,7 +5011,7 @@
          *
          *  Money Flow Index indicator for Highcharts Stock
          *
-         *  (c) 2010-2021 Grzegorz Blachliński
+         *  (c) 2010-2024 Grzegorz Blachliński
          *
          *  License: www.highcharts.com/license
          *
@@ -5308,22 +5055,6 @@
          * @augments Highcharts.Series
          */
         class MFIIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -5393,6 +5124,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Money Flow Index. This series requires `linkedTo` option to be set and
          * should be loaded after the `stock/indicators/indicators.js` file.
@@ -5492,22 +5228,6 @@
          * @augments Highcharts.Series
          */
         class MomentumIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -5541,6 +5261,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Momentum. This series requires `linkedTo` option to be set.
          *
@@ -5614,25 +5339,6 @@
          * @augments Highcharts.Series
          */
         class NATRIndicator extends ATRIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /**
-                 * @lends Highcharts.Series#
-                 */
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.points = void 0;
-                this.options = void 0;
-            }
             /* *
              *
              *  Functions
@@ -5652,6 +5358,11 @@
                 return atrData;
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Normalized average true range indicator (NATR). This series requires
          * `linkedTo` option to be set and should be loaded after the
@@ -5725,22 +5436,6 @@
          * @augments Highcharts.Series
          */
         class OBVIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.points = void 0;
-                this.options = void 0;
-            }
             /* *
              *
              *  Functions
@@ -5794,6 +5489,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * On-Balance Volume (OBV) technical indicator. This series
          * requires the `linkedTo` option to be set and should be loaded after
@@ -5826,7 +5526,7 @@
                 period: void 0,
                 /**
                  * The id of another series to use its data as volume data for the
-                 * indiator calculation.
+                 * indicator calculation.
                  */
                 volumeSeriesID: 'volume'
             },
@@ -5900,17 +5600,6 @@
          *
          * */
         class PivotPointsPoint extends SMAPoint {
-            constructor() {
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                super(...arguments);
-                this.P = void 0;
-                this.pivotLine = void 0;
-                this.series = void 0;
-            }
             /* *
              *
              *  Functions
@@ -5957,24 +5646,6 @@
          * @augments Highcharts.Series
          */
         class PivotPointsIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-                this.endPoint = void 0;
-                this.plotEndPoint = void 0;
-            }
             /* *
              *
              *  Functions
@@ -6037,7 +5708,7 @@
                 let currentLabel, pointsLength, point, i;
                 if (indicator.options.dataLabels.enabled) {
                     pointsLength = indicator.points.length;
-                    // For every Ressitance/Support group we need to render labels.
+                    // For every Resistance/Support group we need to render labels.
                     // Add one more item, which will just store dataLabels from
                     // previous iteration
                     pointMapping.concat([false]).forEach((position, k) => {
@@ -6161,6 +5832,11 @@
                 return avg;
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Pivot points indicator. This series requires the `linkedTo` option to be
          * set and should be loaded after `stock/indicators/indicators.js` file.
@@ -6183,7 +5859,7 @@
                 index: void 0,
                 period: 28,
                 /**
-                 * Algorithm used to calculate ressistance and support lines based
+                 * Algorithm used to calculate resistance and support lines based
                  * on pivot points. Implemented algorithms: `'standard'`,
                  * `'fibonacci'` and `'camarilla'`
                  */
@@ -6264,22 +5940,6 @@
          * @augments Highcharts.Series
          */
         class PPOIndicator extends EMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *   Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -6327,6 +5987,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Percentage Price Oscillator. This series requires the
          * `linkedTo` option to be set and should be loaded after the
@@ -6347,7 +6012,7 @@
          */
         PPOIndicator.defaultOptions = merge(EMAIndicator.defaultOptions, {
             /**
-             * Paramters used in calculation of Percentage Price Oscillator series
+             * Parameters used in calculation of Percentage Price Oscillator series
              * points.
              *
              * @excluding period
@@ -6399,7 +6064,7 @@
     _registerModule(_modules, 'Stock/Indicators/ArrayUtilities.js', [], function () {
         /**
          *
-         *  (c) 2010-2021 Pawel Fus & Daniel Studencki
+         *  (c) 2010-2024 Pawel Fus & Daniel Studencki
          *
          *  License: www.highcharts.com/license
          *
@@ -6470,22 +6135,6 @@
          * @augments Highcharts.Series
          */
         class PCIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -6519,6 +6168,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Price channel (PC). This series requires the `linkedTo` option to be
          * set and should be loaded after the `stock/indicators/indicators.js`.
@@ -6654,22 +6308,6 @@
          * @augments Highcharts.Series
          */
         class PriceEnvelopesIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -6726,6 +6364,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Price envelopes indicator based on [SMA](#plotOptions.sma) calculations.
          * This series requires the `linkedTo` option to be set and should be loaded
@@ -6847,7 +6490,7 @@
          *
          *  Parabolic SAR indicator for Highcharts Stock
          *
-         *  (c) 2010-2021 Grzegorz Blachliński
+         *  (c) 2010-2024 Grzegorz Blachliński
          *
          *  License: www.highcharts.com/license
          *
@@ -6953,15 +6596,7 @@
                  *
                  * */
                 super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
                 this.nameComponents = void 0;
-                this.points = void 0;
-                this.options = void 0;
             }
             /* *
              *
@@ -7121,7 +6756,7 @@
     _registerModule(_modules, 'Stock/Indicators/ROC/ROCIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /* *
          *
-         *  (c) 2010-2021 Kacper Madej
+         *  (c) 2010-2024 Kacper Madej
          *
          *  License: www.highcharts.com/license
          *
@@ -7175,22 +6810,6 @@
          * @augments Highcharts.Series
          */
         class ROCIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -7223,6 +6842,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Rate of change indicator (ROC). The indicator value for each point
          * is defined as:
@@ -7326,22 +6950,6 @@
          * @augments Highcharts.Series
          */
         class RSIIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.points = void 0;
-                this.options = void 0;
-            }
             /* *
              *
              *  Functions
@@ -7418,6 +7026,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Relative strength index (RSI) technical indicator. This series
          * requires the `linkedTo` option to be set and should be loaded after
@@ -7491,22 +7104,6 @@
          * @augments Highcharts.Series
          */
         class StochasticIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -7590,6 +7187,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Stochastic oscillator. This series requires the `linkedTo` option to be
          * set and should be loaded after the `stock/indicators/indicators.js` file.
@@ -7719,22 +7321,6 @@
          * @augments Highcharts.Series
          */
         class SlowStochasticIndicator extends StochasticIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -7777,6 +7363,11 @@
                 return slowValues;
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Slow Stochastic oscillator. This series requires the `linkedTo` option
          * to be set and should be loaded after `stock/indicators/indicators.js`
@@ -7834,7 +7425,7 @@
 
         return SlowStochasticIndicator;
     });
-    _registerModule(_modules, 'Stock/Indicators/Supertrend/SupertrendIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js'], _modules['Core/Chart/StockChart.js']], function (SeriesRegistry, U, StockChart) {
+    _registerModule(_modules, 'Stock/Indicators/Supertrend/SupertrendIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /* *
          *
          *  License: www.highcharts.com/license
@@ -7875,23 +7466,6 @@
          * @augments Highcharts.Series
          */
         class SupertrendIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.linkedParent = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -7901,7 +7475,7 @@
                 const indicator = this;
                 super.init.apply(indicator, arguments);
                 // Only after series are linked add some additional logic/properties.
-                const unbinder = addEvent(StockChart, 'afterLinkSeries', () => {
+                const unbinder = addEvent(this.chart.constructor, 'afterLinkSeries', () => {
                     // Protection for a case where the indicator is being updated,
                     // for a brief moment the indicator is deleted.
                     if (indicator.options) {
@@ -7930,7 +7504,7 @@
                     }
                 }, 
                 // Sorted supertrend points array
-                groupedPoitns = {
+                groupedPoints = {
                     top: [],
                     bottom: [],
                     intersect: [] // Change trend line points
@@ -7966,7 +7540,7 @@
                 prevMainPoint, prevPrevMainPoint, 
                 // Used when particular point color is set
                 pointColor, 
-                // Temporary points that fill groupedPoitns array
+                // Temporary points that fill groupedPoints array
                 newPoint, newNextPoint, indicPointsLen = indicPoints.length;
                 // Loop which sort supertrend points
                 while (indicPointsLen--) {
@@ -8037,19 +7611,19 @@
                             nextPoint.y >= nextMainPoint.close) {
                             point.color = (pointColor || indicOptions.fallingTrendColor ||
                                 indicOptions.color);
-                            groupedPoitns.top.push(newPoint);
+                            groupedPoints.top.push(newPoint);
                         }
                         else if (point.y < mainPoint.close &&
                             nextPoint.y < nextMainPoint.close) {
                             point.color = (pointColor || indicOptions.risingTrendColor ||
                                 indicOptions.color);
-                            groupedPoitns.bottom.push(newPoint);
+                            groupedPoints.bottom.push(newPoint);
                         }
                         else {
-                            groupedPoitns.intersect.push(newPoint);
-                            groupedPoitns.intersect.push(newNextPoint);
+                            groupedPoints.intersect.push(newPoint);
+                            groupedPoints.intersect.push(newNextPoint);
                             // Additional null point to make a gap in line
-                            groupedPoitns.intersect.push(merge(newNextPoint, {
+                            groupedPoints.intersect.push(merge(newNextPoint, {
                                 isNull: true
                             }));
                             if (point.y >= mainPoint.close &&
@@ -8058,8 +7632,8 @@
                                     indicOptions.color);
                                 nextPoint.color = (pointColor || indicOptions.risingTrendColor ||
                                     indicOptions.color);
-                                groupedPoitns.top.push(newPoint);
-                                groupedPoitns.top.push(merge(newNextPoint, {
+                                groupedPoints.top.push(newPoint);
+                                groupedPoints.top.push(merge(newNextPoint, {
                                     isNull: true
                                 }));
                             }
@@ -8069,8 +7643,8 @@
                                     indicOptions.color);
                                 nextPoint.color = (pointColor || indicOptions.fallingTrendColor ||
                                     indicOptions.color);
-                                groupedPoitns.bottom.push(newPoint);
-                                groupedPoitns.bottom.push(merge(newNextPoint, {
+                                groupedPoints.bottom.push(newPoint);
+                                groupedPoints.bottom.push(merge(newNextPoint, {
                                     isNull: true
                                 }));
                             }
@@ -8080,17 +7654,17 @@
                         if (point.y >= mainPoint.close) {
                             point.color = (pointColor || indicOptions.fallingTrendColor ||
                                 indicOptions.color);
-                            groupedPoitns.top.push(newPoint);
+                            groupedPoints.top.push(newPoint);
                         }
                         else {
                             point.color = (pointColor || indicOptions.risingTrendColor ||
                                 indicOptions.color);
-                            groupedPoitns.bottom.push(newPoint);
+                            groupedPoints.bottom.push(newPoint);
                         }
                     }
                 }
                 // Generate lines:
-                objectEach(groupedPoitns, function (values, lineName) {
+                objectEach(groupedPoints, function (values, lineName) {
                     indicator.points = values;
                     indicator.options = merge(supertrendLineOptions[lineName].styles, gappedExtend);
                     indicator.graph = indicator['graph' + lineName + 'Line'];
@@ -8192,6 +7766,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Supertrend indicator. This series requires the `linkedTo` option to be
          * set and should be loaded after the `stock/indicators/indicators.js` and
@@ -8213,7 +7792,7 @@
          */
         SupertrendIndicator.defaultOptions = merge(SMAIndicator.defaultOptions, {
             /**
-             * Paramters used in calculation of Supertrend indicator series points.
+             * Parameters used in calculation of Supertrend indicator series points.
              *
              * @excluding index
              */
@@ -8354,10 +7933,10 @@
 
         return VBPPoint;
     });
-    _registerModule(_modules, 'Stock/Indicators/VBP/VBPIndicator.js', [_modules['Stock/Indicators/VBP/VBPPoint.js'], _modules['Core/Animation/AnimationUtilities.js'], _modules['Core/Globals.js'], _modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js'], _modules['Core/Chart/StockChart.js']], function (VBPPoint, A, H, SeriesRegistry, U, StockChart) {
+    _registerModule(_modules, 'Stock/Indicators/VBP/VBPIndicator.js', [_modules['Stock/Indicators/VBP/VBPPoint.js'], _modules['Core/Animation/AnimationUtilities.js'], _modules['Core/Globals.js'], _modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (VBPPoint, A, H, SeriesRegistry, U) {
         /* *
          *
-         *  (c) 2010-2021 Paweł Dalek
+         *  (c) 2010-2024 Paweł Dalek
          *
          *  Volume By Price (VBP) indicator for Highcharts Stock
          *
@@ -8417,29 +7996,6 @@
          * @augments Highcharts.Series
          */
         class VBPIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.negWidths = void 0;
-                this.options = void 0;
-                this.points = void 0;
-                this.posWidths = void 0;
-                this.priceZones = void 0;
-                this.rangeStep = void 0;
-                this.volumeDataArray = void 0;
-                this.zoneStarts = void 0;
-                this.zoneLinesSVG = void 0;
-            }
             /* *
              *
              *  Functions
@@ -8452,7 +8008,7 @@
                 delete options.data;
                 super.init.apply(indicator, arguments);
                 // Only after series are linked add some additional logic/properties.
-                const unbinder = addEvent(StockChart, 'afterLinkSeries', function () {
+                const unbinder = addEvent(this.chart.constructor, 'afterLinkSeries', function () {
                     // Protection for a case where the indicator is being updated,
                     // for a brief moment the indicator is deleted.
                     if (indicator.options) {
@@ -8666,7 +8222,7 @@
                     yData: yData
                 };
             }
-            // Specifing where each zone should start ans end
+            // Specifying where each zone should start ans end
             specifyZones(isOHLC, xValues, yValues, ranges, volumeSeries) {
                 const indicator = this, rangeExtremes = (isOHLC ? arrayExtremesOHLC(yValues) : false), zoneStarts = indicator.zoneStarts = [], priceZones = [];
                 let lowRange = rangeExtremes ?
@@ -8718,7 +8274,7 @@
                 // Checks if each point has a corresponding volume value
                 if (abs(baseSeriesLength - volumeSeriesLength)) {
                     // If the first point don't have volume, add 0 value at the
-                    // beggining of the volume array
+                    // beginning of the volume array
                     if (xValues[0] !== volumeXData[0]) {
                         volumeYData.unshift(0);
                     }
@@ -8777,7 +8333,7 @@
                 });
                 return priceZones;
             }
-            // Function responsoble for drawing additional lines indicating zones
+            // Function responsible for drawing additional lines indicating zones
             drawZones(chart, yAxis, zonesValues, zonesStyles) {
                 const indicator = this, renderer = chart.renderer, leftLinePos = 0, rightLinePos = chart.plotWidth, verticalOffset = chart.plotTop;
                 let zoneLinesSVG = indicator.zoneLinesSVG, zoneLinesPath = [], verticalLinePos;
@@ -8813,6 +8369,11 @@
                 }
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Volume By Price indicator.
          *
@@ -8957,7 +8518,7 @@
     _registerModule(_modules, 'Stock/Indicators/VWAP/VWAPIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /* *
          *
-         *  (c) 2010-2021 Paweł Dalek
+         *  (c) 2010-2024 Paweł Dalek
          *
          *  Volume Weighted Average Price (VWAP) indicator for Highcharts Stock
          *
@@ -8983,22 +8544,6 @@
          * @augments Highcharts.Series
          */
         class VWAPIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.points = void 0;
-                this.options = void 0;
-            }
             /* *
              *
              *  Functions
@@ -9085,6 +8630,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Volume Weighted Average Price indicator.
          *
@@ -9168,22 +8718,6 @@
          * @augments Highcharts.Series
          */
         class WilliamsRIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -9225,6 +8759,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Williams %R. This series requires the `linkedTo` option to be
          * set and should be loaded after the `stock/indicators/indicators.js`.
@@ -9244,7 +8783,7 @@
          */
         WilliamsRIndicator.defaultOptions = merge(SMAIndicator.defaultOptions, {
             /**
-             * Paramters used in calculation of Williams %R series points.
+             * Parameters used in calculation of Williams %R series points.
              * @excluding index
              */
             params: {
@@ -9290,7 +8829,7 @@
     _registerModule(_modules, 'Stock/Indicators/WMA/WMAIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /* *
          *
-         *  (c) 2010-2021 Kacper Madej
+         *  (c) 2010-2024 Kacper Madej
          *
          *  License: www.highcharts.com/license
          *
@@ -9348,22 +8887,6 @@
          * @augments Highcharts.Series
          */
         class WMAIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -9406,6 +8929,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Weighted moving average indicator (WMA). This series requires `linkedTo`
          * option to be set.
@@ -9456,7 +8984,7 @@
     _registerModule(_modules, 'Stock/Indicators/Zigzag/ZigzagIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /* *
          *
-         *  (c) 2010-2021 Kacper Madej
+         *  (c) 2010-2024 Kacper Madej
          *
          *  License: www.highcharts.com/license
          *
@@ -9480,22 +9008,6 @@
          * @augments Highcharts.Series
          */
         class ZigzagIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.points = void 0;
-                this.options = void 0;
-            }
             /* *
              *
              *  Functions
@@ -9507,7 +9019,7 @@
                     'high': 1 - deviation
                 }, xVal = series.xData, yVal = series.yData, yValLen = yVal ? yVal.length : 0, zigzag = [], xData = [], yData = [];
                 let i, j, zigzagPoint, directionUp, exitLoop = false, yIndex = false;
-                // Exit if not enught points or no low or high values
+                // Exit if not enough points or no low or high values
                 if (!xVal || xVal.length <= 1 ||
                     (yValLen &&
                         (typeof yVal[0][lowIndex] === 'undefined' ||
@@ -9519,7 +9031,7 @@
                 // Search for a second zigzag point candidate,
                 // this will also set first zigzag point
                 for (i = 1; i < yValLen; i++) {
-                    // requried change to go down
+                    // required change to go down
                     if (yVal[i][lowIndex] <= firstZigzagHigh * deviations.high) {
                         zigzag.push([xVal[0], firstZigzagHigh]);
                         // second zigzag point candidate
@@ -9527,7 +9039,7 @@
                         // next line will be going up
                         directionUp = true;
                         exitLoop = true;
-                        // requried change to go up
+                        // required change to go up
                     }
                     else if (yVal[i][highIndex] >= firstZigzagLow * deviations.low) {
                         zigzag.push([xVal[0], firstZigzagLow]);
@@ -9551,7 +9063,7 @@
                         if (yVal[i][lowIndex] <= zigzagPoint[1]) {
                             zigzagPoint = [xVal[i], yVal[i][lowIndex]];
                         }
-                        // requried change to go down -> new zigzagpoint and
+                        // required change to go down -> new zigzagpoint and
                         // direction change
                         if (yVal[i][highIndex] >=
                             zigzagPoint[1] * deviations.low) {
@@ -9563,7 +9075,7 @@
                         if (yVal[i][highIndex] >= zigzagPoint[1]) {
                             zigzagPoint = [xVal[i], yVal[i][highIndex]];
                         }
-                        // requried change to go down -> new zigzagpoint and
+                        // required change to go down -> new zigzagpoint and
                         // direction change
                         if (yVal[i][lowIndex] <=
                             zigzagPoint[1] * deviations.high) {
@@ -9595,6 +9107,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Zig Zag indicator.
          *
@@ -9678,7 +9195,7 @@
     _registerModule(_modules, 'Stock/Indicators/LinearRegression/LinearRegressionIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /**
          *
-         *  (c) 2010-2021 Kamil Kulig
+         *  (c) 2010-2024 Kamil Kulig
          *
          *  License: www.highcharts.com/license
          *
@@ -9702,22 +9219,6 @@
          * @augments Highcharts.Series
          */
         class LinearRegressionIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -9853,6 +9354,11 @@
                 return indicatorData;
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Linear regression indicator. This series requires `linkedTo` option to be
          * set.
@@ -9871,10 +9377,10 @@
             params: {
                 /**
                  * Unit (in milliseconds) for the x axis distances used to
-                 * compute the regression line paramters (slope & intercept) for
-                 * every range. In Highcharts Stock the x axis values are always
-                 * represented in milliseconds which may cause that distances
-                 * between points are "big" integer numbers.
+                 * compute the regression line parameters (slope & intercept)
+                 * for every range. In Highcharts Stock the x axis values are
+                 * always represented in milliseconds which may cause that
+                 * distances between points are "big" integer numbers.
                  *
                  * Highcharts Stock's linear regression algorithm (least squares
                  * method) will utilize these "big" integers for finding the
@@ -9882,10 +9388,10 @@
                  * period. In consequence, this value may be a very "small"
                  * decimal number that's hard to interpret by a human.
                  *
-                 * For instance: `xAxisUnit` equealed to `86400000` ms (1 day)
+                 * For instance: `xAxisUnit` equaled to `86400000` ms (1 day)
                  * forces the algorithm to treat `86400000` as `1` while
-                 * computing the slope and the intercept. This may enchance the
-                 * legiblitity of the indicator's values.
+                 * computing the slope and the intercept. This may enhance the
+                 * legibility of the indicator's values.
                  *
                  * Default value is the closest distance between two data
                  * points.
@@ -9956,7 +9462,7 @@
     _registerModule(_modules, 'Stock/Indicators/LinearRegressionSlopes/LinearRegressionSlopesIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /**
          *
-         *  (c) 2010-2021 Kamil Kulig
+         *  (c) 2010-2024 Kamil Kulig
          *
          *  License: www.highcharts.com/license
          *
@@ -9980,22 +9486,6 @@
          * @augments Highcharts.Series
          */
         class LinearRegressionSlopesIndicator extends LinearRegressionIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -10005,6 +9495,11 @@
                 return lineParameters.slope;
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Linear regression slope indicator. This series requires `linkedTo`
          * option to be set.
@@ -10054,7 +9549,7 @@
     _registerModule(_modules, 'Stock/Indicators/LinearRegressionIntercept/LinearRegressionInterceptIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /**
          *
-         *  (c) 2010-2021 Kamil Kulig
+         *  (c) 2010-2024 Kamil Kulig
          *
          *  License: www.highcharts.com/license
          *
@@ -10078,22 +9573,6 @@
          * @augments Highcharts.Series
          */
         class LinearRegressionInterceptIndicator extends LinearRegressionIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -10103,6 +9582,11 @@
                 return lineParameters.intercept;
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Linear regression intercept indicator. This series requires `linkedTo`
          * option to be set.
@@ -10152,7 +9636,7 @@
     _registerModule(_modules, 'Stock/Indicators/LinearRegressionAngle/LinearRegressionAngleIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /**
          *
-         *  (c) 2010-2021 Kamil Kulig
+         *  (c) 2010-2024 Kamil Kulig
          *
          *  License: www.highcharts.com/license
          *
@@ -10176,22 +9660,6 @@
          * @augments Highcharts.Series
          */
         class LinearRegressionAngleIndicator extends LinearRegressionIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -10211,6 +9679,11 @@
                 return this.slopeToAngle(lineParameters.slope);
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Linear regression angle indicator. This series requires `linkedTo`
          * option to be set.
@@ -10306,22 +9779,6 @@
          * @augments Highcharts.Series
          */
         class ABandsIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -10389,6 +9846,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Acceleration bands (ABANDS). This series requires the `linkedTo` option
          * to be set and should be loaded after the
@@ -10523,14 +9985,6 @@
                  *
                  * */
                 super(...arguments);
-                /* *
-                 *
-                 *   Properties
-                 *
-                 * */
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
                 this.updateAllPoints = true;
             }
             /* *
@@ -10539,28 +9993,35 @@
              *
              * */
             getValues(series, params) {
-                const xVal = series.xData, yVal = series.yData, LR = [], xData = [], yData = [], xValLength = xVal.length, index = params.index;
-                let sumX = (xValLength - 1) * xValLength / 2, sumY = 0, sumXY = 0, sumX2 = ((xValLength - 1) * (xValLength) * (2 * xValLength - 1)) / 6, alpha, i, y;
-                // Get sums:
-                for (i = 0; i < xValLength; i++) {
-                    y = isArray(yVal[i]) ? yVal[i][index] : yVal[i];
-                    sumY += y;
-                    sumXY += i * y;
+                const orgXVal = series.xData, yVal = series.yData, xVal = [], LR = [], xData = [], yData = [], index = params.index;
+                let numerator = 0, denominator = 0, xValSum = 0, yValSum = 0, counter = 0;
+                // Create an array of consecutive xValues, (don't remove duplicates)
+                for (let i = 0; i < orgXVal.length; i++) {
+                    if (i === 0 || orgXVal[i] !== orgXVal[i - 1]) {
+                        counter++;
+                    }
+                    xVal.push(counter);
                 }
-                // Get slope and offset:
-                alpha = (xValLength * sumXY - sumX * sumY) /
-                    (xValLength * sumX2 - sumX * sumX);
-                if (isNaN(alpha)) {
-                    alpha = 0;
+                for (let i = 0; i < xVal.length; i++) {
+                    xValSum += xVal[i];
+                    yValSum += isArray(yVal[i]) ? yVal[i][index] : yVal[i];
                 }
-                const beta = (sumY - alpha * sumX) / xValLength;
+                const meanX = xValSum / xVal.length, meanY = yValSum / yVal.length;
+                for (let i = 0; i < xVal.length; i++) {
+                    const y = isArray(yVal[i]) ? yVal[i][index] : yVal[i];
+                    numerator += (xVal[i] - meanX) * (y - meanY);
+                    denominator += Math.pow(xVal[i] - meanX, 2);
+                }
                 // Calculate linear regression:
-                for (i = 0; i < xValLength; i++) {
-                    y = alpha * i + beta;
-                    // Prepare arrays required for getValues() method
-                    LR[i] = [xVal[i], y];
-                    xData[i] = xVal[i];
-                    yData[i] = y;
+                for (let i = 0; i < xVal.length; i++) {
+                    // Check if the xVal is already used
+                    if (orgXVal[i] === xData[xData.length - 1]) {
+                        continue;
+                    }
+                    const x = orgXVal[i], y = meanY + (numerator / denominator) * (xVal[i] - meanX);
+                    LR.push([x, y]);
+                    xData.push(x);
+                    yData.push(y);
                 }
                 return {
                     xData: xData,
@@ -10602,7 +10063,7 @@
         });
         extend(TrendLineIndicator.prototype, {
             nameBase: 'Trendline',
-            nameComponents: false
+            nameComponents: void 0
         });
         SeriesRegistry.registerSeriesType('trendline', TrendLineIndicator);
         /* *
@@ -10633,7 +10094,7 @@
     });
     _registerModule(_modules, 'Stock/Indicators/DisparityIndex/DisparityIndexIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /* *
-         *  (c) 2010-2021 Rafal Sebestjanski
+         *  (c) 2010-2024 Rafal Sebestjanski
          *
          *  Disparity Index technical indicator for Highcharts Stock
          *
@@ -10659,23 +10120,6 @@
          * @augments Highcharts.Series
          */
         class DisparityIndexIndicator extends SMAIndicator {
-            constructor() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                super(...arguments);
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.averageIndicator = void 0;
-                this.data = void 0;
-                this.options = void 0;
-                this.points = void 0;
-            }
             /* *
              *
              *  Functions
@@ -10721,6 +10165,11 @@
                 };
             }
         }
+        /* *
+         *
+         *  Static Properties
+         *
+         * */
         /**
          * Disparity Index.
          * This series requires the `linkedTo` option to be set and should
@@ -10794,8 +10243,9 @@
 
         return DisparityIndexIndicator;
     });
-    _registerModule(_modules, 'masters/indicators/indicators-all.src.js', [], function () {
+    _registerModule(_modules, 'masters/indicators/indicators-all.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));
